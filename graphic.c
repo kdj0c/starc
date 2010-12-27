@@ -13,6 +13,9 @@
 #include "graphic.h"
 #include "pnglite.h"
 
+int grWidth = 100;
+int grHeight = 100;
+
 GLuint grLoadTexture(char * filename) {
 	png_t tex;
 	unsigned char* data;
@@ -88,8 +91,29 @@ void grBlit(float x,float y, float a, float b) {
     glEnd();
 }
 
+void grChangeview(float x, float y, float r) {
+	float height_u;
+	float xscr;
+	float yscr;
+
+	xscr = WIDTH_UNIT / 2.f;
+    /* coordinate tricks : we want width to be 10000 unit */
+    yscr = (WIDTH_UNIT * grHeight) /( 4.f * grWidth);
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    glOrtho (0, grWidth,0,grHeight, 0, 1);
+    glScalef(grWidth / (float) WIDTH_UNIT,grWidth / (float) WIDTH_UNIT,1.f);
+    glTranslatef(xscr,yscr,0);
+    glRotatef((-r * 180.f) / M_PI + 90.0,0,0,1);
+    glTranslatef(-x,-y,0);
+    glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity();
+}
+
 void grReshape(int width, int height) {
 	int height_u;
+	grWidth = width;
+	grHeight = height;
 	glViewport(0, 0, width, height);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();

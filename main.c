@@ -8,9 +8,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "graphic.h"
 #include "ship.h"
+
+ship_t * player;
 
 /* For testing only */
 #define NBPART 10000
@@ -35,10 +38,13 @@ void add_explosion(float x, float y, float v) {
 	texture = grLoadTexture("img/particle.png");
 
 	for (i = 0; i < NBPART; i++) {
-		float rx,ry;
-		rx = ((float) (((rand() % 1000) - 500) * (rand() % 1000 - 500) / (500.0 * 500.0)));
-		parts[i].maxlife = rand() % 1000 + 5000;
-		ry = ((float) (((rand() % 1000) - 500) * (rand() % 1000 - 500) / (500.0 * 500.0)));
+		float len,angle,rx,ry;
+
+		len = (float) ((rand() % 1000) - 500) / 500.f;
+		angle = (float) (rand() % 1000) * M_PI / 500.f;
+		rx = len * cos(angle);
+		ry = len * sin(angle);
+		parts[i].maxlife = rand() % 1000;
 		parts[i].x = x + rx * 10.0;
 		parts[i].y = y + ry * 10.0;
 		parts[i].dx = rx * v;
@@ -57,12 +63,12 @@ void update_particle(void) {
 		parts[i].life -= 1;
 		parts[i].c = (float) parts[i].life / (float) parts[i].maxlife;
 		if (parts[i].life > 0 )
-			grBlitSquare( parts[i].x,parts[i].y,10.0,parts[i].c);
+			grBlitSquare( parts[i].x,parts[i].y,100.0,parts[i].c);
 	}
 }
 
 
-void grDraw(void) {
+void grDraw(int value) {
 	static int timebase = 0;
 	static int frame = 0;
 	int time;
@@ -79,12 +85,36 @@ void grDraw(void) {
 		frame = 0;
 	}
 
-	glClear(GL_COLOR_BUFFER_BIT );
+	grChangeview(player->x,player->y,player->r);
+
+	glClear(GL_COLOR_BUFFER_BIT ); //Efface le frame buffer et le Z-buffer
     glColor4f(1.0, 1.0, 1.0, 1.0);
 	update_particle();
 	shUpdateShips(10);
 	shDrawShips();
 	glutSwapBuffers();
+}
+
+void keyup(unsigned char key, int x, int y) {
+	switch(key) {
+	case 'c':
+		player->in.acceleration = 0;
+		break;
+	case 'h':
+	case 'n':
+		player->in.direction = 0;
+		break;
+	}
+}
+void keydown(unsigned char key, int x, int y){
+	if (key == 27)
+		exit(0);
+	if (key == 'c')
+		player->in.acceleration = 1;
+	if (key == 'h')
+		player->in.direction = 1;
+	if (key == 'n')
+		player->in.direction = -1;
 }
 
 int main(int argc, char *argv[], char *envp[]) {
@@ -99,10 +129,13 @@ int main(int argc, char *argv[], char *envp[]) {
 	glutReshapeFunc(grReshape);
 	glutDisplayFunc(grDraw);
 	glutTimerFunc(10,grDraw,0);
-	add_explosion(5000.0,3000.0,1.0);
+	glutKeyboardUpFunc(keyup);
+	glutKeyboardFunc(keydown);
+	add_explosion(0,0,5.0);
 	shLoadShip();
-	shCreateShip("v2", 5000,3000,0);
-
+	//player = shCreateShip("v2", 5000,3000,0);
+	player = shCreateShip("v2", 0,0,0);
+	shCreateShip("v2",500,500,0);
 	glutMainLoop();
 	return 0;
 }
