@@ -12,11 +12,14 @@
 
 #include "graphic.h"
 #include "ship.h"
+#include "ai.h"
+#include "star.h"
 
 ship_t * player;
+ai_t * ai;
 
 /* For testing only */
-#define NBPART 10000
+#define NBPART 100
 
 typedef struct {
 	float x;
@@ -67,6 +70,9 @@ void update_particle(void) {
 	}
 }
 
+void dummy() {
+
+}
 
 void grDraw(int value) {
 	static int timebase = 0;
@@ -89,7 +95,10 @@ void grDraw(int value) {
 
 	glClear(GL_COLOR_BUFFER_BIT ); //Efface le frame buffer et le Z-buffer
     glColor4f(1.0, 1.0, 1.0, 1.0);
+    stUpdate(player->x,player->y);
+    stBlit();
 	update_particle();
+	aiThink(ai);
 	shUpdateShips(10);
 	shDrawShips();
 	glutSwapBuffers();
@@ -104,17 +113,26 @@ void keyup(unsigned char key, int x, int y) {
 	case 'n':
 		player->in.direction = 0;
 		break;
+	case ' ':
+		player->in.fire1 = 0;
 	}
 }
 void keydown(unsigned char key, int x, int y){
-	if (key == 27)
+	switch(key) {
+	case 27:
 		exit(0);
-	if (key == 'c')
+	case 'c':
 		player->in.acceleration = 1;
-	if (key == 'h')
+		break;
+	case 'h':
 		player->in.direction = 1;
-	if (key == 'n')
+		break;
+	case 'n':
 		player->in.direction = -1;
+		break;
+	case ' ':
+		player->in.fire1 = 1;
+	}
 }
 
 int main(int argc, char *argv[], char *envp[]) {
@@ -127,15 +145,18 @@ int main(int argc, char *argv[], char *envp[]) {
 	glutFullScreen();
 
 	glutReshapeFunc(grReshape);
-	glutDisplayFunc(grDraw);
-	glutTimerFunc(10,grDraw,0);
+	glutDisplayFunc(dummy);
 	glutKeyboardUpFunc(keyup);
 	glutKeyboardFunc(keydown);
 	add_explosion(0,0,5.0);
 	shLoadShip();
 	//player = shCreateShip("v2", 5000,3000,0);
-	player = shCreateShip("v2", 0,0,0);
-	shCreateShip("v2",500,500,0);
+	player = shCreateShip("v2", 0,0,0,0);
+	ai = aiCreate(shCreateShip("v1",900,900,0,1),player);
+	shCreateShip("v2", 0,900,0,0);
+	shCreateShip("v2", 900,0,0,0);
+	shCreateShip("v2", -900,0,0,0);
+	glutTimerFunc(10,grDraw,0);
 	glutMainLoop();
 	return 0;
 }

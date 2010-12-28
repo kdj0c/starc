@@ -6,8 +6,11 @@
  * published by the Free Software Foundation.
  */
 
+
 #ifndef SHIP_H_
 #define SHIP_H_
+
+#include <GL/glut.h>
 
 typedef struct {
 	float x;
@@ -47,14 +50,18 @@ typedef struct ship_s {
 	float dx;
 	float dy;
 	float health;
+	int team;
+	float drawshield;
+	float lasnrj;
 	shiptype_t * t;
 	shin_t in;
 } ship_t;
 
 void shDrawShips(void);
 void shUpdateShips(float dt);
-ship_t * shCreateShip(char *name, float x, float y, float r);
+ship_t * shCreateShip(char *name, float x, float y, float r, int team);
 void shLoadShip(void);
+ship_t * shFindNearestEnemy(ship_t * self);
 
 
 #endif /* SHIP_H_ */

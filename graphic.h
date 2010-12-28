@@ -18,6 +18,7 @@ void grSetBlend(GLuint text);
 void grBlitSquare(float x,float y, float size, float c);
 void grBlitRot(float x, float y, float r, float size);
 void grBlit(float x,float y, float a, float b);
+void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r);
 void grReshape(int width, int height);
 
