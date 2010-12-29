@@ -12,6 +12,8 @@
 
 #include <GL/glut.h>
 
+#define LASER_RANGE 5000
+
 typedef struct {
 	float x;
 	float y;

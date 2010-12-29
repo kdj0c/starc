@@ -12,6 +12,6 @@
 void paInit(void);
 void paExplosion(float x, float y, float v, int number);
 void paUpdate(float dt);
-void paBurst(float x, float y, float dx, float dy, float r);
+void paBurst(float x, float y, float dx, float dy, float r, unsigned int color);
 
 #endif /* PARTICLE_H_ */

@@ -9,12 +9,14 @@
 #ifndef AI_H_
 #define AI_H_
 
-typedef struct {
+typedef struct ai_s {
+	struct ai_s * next;
 	ship_t * ship;
 	ship_t * target;
+	int state;
 } ai_t;
 
-ai_t * aiCreate(ship_t * sh, ship_t * target);
-void aiThink(ai_t *ai);
+ai_t * aiCreate(ship_t * sh);
+void aiThink(void);
 
 #endif /* AI_H_ */

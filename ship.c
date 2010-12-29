@@ -17,20 +17,25 @@ shiptype_t shipv1 = {
 	.imgfile = "img/v1.png",
 	.size = 500,
 	.shieldfile = "img/shield.png",
-	.shieldsize = 650,
+	.shieldsize = 700,
 	.maxhealth = 800,
 	.maniability = 0.001,
 	.thrust = 0.001,
 	.numlaser = 2,
 	.laser[0].x = 100,
-	.laser[0].y = 310,
+	.laser[0].y = -65,
 	.laser[0].r = 0,
-	.laser[1].x = -100,
-	.laser[1].y = 310,
+	.laser[1].x = 100,
+	.laser[1].y = 65,
 	.laser[1].r = 0,
-	.numburst = 1,
-	.burst[0].x = -300,
-	.burst[0].y = 0,
+	.numburst = 2,
+	.burst[0].x = -180,
+	.burst[0].y = -215,
+	.burst[0].color = 0xFFFFA000,
+	.burst[1].x = -180,
+	.burst[1].y = 215,
+	.burst[1].color = 0xFFFFA000,
+
 };
 
 shiptype_t shipv2 = {
@@ -52,6 +57,7 @@ shiptype_t shipv2 = {
 	.numburst = 1,
 	.burst[0].x = -300,
 	.burst[0].y = 0,
+	.burst[0].color = 0xA0A0FF00,
 };
 
 shiptype_t * alltype[] = { &shipv1, &shipv2, NULL };
@@ -65,6 +71,14 @@ static void addShip(ship_t * sh) {
 	} else {
 		head = sh;
 		sh->next = NULL;
+	}
+}
+
+static void removeShip(ship_t * sh) {
+	ship_t * prev;
+	for (prev = head; prev != NULL; prev = prev->next) {
+		if(prev->next == sh)
+			prev->next = sh->next;
 	}
 }
 
@@ -103,8 +117,10 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team) {
 void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
-	if (sh->health <= 0 && sh->health + dg > 0)
-		paExplosion(sh->x,sh->y,8.f,5000);
+	if (sh->health <= 0 && sh->health + dg > 0) {
+		paExplosion(sh->x,sh->y,6.f,5000);
+		removeShip(sh);
+	}
 }
 
 void firelaser(ship_t * sh, laser_t * las) {
@@ -113,19 +129,19 @@ void firelaser(ship_t * sh, laser_t * las) {
 	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
 	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
 	r = sh->r + las->r;
-	len = 5000;
+	len = LASER_RANGE;
 	for (en = head; en != NULL; en = en->next) {
 		float dx, dy, tx, ty, s;
-		if (en == sh)
+		if (en == sh || en->health <= 0)
 			continue;
 		dx = en->x - x;
 		dy = en->y - y;
 		tx = dx * cos(r) + dy * sin(r);
 		ty = dx * sin(r) - dy * cos(r);
 		s = en->t->shieldsize / 2.f;
-		if (tx > 0 && tx < 5000 && ty > -s && ty < s) {
+		if (tx > 0 && tx < LASER_RANGE && ty > -s && ty < s) {
 			len = tx - sqrt(s * s - ty * ty);
-			if (len < 5000) {
+			if (len < LASER_RANGE) {
 				shDamage(en, 1.f);
 			}
 		}
@@ -170,7 +186,7 @@ void shBurst(ship_t *sh) {
 	for(i=0;i<sh->t->numburst;i++) {
 		x = sh->x + sh->t->burst[i].x * cos(sh->r) + sh->t->burst[i].y * sin(sh->r);
 		y = sh->y + sh->t->burst[i].x * sin(sh->r) - sh->t->burst[i].y * cos(sh->r);
-		paBurst(x, y, sh->dx, sh->dy, sh->r);
+		paBurst(x, y, sh->dx, sh->dy, sh->r, sh->t->burst[i].color);
 	}
 }
 
@@ -184,10 +200,12 @@ void shUpdateShips(float dt) {
 		if (sh->in.acceleration) {
 			sh->dx += sh->t->thrust * dt * cos(sh->r);
 			sh->dy += sh->t->thrust * dt * sin(sh->r);
-			shBurst(sh);
 		}
 		sh->x += sh->dx * dt;
 		sh->y += sh->dy * dt;
+		if (sh->in.acceleration)
+			shBurst(sh);
+
 		if (sh->in.fire1) {
 			for (l = 0; l < sh->t->numlaser; l++) {
 				firelaser(sh, &sh->t->laser[l]);
@@ -217,7 +235,7 @@ void shUpdateShips(float dt) {
 ship_t * shFindNearestEnemy(ship_t * self) {
 	ship_t * sh = NULL;
 	for (sh = head; sh != NULL; sh = sh->next) {
-		if (sh == self)
+		if (sh == self || sh->health <= 0)
 			continue;
 		if (sh->team != self->team)
 			return sh;
@@ -228,6 +246,8 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 void shDrawShips(void) {
 	ship_t * sh;
 	for (sh = head; sh != NULL; sh = sh->next) {
+		if(sh->health <= 0)
+			continue;
 		grSetBlend(sh->t->tex);
 		grBlitRot(sh->x, sh->y, sh->r, sh->t->size);
 		if (sh->drawshield > 0) {

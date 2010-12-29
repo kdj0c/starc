@@ -53,8 +53,13 @@ void grSetBlend(GLuint text) {
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 }
 
-void grBlitSquare(float x, float y, float size, float c) {
-	glColor4f(c, c, c, c);
+void grSetColor(unsigned int color) {
+	glColor4ub((color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
+			color & 0xFF);
+	//glColor4f(1.f,1.f,1.f,1.f);
+}
+
+void grBlitSquare(float x, float y, float size) {
 	glBegin(GL_QUADS);
 	glTexCoord2f(0., 0.);
 	glVertex2f(x - size, y);
@@ -102,17 +107,20 @@ void grDrawLine(float x1, float y1, float x2, float y2) {
 	glEnd();
 }
 
-void grChangeview(float x, float y, float r) {
+void grChangeview(float x, float y, float r, float scale) {
 	float xscr;
 	float yscr;
+	float wu;
 
-	xscr = WIDTH_UNIT / 2.f;
+	wu = WIDTH_UNIT / scale;
+
+	xscr = wu / 2.f;
 	/* coordinate tricks : we want width to be 10000 unit */
-	yscr = (WIDTH_UNIT * grHeight) / (4.f * grWidth);
+	yscr = (wu * grHeight) / (4.f * grWidth);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, grWidth, 0, grHeight, 0, 1);
-	glScalef(grWidth / (float) WIDTH_UNIT, grWidth / (float) WIDTH_UNIT, 1.f);
+	glScalef(grWidth / (float) wu, grWidth / (float) wu, 1.f);
 	glTranslatef(xscr, yscr, 0);
 	glRotatef((-r * 180.f) / M_PI + 90.0, 0, 0, 1);
 	glTranslatef(-x, -y, 0);

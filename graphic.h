@@ -15,11 +15,12 @@
 GLuint grLoadTexture(char * filename);
 void grSetBlendAdd(GLuint text);
 void grSetBlend(GLuint text);
-void grBlitSquare(float x,float y, float size, float c);
+void grSetColor(unsigned int color);
+void grBlitSquare(float x,float y, float size);
 void grBlitRot(float x, float y, float r, float size);
 void grBlit(float x,float y, float a, float b);
 void grDrawLine(float x1, float y1, float x2, float y2);
-void grChangeview(float x, float y, float r);
+void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);
 
 #endif /* GRAPHIC_H_ */

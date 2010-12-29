@@ -18,6 +18,7 @@
 
 ship_t * player;
 ai_t * ai;
+float scale = 1.f;
 
 void dummy() {
 
@@ -40,14 +41,14 @@ void grDraw(int value) {
 		frame = 0;
 	}
 
-	grChangeview(player->x,player->y,player->r);
+	grChangeview(player->x,player->y,player->r, scale);
 
 	glClear(GL_COLOR_BUFFER_BIT ); //Efface le frame buffer et le Z-buffer
     glColor4f(1.0, 1.0, 1.0, 1.0);
     stUpdate(player->x,player->y);
     stBlit();
 	paUpdate(10);
-	aiThink(ai);
+	aiThink();
 	shUpdateShips(10);
 	shDrawShips();
 	glutSwapBuffers();
@@ -81,13 +82,20 @@ void keydown(unsigned char key, int x, int y){
 		break;
 	case ' ':
 		player->in.fire1 = 1;
+		break;
+	case '-':
+		scale /= 1.3;
+		break;
+	case '+':
+		scale *= 1.3;
+		break;
 	}
 }
 
 int main(int argc, char *argv[], char *envp[]) {
 	int WindowName;
 
-    srand (1983);
+	srand(1983);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	WindowName = glutCreateWindow("test particle");
@@ -101,13 +109,14 @@ int main(int argc, char *argv[], char *envp[]) {
 	shLoadShip();
 	paInit();
 	//player = shCreateShip("v2", 5000,3000,0);
-	player = shCreateShip("v2", 0,0,0,0);
-	ai = aiCreate(shCreateShip("v1",900,900,0,1),player);
-	shCreateShip("v2", 0,900,0,0);
-	shCreateShip("v2", 900,0,0,0);
-	shCreateShip("v2", -900,0,0,0);
-	paExplosion(0,0,5.f,300);
-	glutTimerFunc(10,grDraw,0);
+	player = shCreateShip("v1", 0, 0, 0, 0);
+	aiCreate(shCreateShip("v1", 10000, 0, 0, 1));
+	aiCreate(shCreateShip("v1", 10000, 900, 0, 1));
+	aiCreate(shCreateShip("v2", 0, 900, 0, 0));
+	aiCreate(shCreateShip("v2", 0, -900, 0, 0));
+	//	ai = aiCreate(shCreateShip("v1",900,900,0,1),NULL);
+	paExplosion(0, 0, 5.f, 300);
+	glutTimerFunc(10, grDraw, 0);
 	glutMainLoop();
 	return 0;
 }
