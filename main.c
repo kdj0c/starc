@@ -14,61 +14,10 @@
 #include "ship.h"
 #include "ai.h"
 #include "star.h"
+#include "particle.h"
 
 ship_t * player;
 ai_t * ai;
-
-/* For testing only */
-#define NBPART 100
-
-typedef struct {
-	float x;
-	float y;
-	float dx;
-	float dy;
-	int texture;
-	float c;
-	int maxlife;
-	int life;
-} particle_t;
-
-particle_t parts[NBPART];
-
-void add_explosion(float x, float y, float v) {
-	int i;
-	GLuint texture;
-
-	texture = grLoadTexture("img/particle.png");
-
-	for (i = 0; i < NBPART; i++) {
-		float len,angle,rx,ry;
-
-		len = (float) ((rand() % 1000) - 500) / 500.f;
-		angle = (float) (rand() % 1000) * M_PI / 500.f;
-		rx = len * cos(angle);
-		ry = len * sin(angle);
-		parts[i].maxlife = rand() % 1000;
-		parts[i].x = x + rx * 10.0;
-		parts[i].y = y + ry * 10.0;
-		parts[i].dx = rx * v;
-		parts[i].dy = ry * v;
-		parts[i].life = parts[i].maxlife;
-		parts[i].texture = texture;
-	}
-}
-
-void update_particle(void) {
-	int i;
-	grSetBlendAdd(parts[0].texture);
-	for (i = 0; i < NBPART; i++) {
-		parts[i].x += parts[i].dx;
-		parts[i].y += parts[i].dy;
-		parts[i].life -= 1;
-		parts[i].c = (float) parts[i].life / (float) parts[i].maxlife;
-		if (parts[i].life > 0 )
-			grBlitSquare( parts[i].x,parts[i].y,100.0,parts[i].c);
-	}
-}
 
 void dummy() {
 
@@ -97,7 +46,7 @@ void grDraw(int value) {
     glColor4f(1.0, 1.0, 1.0, 1.0);
     stUpdate(player->x,player->y);
     stBlit();
-	update_particle();
+	paUpdate(10);
 	aiThink(ai);
 	shUpdateShips(10);
 	shDrawShips();
@@ -148,14 +97,16 @@ int main(int argc, char *argv[], char *envp[]) {
 	glutDisplayFunc(dummy);
 	glutKeyboardUpFunc(keyup);
 	glutKeyboardFunc(keydown);
-	add_explosion(0,0,5.0);
+	glutSetCursor(GLUT_CURSOR_NONE);
 	shLoadShip();
+	paInit();
 	//player = shCreateShip("v2", 5000,3000,0);
 	player = shCreateShip("v2", 0,0,0,0);
 	ai = aiCreate(shCreateShip("v1",900,900,0,1),player);
 	shCreateShip("v2", 0,900,0,0);
 	shCreateShip("v2", 900,0,0,0);
 	shCreateShip("v2", -900,0,0,0);
+	paExplosion(0,0,5.f,300);
 	glutTimerFunc(10,grDraw,0);
 	glutMainLoop();
 	return 0;

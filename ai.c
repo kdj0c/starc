@@ -14,7 +14,6 @@ ai_t * aiCreate(ship_t * sh, ship_t * target) {
 	ai_t * newai;
 
 	newai = malloc(sizeof(ai_t));
-
 	newai->ship = sh;
 	newai->target = target;
 	return newai;
@@ -38,4 +37,6 @@ void aiThink(ai_t *ai) {
 		sh->in.direction = 1;
 	else
 		sh->in.direction = -1;
+
+
 }

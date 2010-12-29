@@ -20,6 +20,12 @@ typedef struct {
 } laser_t;
 
 typedef struct {
+	float x;
+	float y;
+	unsigned int color;
+} burst_t;
+
+typedef struct {
 	char name[16];
 	char imgfile[32];
 	GLuint tex;
@@ -32,6 +38,8 @@ typedef struct {
 	float thrust;
 	int numlaser;
 	laser_t laser[5];
+	int numburst;
+	burst_t burst[5];
 } shiptype_t;
 
 typedef struct {
