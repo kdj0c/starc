@@ -56,8 +56,11 @@ void grSetBlend(GLuint text) {
 void grSetColor(unsigned int color) {
 	glColor4ub((color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
 			color & 0xFF);
-	//glColor4f(1.f,1.f,1.f,1.f);
 }
+void grSetShadow(float c) {
+	glColor4f(1.,1.,1.,c);
+}
+
 
 void grBlitSquare(float x, float y, float size) {
 	glBegin(GL_QUADS);

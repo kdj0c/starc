@@ -17,7 +17,10 @@ typedef struct {
 	float c;
 } star_t;
 
+//table dimension (20x20)
 #define MAXST 20
+//size of a square
+#define SQSIZE (2*WIDTH_UNIT / MAXST)
 #define random1 ((float) (rand() % 1000)  / 500.f)
 
 star_t star[MAXST][MAXST];
@@ -49,8 +52,8 @@ void stUpdate(float x, float y) {
 		return;
 	}
 
-	ncx = (x - 10000) / 1000;
-	ncy = (y - 10000) / 1000;
+	ncx = (x - WIDTH_UNIT) / SQSIZE;
+	ncy = (y - WIDTH_UNIT) / SQSIZE;
 	dx = ncx - curx;
 	dy = ncy - cury;
 
@@ -99,9 +102,10 @@ void stBlit(void) {
 	grSetBlend(tex);
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
-			x = (curx + cx + star[cx][cy].x) * 1000;
-			y = (cury + cy + star[cx][cy].y) * 1000;
-			grBlitSquare(x, y, star[cx][cy].size, star[cx][cy].c);
+			x = (curx + cx + star[cx][cy].x) * SQSIZE;
+			y = (cury + cy + star[cx][cy].y) * SQSIZE;
+			grSetShadow(star[cx][cy].c);
+			grBlitSquare(x, y, star[cx][cy].size);
 		}
 	}
 }
