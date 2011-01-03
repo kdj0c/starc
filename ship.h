@@ -10,8 +10,6 @@
 #ifndef SHIP_H_
 #define SHIP_H_
 
-#include <GL/glut.h>
-
 #define LASER_RANGE 5000
 
 typedef struct {
@@ -30,10 +28,10 @@ typedef struct {
 typedef struct {
 	char name[16];
 	char imgfile[32];
-	GLuint tex;
+	unsigned int tex;
 	float size;
 	char shieldfile[32];
-	GLuint shieldtex;
+	unsigned int shieldtex;
 	float shieldsize;
 	float maxhealth;
 	float maniability;

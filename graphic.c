@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <GL/glut.h>
 
 #include "graphic.h"
 #include "pnglite.h"
@@ -16,10 +17,10 @@
 int grWidth = 100;
 int grHeight = 100;
 
-GLuint grLoadTexture(char * filename) {
+unsigned int grLoadTexture(char * filename) {
 	png_t tex;
 	unsigned char* data;
-	GLuint textureHandle;
+	unsigned int textureHandle;
 
 	png_init(0, 0);
 	png_open_file_read(&tex, filename);
@@ -40,13 +41,13 @@ GLuint grLoadTexture(char * filename) {
 	return textureHandle;
 }
 
-void grSetBlendAdd(GLuint text) {
+void grSetBlendAdd(unsigned int text) {
 	glBindTexture(GL_TEXTURE_2D, text);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-void grSetBlend(GLuint text) {
+void grSetBlend(unsigned int text) {
 	glBindTexture(GL_TEXTURE_2D, text);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

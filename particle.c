@@ -26,7 +26,7 @@ typedef struct {
 } particle_t;
 
 static particle_t * parts;
-static GLuint texture;
+static unsigned int texture;
 static int freePart = 0;
 
 void paInit(void) {

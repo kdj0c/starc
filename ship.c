@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 #include "graphic.h"
 #include "ship.h"
 #include "particle.h"

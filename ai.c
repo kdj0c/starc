@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
 #include "ship.h"
 #include "ai.h"
 

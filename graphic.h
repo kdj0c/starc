@@ -8,13 +8,12 @@
 
 #ifndef GRAPHIC_H_
 #define GRAPHIC_H_
-#include <GL/glut.h>
 
 #define WIDTH_UNIT 20000
 
-GLuint grLoadTexture(char * filename);
-void grSetBlendAdd(GLuint text);
-void grSetBlend(GLuint text);
+unsigned int grLoadTexture(char * filename);
+void grSetBlendAdd(unsigned int text);
+void grSetBlend(unsigned int text);
 void grSetColor(unsigned int color);
 void grSetShadow(float c);
 void grBlitSquare(float x,float y, float size);
