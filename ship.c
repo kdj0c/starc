@@ -26,9 +26,11 @@ shiptype_t shipv1 = {
 	.laser[0].x = 100,
 	.laser[0].y = -65,
 	.laser[0].r = 0,
+	.laser[0].color = 0xFFFFA000,
 	.laser[1].x = 100,
 	.laser[1].y = 65,
 	.laser[1].r = 0,
+	.laser[1].color = 0xFFFFA000,
 	.numburst = 2,
 	.burst[0].x = -180,
 	.burst[0].y = -215,
@@ -52,9 +54,11 @@ shiptype_t shipv2 = {
 	.laser[0].x = 0,
 	.laser[0].y = 300,
 	.laser[0].r = 0,
+	.laser[0].color = 0xFF202000,
 	.laser[1].x = 0,
 	.laser[1].y = -300,
 	.laser[1].r = 0,
+	.laser[1].color = 0xFF101000,
 	.numburst = 1,
 	.burst[0].x = -300,
 	.burst[0].y = 0,
@@ -125,12 +129,13 @@ void shDamage(ship_t * sh, float dg) {
 }
 
 void firelaser(ship_t * sh, laser_t * las) {
-	float x, y, r, len;
+	float x, y, r, len, min;
 	ship_t * en;
+	ship_t * tc = NULL;
 	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
 	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
 	r = sh->r + las->r;
-	len = LASER_RANGE;
+	min = LASER_RANGE;
 	for (en = head; en != NULL; en = en->next) {
 		float dx, dy, tx, ty, s;
 		if (en == sh || en->health <= 0)
@@ -142,12 +147,18 @@ void firelaser(ship_t * sh, laser_t * las) {
 		s = en->t->shieldsize / 2.f;
 		if (tx > 0 && tx < LASER_RANGE && ty > -s && ty < s) {
 			len = tx - sqrt(s * s - ty * ty);
-			if (len < LASER_RANGE) {
-				shDamage(en, 1.f);
+			if (len < min) {
+				min = len;
+				tc = en;
 			}
 		}
 	}
-	grDrawLine(x, y, x + len * cos(r), y + len * sin(r));
+	if(tc) {
+		shDamage(tc,1.);
+		paLaser(x + min * cos(r), y + min * sin(r),tc->dx,tc->dy,las->color);
+	}
+	grSetColor(las->color);
+	grDrawLine(x, y, x + min * cos(r), y + min * sin(r));
 }
 
 /*

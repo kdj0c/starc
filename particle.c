@@ -75,6 +75,22 @@ void paBurst(float x, float y, float dx, float dy, float r, unsigned int color) 
 		freePart = 0;
 }
 
+void paLaser(float x, float y, float dx, float dy, unsigned int color) {
+	int i;
+	i = freePart;
+	parts[i].maxlife = rand() % 500 + 50;
+	parts[i].x = x;
+	parts[i].y = y;
+	parts[i].dx = dx;
+	parts[i].dy = dy;
+	parts[i].life = parts[i].maxlife;
+	parts[i].size = rand() % 100 + 50;
+	parts[i].color = color;
+	freePart++;
+	if (freePart >= NBPART)
+		freePart = 0;
+}
+
 void paUpdate(float dt) {
 	int i;
 	grSetBlendAdd(texture);

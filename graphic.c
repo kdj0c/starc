@@ -101,10 +101,8 @@ void grBlit(float x, float y, float a, float b) {
 	glEnd();
 }
 void grDrawLine(float x1, float y1, float x2, float y2) {
-	//glColor3f(color[0], color[1], color[2]);
 	glDisable(GL_BLEND);
 	glLineWidth(1.f);
-	glColor4f(1.0, 0.0, 0.0, 1.0);
 	glBegin(GL_LINES);
 	glVertex2f(x1, y1);
 	glVertex2f(x2, y2);
