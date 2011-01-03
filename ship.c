@@ -233,14 +233,26 @@ void shUpdateShips(float dt) {
 }
 
 ship_t * shFindNearestEnemy(ship_t * self) {
-	ship_t * sh = NULL;
+	ship_t * sh;
+	float min_d;
+	float dx,dy,d;
+	ship_t * nr = NULL;
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh == self || sh->health <= 0)
 			continue;
-		if (sh->team != self->team)
-			return sh;
+		if (sh->team == self->team)
+			continue;
+		dx = self->x - sh->x;
+		dy = self->y - self->y;
+		d = dx * dx + dy * dy;
+
+		if (nr && d > min_d)
+			continue;
+
+		nr = sh;
+		min_d = d;
 	}
-	return NULL;
+	return nr;
 }
 
 void shDrawShips(void) {

@@ -43,7 +43,7 @@ void grDraw(int value) {
 
 	grChangeview(player->x,player->y,player->r, scale);
 
-	glClear(GL_COLOR_BUFFER_BIT ); //Efface le frame buffer et le Z-buffer
+	glClear(GL_COLOR_BUFFER_BIT ); //Efface le frame buffer
     glColor4f(1.0, 1.0, 1.0, 1.0);
     stUpdate(player->x,player->y);
     stBlit();
@@ -67,6 +67,7 @@ void keyup(unsigned char key, int x, int y) {
 		player->in.fire1 = 0;
 	}
 }
+
 void keydown(unsigned char key, int x, int y){
 	switch(key) {
 	case 27:
@@ -109,11 +110,14 @@ int main(int argc, char *argv[], char *envp[]) {
 	shLoadShip();
 	paInit();
 	//player = shCreateShip("v2", 5000,3000,0);
-	player = shCreateShip("v1", 0, 0, 0, 0);
-	aiCreate(shCreateShip("v1", 10000, 0, 0, 1));
-	aiCreate(shCreateShip("v1", 10000, 900, 0, 1));
+	player = shCreateShip("v2", 0, 0, 0, 0);
+	aiCreate(shCreateShip("v1", 10000, 0, -1, 1));
+	aiCreate(shCreateShip("v1", 10000, 900, -1, 1));
 	aiCreate(shCreateShip("v2", 0, 900, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -900, 0, 0));
+	aiCreate(shCreateShip("v1", -10000, -900, 0, 1));
+	aiCreate(shCreateShip("v1", -10000, -1800, 0, 1));
+	aiCreate(shCreateShip("v2", 0, 50000, 0, 0));
 	//	ai = aiCreate(shCreateShip("v1",900,900,0,1),NULL);
 	paExplosion(0, 0, 5.f, 300);
 	glutTimerFunc(10, grDraw, 0);
