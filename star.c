@@ -23,10 +23,10 @@ typedef struct {
 #define SQSIZE (2*WIDTH_UNIT / MAXST)
 #define random1 ((float) (rand() % 1000)  / 500.f)
 
-star_t star[MAXST][MAXST];
-int curx = 0;
-int cury = 0;
-unsigned int tex = 0;
+static star_t star[MAXST][MAXST];
+static int curx = 0;
+static int cury = 0;
+static unsigned int tex = 0;
 
 static void newrandstar(int cx, int cy) {
 	star[cx][cy].x = random1;
@@ -68,7 +68,7 @@ void stUpdate(float x, float y) {
 		}
 	} else if (dx < 0) {
 		for (cy = 0; cy < MAXST; cy++) {
-			for (cx = MAXST; cx >= -dx; cx--) {
+			for (cx = MAXST - 1; cx >= -dx; cx--) {
 				star[cx][cy] = star[cx + dx][cy];
 			}
 			for (cx = 0; cx < -dx; cx++)
@@ -85,7 +85,7 @@ void stUpdate(float x, float y) {
 		}
 	} else if (dy < 0) {
 		for (cx = 0; cx < MAXST; cx++) {
-			for (cy = MAXST; cy >= -dy; cy--) {
+			for (cy = MAXST - 1; cy >= -dy; cy--) {
 				star[cx][cy] = star[cx][cy + dy];
 			}
 			for (cy = 0; cy < -dy; cy++)
