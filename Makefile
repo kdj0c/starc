@@ -13,23 +13,27 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-OBJS=main.o pnglite.o graphic.o ship.o ai.o star.o particle.o
+OBJS=main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o
 
 # All Target
-all: starc
+all: starc server
 
 # Tool invocations
 starc: $(OBJS)
-	gcc -Wall -lglut -lGLU -lz -o"starc" $(OBJS) 
+	gcc -Wall -lglut -lGLU -lz -L. -lgrapple -o"starc" $(OBJS)
 	@echo ' '
+
+server: server.o
+	gcc -Wall -L. -lgrapple -o"starc_server" server.o
 	
 %.o: %.c
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -c -o"$@" "$<"
+	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -c -o"$@" "$<"
 
 # Other Targets
 clean:
 	-$(RM) $(OBJS) 
+	-$(RM) server.o starc_server
 	-$(RM) starc
 	-@echo ' '
 

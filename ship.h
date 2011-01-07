@@ -50,24 +50,51 @@ typedef struct {
 	char fire2;
 } shin_t;
 
-typedef struct ship_s {
-	struct ship_s * next;
-	float x;
-	float y;
-	float r;
-	float dx;
-	float dy;
-	float health;
-	int team;
-	float drawshield;
-	float lasnrj;
-	shiptype_t * t;
+/*
+ * core component of ship type
+ */
+#define ship_core		\
+	float x;			\
+	float y;			\
+	float r;			\
+	float dx;			\
+	float dy;			\
+	float health;		\
+	int team;			\
+	float drawshield;	\
+	float lasnrj;		\
 	shin_t in;
+
+/*
+ * only core, data synchronized by network
+ */
+typedef struct {
+	ship_core
+} shipcore_t;
+
+/*
+ * append name at the end for network init
+ */
+typedef struct {
+	ship_core
+	char typename[16];
+} shipcorename_t;
+
+/*
+ * local structure
+ */
+typedef struct ship_s {
+	ship_core
+	struct ship_s * next;
+	shiptype_t * t;
+	int netid;
 } ship_t;
 
 void shDrawShips(void);
 void shUpdateShips(float dt);
 ship_t * shCreateShip(char *name, float x, float y, float r, int team);
+ship_t * shCreateRemoteShip(shipcorename_t * shn, int netid);
+void shSync(shipcore_t * shc, int netid);
 void shLoadShip(void);
 ship_t * shFindNearestEnemy(ship_t * self);
 

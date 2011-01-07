@@ -65,7 +65,7 @@ shiptype_t shipv2 = {
 	.burst[0].color = 0xA0A0FF00,
 };
 
-shiptype_t * alltype[] = { &shipv1, &shipv2, NULL };
+static shiptype_t * alltype[] = { &shipv1, &shipv2, NULL };
 
 static ship_t * head = NULL;
 
@@ -115,8 +115,34 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team) {
 	newship->r = r;
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
+	newship->netid = -1;
 	addShip(newship);
 	return newship;
+}
+
+ship_t * shCreateRemoteShip(shipcorename_t * shn, int netid) {
+	ship_t * newship;
+	int i;
+
+	newship = malloc(sizeof(ship_t));
+	memset(newship, 0, sizeof(ship_t));
+	for (i = 0; i < 2; i++) {
+		if (!strcmp(shn->typename, alltype[i]->name))
+			newship->t = alltype[i];
+	}
+	memcpy(newship, shn, sizeof(shipcore_t));
+	newship->netid = netid;
+	addShip(newship);
+	return newship;
+}
+
+void shSync(shipcore_t * shc, int netid) {
+	ship_t * sh;
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->netid == netid) {
+			memcpy(sh, shc, sizeof(*shc));
+		}
+	}
 }
 
 void shDamage(ship_t * sh, float dg) {
