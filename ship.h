@@ -94,6 +94,8 @@ void shDrawShips(void);
 void shLoadShip(void);
 #endif
 void shUpdateShips(float dt);
+void shDetectCollision(void);
+void shUpdateRespawn(float dt);
 ship_t * shCreateShip(char *name, float x, float y, float r, int team, int netid);
 ship_t * shCreateRemoteShip(shipcorename_t * shn);
 void shSync(shipcore_t * shc, int local);
@@ -102,5 +104,6 @@ int shSerialize(shipcore_t * data);
 int shSerializeOnce(shipcorename_t * data);
 void shSetInput(shin_t * in, int netid);
 void shDisconnect(int clid);
+
 
 #endif /* SHIP_H_ */

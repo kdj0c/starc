@@ -168,6 +168,8 @@ void shSync(shipcore_t * shc, int local) {
 		size -= sizeof(shin_t);
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shc->netid) {
+			if(sh->health > 0 && shc->health <= 0)
+				paExplosion(shc->x, shc->y, 6.f, 5000);
 			memcpy(sh, shc, size);
 			return;
 		}
@@ -202,6 +204,8 @@ void shDamage(ship_t * sh, float dg) {
 	if (sh->health <= 0 && sh->health + dg > 0) {
 		paExplosion(sh->x, sh->y, 6.f, 5000);
 	}
+	if(sh->health < 0)
+		sh->health = 0;
 }
 
 void firelaser(ship_t * sh, laser_t * las) {
@@ -252,6 +256,8 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 	m1 = sh->t->size;
 	m2 = en->t->size;
 	k = 2 * (dx * (sh->dx - en->dx) + dy * (sh->dy - en->dy));
+	if(k == 0.)
+		return;
 	k /= (dx * dx + dy * dy);
 	k *= m1 * m2 / (m1 + m2);
 	sh->dx -= k * dx / m1;
@@ -262,10 +268,10 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 	shDamage(sh, 100);
 	shDamage(en, 100);
 	/* be sure ships are far enough before next collision test */
-	sh->x += sh->dx * 30;
+/*	sh->x += sh->dx * 30;
 	sh->y += sh->dy * 30;
 	en->x += en->dx * 30;
-	en->y += en->dy * 30;
+	en->y += en->dy * 30;*/
 }
 
 void shBurst(ship_t *sh) {
@@ -281,6 +287,14 @@ void shBurst(ship_t *sh) {
 void shUpdateShips(float dt) {
 	ship_t * sh;
 	int l;
+
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->health <= 0)
+			continue;
+		if (sh->drawshield > 0)
+			sh->drawshield -= dt;
+	}
+
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->health <= 0)
 			continue;
@@ -302,7 +316,10 @@ void shUpdateShips(float dt) {
 			}
 		}
 	}
-	/* Temporary deactivate collision
+}
+
+void shDetectCollision(void) {
+	ship_t * sh;
 	for (sh = head; sh != NULL; sh = sh->next) {
 		ship_t * en;
 		float dx, dy, s;
@@ -317,13 +334,25 @@ void shUpdateShips(float dt) {
 				shCollide(sh, en, dx, dy);
 			}
 		}
-	}*/
+	}
+}
+
+void shUpdateRespawn(float dt) {
+	ship_t * sh;
 
 	for (sh = head; sh != NULL; sh = sh->next) {
-		if (sh->health <= 0)
+		if (sh->health > 0)
 			continue;
-		if (sh->drawshield > 0)
-			sh->drawshield -= dt;
+		sh->health -= dt;
+		if (sh->health < -5000.) {
+			sh->health = sh->t->maxhealth;
+			sh->x = (rand() % 10000 - 5000) * 10.;
+			sh->y = (rand() % 10000 - 5000) * 10.;
+			sh->r = (rand() % 360 - 180) * M_PI / 180.;
+			sh->dx = 0;
+			sh->dy = 0;
+			sh->drawshield = 0;
+		}
 	}
 }
 
@@ -385,7 +414,6 @@ int shSerializeOnce(shipcorename_t * data) {
 	}
 	return size;
 }
-
 
 #ifndef DEDICATED
 void shDrawShips(void) {

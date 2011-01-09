@@ -79,7 +79,7 @@ void ntHandleUserMessage(void * data, int size, grapple_user id) {
 	case ntShips:
 		shn = p->NT_SPAWN.ship;
 		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcorename_t)) {
-			printf("create remote ship %d size\n", size);
+			printf("create remote ship %d size %d\n",shn->netid, size);
 			shCreateRemoteShip(shn);
 			shn++;
 		}

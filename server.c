@@ -91,7 +91,10 @@ void loop() {
 
 	aiThink();
 	shUpdateShips(50);
+	shUpdateRespawn(50);
+	shDetectCollision();
 	size = shSerialize(datas->NT_UPDATE.ships);
+	size += sizeof(ntmsg_t);
 	datas->type = ntUpdate;
 	grapple_server_send(server, GRAPPLE_EVERYONE, 0, datas, size);
 }

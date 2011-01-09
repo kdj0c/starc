@@ -56,6 +56,14 @@ void stUpdate(float x, float y) {
 	ncy = (y - WIDTH_UNIT) / SQSIZE;
 	dx = ncx - curx;
 	dy = ncy - cury;
+	if(dx >= MAXST || dx <= -MAXST || dy >= MAXST || dy <= -MAXST) {
+		for (cx = 0; cx < MAXST; cx++) {
+			for (cy = 0; cy < MAXST; cy++) {
+				newrandstar(cx, cy);
+			}
+		}
+		return;
+	}
 
 	if (dx > 0) {
 		for (cy = 0; cy < MAXST; cy++) {
