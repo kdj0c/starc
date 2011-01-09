@@ -52,7 +52,6 @@ void grDraw(int value) {
 	paUpdate(10);
 	aiThink();
 	shUpdateShips(10);
-	ntSendShip(player);
 	ntHandleMessage();
 	shDrawShips();
 	glutSwapBuffers();
@@ -70,6 +69,7 @@ void keyup(unsigned char key, int x, int y) {
 	case ' ':
 		player->in.fire1 = 0;
 	}
+	ntSendInput(player);
 }
 
 void keydown(unsigned char key, int x, int y){
@@ -95,6 +95,7 @@ void keydown(unsigned char key, int x, int y){
 		scale *= 1.3;
 		break;
 	}
+	ntSendInput(player);
 }
 
 int main(int argc, char *argv[], char *envp[]) {
@@ -110,11 +111,14 @@ int main(int argc, char *argv[], char *envp[]) {
 		ntInit();
 	glutReshapeFunc(grReshape);
 	glutDisplayFunc(dummy);
+	glutIgnoreKeyRepeat(1);
 	glutKeyboardUpFunc(keyup);
 	glutKeyboardFunc(keydown);
 	glutSetCursor(GLUT_CURSOR_NONE);
+	glutReshapeWindow(800,600);
 	shLoadShip();
 	paInit();
+	ntHandleMessage();
 	player = ntCreateLocalPlayer("v2");
 /*	aiCreate(shCreateShip("v1", 10000, 0, -1, 1));
 	aiCreate(shCreateShip("v1", 10000, 900, -1, 1));

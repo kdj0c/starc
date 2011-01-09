@@ -9,6 +9,9 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <stdio.h>
+
 #include "graphic.h"
 #include "ship.h"
 #include "particle.h"
@@ -38,7 +41,6 @@ shiptype_t shipv1 = {
 	.burst[1].x = -180,
 	.burst[1].y = 215,
 	.burst[1].color = 0xFFFFA000,
-
 };
 
 shiptype_t shipv2 = {
@@ -81,12 +83,17 @@ static void addShip(ship_t * sh) {
 
 static void removeShip(ship_t * sh) {
 	ship_t * prev;
+	if(head == sh) {
+		head = sh->next;
+		return;
+	}
 	for (prev = head; prev != NULL; prev = prev->next) {
-		if(prev->next == sh)
+		if(prev->next == sh) {
 			prev->next = sh->next;
+		}
 	}
 }
-
+#ifndef DEDICATED
 void shLoadShip(void) {
 	shiptype_t * sht;
 	int i;
@@ -97,8 +104,9 @@ void shLoadShip(void) {
 		sht->shieldtex = grLoadTexture(sht->shieldfile);
 	}
 }
+#endif
 
-ship_t * shCreateShip(char * name, float x, float y, float r, int team) {
+ship_t * shCreateShip(char * name, float x, float y, float r, int team, int netid) {
 	shiptype_t * sht;
 	ship_t * newship;
 	int i;
@@ -115,14 +123,23 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team) {
 	newship->r = r;
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
-	newship->netid = -1;
+	newship->netid = netid;
 	addShip(newship);
 	return newship;
 }
 
-ship_t * shCreateRemoteShip(shipcorename_t * shn, int netid) {
+ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	ship_t * newship;
+	ship_t * sh;
 	int i;
+
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->netid == shn->netid) {
+			/* we have already this ship no need to create a new one !*/
+			shSync((shipcore_t *) shn, 0);
+			return sh;
+		}
+	}
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
@@ -130,17 +147,51 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn, int netid) {
 		if (!strcmp(shn->typename, alltype[i]->name))
 			newship->t = alltype[i];
 	}
+	if(!newship->t) {
+		printf("can't create ship of type '%s'\n", shn->typename);
+		free(newship);
+		return NULL;
+	}
 	memcpy(newship, shn, sizeof(shipcore_t));
-	newship->netid = netid;
 	addShip(newship);
 	return newship;
 }
 
-void shSync(shipcore_t * shc, int netid) {
+/*
+ * Synchronize local ship with server
+ * don't overwrite inputs if it is a local ship
+ */
+void shSync(shipcore_t * shc, int local) {
+	ship_t * sh;
+	int size = sizeof(*shc);
+	if (local)
+		size -= sizeof(shin_t);
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->netid == shc->netid) {
+			memcpy(sh, shc, size);
+			return;
+		}
+	}
+}
+
+void shSetInput(shin_t * in, int netid) {
 	ship_t * sh;
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == netid) {
-			memcpy(sh, shc, sizeof(*shc));
+			memcpy(&sh->in, in, sizeof(shin_t));
+			return;
+		}
+	}
+}
+/*
+ * TODO Need to fix this wrong algo
+ */
+void shDisconnect(int clid) {
+	ship_t * sh;
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if(sh->netid >> 8 == clid) {
+			printf("Disconnect ship %d\n", sh->netid);
+			removeShip(sh);
 		}
 	}
 }
@@ -149,8 +200,7 @@ void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->x,sh->y,6.f,5000);
-		removeShip(sh);
+		paExplosion(sh->x, sh->y, 6.f, 5000);
 	}
 }
 
@@ -171,7 +221,7 @@ void firelaser(ship_t * sh, laser_t * las) {
 		tx = dx * cos(r) + dy * sin(r);
 		ty = dx * sin(r) - dy * cos(r);
 		s = en->t->shieldsize / 2.f;
-		if (tx > 0 && tx < LASER_RANGE && ty > -s && ty < s) {
+		if (tx > 0 && tx < LASER_RANGE + s && ty > -s && ty < s) {
 			len = tx - sqrt(s * s - ty * ty);
 			if (len < min) {
 				min = len;
@@ -232,6 +282,8 @@ void shUpdateShips(float dt) {
 	ship_t * sh;
 	int l;
 	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->health <= 0)
+			continue;
 		if (sh->in.direction) {
 			sh->r += sh->in.direction * dt * sh->t->maniability;
 		}
@@ -250,10 +302,13 @@ void shUpdateShips(float dt) {
 			}
 		}
 	}
+	/* Temporary deactivate collision
 	for (sh = head; sh != NULL; sh = sh->next) {
 		ship_t * en;
 		float dx, dy, s;
 		for (en = sh->next; en != NULL; en = en->next) {
+			if (sh->health <= 0)
+				continue;
 			dx = en->x - sh->x;
 			dy = en->y - sh->y;
 			s = (en->t->shieldsize + sh->t->shieldsize) / 2.f;
@@ -262,9 +317,11 @@ void shUpdateShips(float dt) {
 				shCollide(sh, en, dx, dy);
 			}
 		}
-	}
+	}*/
 
 	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->health <= 0)
+			continue;
 		if (sh->drawshield > 0)
 			sh->drawshield -= dt;
 	}
@@ -292,7 +349,45 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 	}
 	return nr;
 }
+/*
+ * Serialize all ships structure, to be sent by network
+ * for every server update
+ */
+int shSerialize(shipcore_t * data) {
+	ship_t * sh;
+	shipcore_t * shc;
+	int size = 0;
 
+	shc = data;
+	for (sh = head; sh != NULL; sh = sh->next) {
+		memcpy(shc, sh, sizeof(*shc));
+		shc++;
+		size += sizeof(*shc);
+	}
+	return size;
+}
+
+/*
+ * Serialize all ships structure, and add typename and any
+ * static information, to be sent by network, only once per ship
+ */
+int shSerializeOnce(shipcorename_t * data) {
+	ship_t * sh;
+	shipcorename_t * shn;
+	int size = 0;
+
+	shn = data;
+	for (sh = head; sh != NULL; sh = sh->next) {
+		memcpy(shn, sh, sizeof(*shn));
+		strcpy(shn->typename,sh->t->name);
+		shn++;
+		size += sizeof(*shn);
+	}
+	return size;
+}
+
+
+#ifndef DEDICATED
 void shDrawShips(void) {
 	ship_t * sh;
 	for (sh = head; sh != NULL; sh = sh->next) {
@@ -306,3 +401,5 @@ void shDrawShips(void) {
 		}
 	}
 }
+#endif
+

@@ -13,28 +13,46 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-OBJS=main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o
+CL_DIR:=cl_obj
+CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o)
+CL:=starc
+SV_DIR:=sv_obj
+SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o)
+SV:=ded_starc
 
 # All Target
-all: starc server
+all: $(CL) $(SV)
 
 # Tool invocations
-starc: $(OBJS)
-	gcc -Wall -lglut -lGLU -lz -L. -lgrapple -o"starc" $(OBJS)
+$(CL): $(CL_OBJS)
+	gcc -Wall -lglut -lGLU -lz -lm -L. -lgrapple -o"$(CL)" $(CL_OBJS)
 	@echo ' '
 
-server: server.o
-	gcc -Wall -L. -lgrapple -o"starc_server" server.o
+$(SV): $(SV_OBJS)
+	gcc -Wall -L. -lgrapple -lm -o"$(SV)" $(SV_OBJS)
+
+$(CL_OBJS): | $(CL_DIR)
+
+$(CL_DIR):
+	mkdir $(CL_DIR)
 	
-%.o: %.c
+$(SV_OBJS): | $(SV_DIR)
+
+$(SV_DIR):
+	mkdir $(SV_DIR)
+	
+$(CL_DIR)/%.o : %.c
 	@echo 'CC: $<'
 	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -c -o"$@" "$<"
-
+	
+$(SV_DIR)/%.o : %.c
+	@echo 'CC: $<'
+	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -DDEDICATED -c -o"$@" "$<"
+     
 # Other Targets
 clean:
-	-$(RM) $(OBJS) 
-	-$(RM) server.o starc_server
-	-$(RM) starc
+	-$(RM) $(CL_OBJS) $(CL) 
+	-$(RM) $(SV_OBJS) $(SV)
 	-@echo ' '
 
 .PHONY: all clean dependents

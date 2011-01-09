@@ -60,9 +60,9 @@ typedef struct {
 	float dx;			\
 	float dy;			\
 	float health;		\
-	int team;			\
 	float drawshield;	\
-	float lasnrj;		\
+	int netid;			\
+	int team;			\
 	shin_t in;
 
 /*
@@ -87,16 +87,20 @@ typedef struct ship_s {
 	ship_core
 	struct ship_s * next;
 	shiptype_t * t;
-	int netid;
 } ship_t;
 
+#ifndef DEDICATED
 void shDrawShips(void);
-void shUpdateShips(float dt);
-ship_t * shCreateShip(char *name, float x, float y, float r, int team);
-ship_t * shCreateRemoteShip(shipcorename_t * shn, int netid);
-void shSync(shipcore_t * shc, int netid);
 void shLoadShip(void);
+#endif
+void shUpdateShips(float dt);
+ship_t * shCreateShip(char *name, float x, float y, float r, int team, int netid);
+ship_t * shCreateRemoteShip(shipcorename_t * shn);
+void shSync(shipcore_t * shc, int local);
 ship_t * shFindNearestEnemy(ship_t * self);
-
+int shSerialize(shipcore_t * data);
+int shSerializeOnce(shipcorename_t * data);
+void shSetInput(shin_t * in, int netid);
+void shDisconnect(int clid);
 
 #endif /* SHIP_H_ */

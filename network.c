@@ -8,11 +8,14 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <grapple.h>
+
 #include "ship.h"
+#include "network.h"
 
 static grapple_client client = 0;
-extern ship_t * player;
+static int clid = 0;
 
 void ntInit(void) {
 	client = grapple_client_init("starc", "0.4");
@@ -25,37 +28,65 @@ void ntInit(void) {
 
 ship_t * ntCreateLocalPlayer(char * type) {
 	ship_t * sh;
-	shipcorename_t * shn;
+	ntmsg_t *msg;
+	static unsigned int count = 0;
+	size_t size;
 
-	sh = shCreateShip(type, 0, 0, 0, 0);
-	shn = (shipcorename_t *) sh;
-	strcpy(shn->typename, type);
-	grapple_client_send(client, GRAPPLE_EVERYONEELSE, GRAPPLE_RELIABLE, shn,
-			sizeof(*shn));
+	sh = shCreateShip(type, 0, 0, 0, 0, clid << 8 | count);
+	size = sizeof(ntmsg_t) + sizeof(shipcorename_t);
+	msg = malloc(size);
+	msg->type = ntSpawn;
+	memcpy(msg->NT_SPAWN.ship, sh, sizeof(shipcore_t));
+	strcpy(msg->NT_SPAWN.ship[0].typename, type);
+	grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, msg, size);
+	count++;
 	return sh;
 }
 
-void ntSendShip(ship_t * sh) {
-	shipcore_t * shc;
-	shc = (shipcore_t *) sh;
+void ntSendInput(ship_t * sh) {
+	char buf[sizeof(shin_t) + sizeof(ntmsg_t) + sizeof(int)];
+	ntmsg_t *msg = (ntmsg_t *) buf;
+	int size = sizeof(buf);
 
-	grapple_client_send(client, GRAPPLE_EVERYONEELSE, 0, shc,
-				sizeof(*shc));
+	msg->type = ntInputs;
+	memcpy(&msg->NT_INPUT.in,&sh->in,sizeof(shin_t));
+	msg->NT_INPUT.netid = sh->netid;
+	grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, msg, size);
 }
 
 void ntHandleUserMessage(void * data, int size, grapple_user id) {
-	if (size == sizeof(shipcorename_t)) {
-		printf("receive new remote ship \n");
-		shipcorename_t * shn;
-		shn = (shipcorename_t *) data;
-		shCreateRemoteShip(shn, id);
-	} else if (size == sizeof(shipcore_t)) {
-		printf("receive update remote ship \n");
-		shipcore_t * shc;
-		shc = (shipcore_t *) data;
-		shSync(shc,id);
-	} else {
-		printf("network error \n");
+	ntmsg_t * p;
+	shipcorename_t * shn;
+	shipcore_t * shc;
+	int s;
+	int local;
+
+	if (!size)
+		return;
+	p = data;
+	switch (p->type) {
+	case ntUpdate:
+		shc = p->NT_UPDATE.ships;
+		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcore_t)) {
+			if (shc->netid >> 8 == clid)
+				local = 1;
+			else
+				local = 0;
+			shSync(shc, local);
+			shc++;
+		}
+		break;
+	case ntShips:
+		shn = p->NT_SPAWN.ship;
+		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcorename_t)) {
+			printf("create remote ship %d size\n", size);
+			shCreateRemoteShip(shn);
+			shn++;
+		}
+		break;
+	default:
+		printf("unexpected message received %d, size %d, id %d\n",p->type, size, id);
+		break;
 	}
 }
 
@@ -67,11 +98,12 @@ void ntHandleMessage(void) {
 
 		switch (message->type) {
 		case GRAPPLE_MSG_NEW_USER:
-			ntSendShip(player);
 			//Your code to handle this message
 			break;
 		case GRAPPLE_MSG_NEW_USER_ME:
 			//Your code to handle this message
+			clid = message->NEW_USER.id;
+			printf("my user id is %d\n",message->NEW_USER.id);
 			break;
 		case GRAPPLE_MSG_USER_NAME:
 			//Your code to handle this message
@@ -85,6 +117,7 @@ void ntHandleMessage(void) {
 					message->USER_MSG.id);
 			break;
 		case GRAPPLE_MSG_USER_DISCONNECTED:
+			shDisconnect(message->USER_DISCONNECTED.id);
 			//Your code to handle this message
 			break;
 		case GRAPPLE_MSG_SERVER_DISCONNECTED:
