@@ -19,6 +19,7 @@ typedef struct {
 	float dx;
 	float dy;
 	float size;
+	float r;
 	float c;
 	unsigned int color;
 	int maxlife;
@@ -34,7 +35,7 @@ void paInit(void) {
 	texture = grLoadTexture("img/particle.png");
 }
 
-void paExplosion(float x, float y, float v, int number) {
+void paExplosion(float x, float y, float dx, float dy, float v, int number) {
 	int i;
 
 	if( freePart + number >= NBPART)
@@ -50,11 +51,12 @@ void paExplosion(float x, float y, float v, int number) {
 		parts[i].maxlife = rand() % 1000;
 		parts[i].x = x + rx * 10.0;
 		parts[i].y = y + ry * 10.0;
-		parts[i].dx = rx * v;
-		parts[i].dy = ry * v;
+		parts[i].dx = dx + rx * v;
+		parts[i].dy = dy + ry * v;
 		parts[i].life = parts[i].maxlife;
 		parts[i].color = 0xFFA0A000;
 		parts[i].size = rand() % 100 + 50;
+		parts[i].r = 0;
 	}
 	freePart += number;
 }
@@ -70,6 +72,7 @@ void paBurst(float x, float y, float dx, float dy, float r, unsigned int color) 
 	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 50;
 	parts[i].color = color;
+	parts[i].r = 0;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -86,6 +89,24 @@ void paLaser(float x, float y, float dx, float dy, unsigned int color) {
 	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 50;
 	parts[i].color = color;
+	parts[i].r = 0;
+	freePart++;
+	if (freePart >= NBPART)
+		freePart = 0;
+}
+
+void paLas(float x, float y, float dx, float dy, float len, float r, unsigned int color) {
+	int i;
+	i = freePart;
+	parts[i].maxlife = rand() % 30 + 30;
+	parts[i].x = x;
+	parts[i].y = y;
+	parts[i].dx = dx;
+	parts[i].dy = dy;
+	parts[i].size = len;
+	parts[i].r = r;
+	parts[i].life = parts[i].maxlife;
+	parts[i].color = color;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -97,15 +118,19 @@ void paUpdate(float dt) {
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].life <= 0)
 			continue;
-		parts[i].x += parts[i].dx * dt;
-		parts[i].y += parts[i].dy * dt;
-		parts[i].life -= dt;
 		parts[i].c = (float) parts[i].life / (float) parts[i].maxlife;
 		parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (parts[i].c * 255);
 		if (parts[i].life > 0) {
 			grSetColor(parts[i].color);
-			grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
+			if (parts[i].r)
+				grBlitRectangle(parts[i].x, parts[i].y, parts[i].size,
+						parts[i].r, 40.);
+			else
+				grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
 		}
+		parts[i].x += parts[i].dx * dt;
+		parts[i].y += parts[i].dy * dt;
+		parts[i].life -= dt;
 	}
 }

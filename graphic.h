@@ -23,11 +23,11 @@ void grBlit(float x,float y, float a, float b);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);
+void grBlitRectangle(float x, float y, float len, float r, float width);
 #else
 #define grLoadTexture(f)
 #define grSetColor(color)
 #define grDrawLine(x1, y1, x2, y2)
-
 
 #endif
 

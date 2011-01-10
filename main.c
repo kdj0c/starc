@@ -43,16 +43,15 @@ void grDraw(int value) {
 		frame = 0;
 	}
 
-	grChangeview(player->x, player->y, player->r, scale);
-
 	glClear(GL_COLOR_BUFFER_BIT); //Efface le frame buffer
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	stUpdate(player->x, player->y);
-	stBlit();
-	paUpdate(10);
+	ntHandleMessage();
 	aiThink();
 	shUpdateShips(10);
-	ntHandleMessage();
+	grChangeview(player->x, player->y, player->r, scale);
+	stBlit();
+	paUpdate(10);
 	shDrawShips();
 	glutSwapBuffers();
 }

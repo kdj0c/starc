@@ -62,6 +62,22 @@ void grSetShadow(float c) {
 	glColor4f(1.,1.,1.,c);
 }
 
+void grBlitRectangle(float x, float y, float len, float r, float width) {
+	float ax, ay;
+
+	ax = - width * sin(r);
+	ay = width * cos(r);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0., 0.5);
+	glVertex2f(x + ax, y + ay);
+	glTexCoord2f(0., 0.8);
+	glVertex2f(x + len * cos(r) + ax, y + len * sin(r) + ay);
+	glTexCoord2f(1., 0.8);
+	glVertex2f(x + len * cos(r) - ax, y + len * sin(r) - ay);
+	glTexCoord2f(1., 0.5);
+	glVertex2f(x - ax, y - ay);
+	glEnd();
+}
 
 void grBlitSquare(float x, float y, float size) {
 	glBegin(GL_QUADS);

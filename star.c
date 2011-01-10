@@ -62,6 +62,8 @@ void stUpdate(float x, float y) {
 				newrandstar(cx, cy);
 			}
 		}
+		curx = ncx;
+		cury = ncy;
 		return;
 	}
 

@@ -29,11 +29,11 @@ shiptype_t shipv1 = {
 	.laser[0].x = 100,
 	.laser[0].y = -65,
 	.laser[0].r = 0,
-	.laser[0].color = 0xFFFFA000,
+	.laser[0].color = 0xFF804000,
 	.laser[1].x = 100,
 	.laser[1].y = 65,
 	.laser[1].r = 0,
-	.laser[1].color = 0xFFFFA000,
+	.laser[1].color = 0xFF804000,
 	.numburst = 2,
 	.burst[0].x = -180,
 	.burst[0].y = -215,
@@ -56,11 +56,11 @@ shiptype_t shipv2 = {
 	.laser[0].x = 0,
 	.laser[0].y = 300,
 	.laser[0].r = 0,
-	.laser[0].color = 0xFF202000,
+	.laser[0].color = 0xFF404000,
 	.laser[1].x = 0,
 	.laser[1].y = -300,
 	.laser[1].r = 0,
-	.laser[1].color = 0xFF101000,
+	.laser[1].color = 0xFF404000,
 	.numburst = 1,
 	.burst[0].x = -300,
 	.burst[0].y = 0,
@@ -169,7 +169,7 @@ void shSync(shipcore_t * shc, int local) {
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shc->netid) {
 			if(sh->health > 0 && shc->health <= 0)
-				paExplosion(shc->x, shc->y, 6.f, 5000);
+				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000);
 			memcpy(sh, shc, size);
 			return;
 		}
@@ -202,7 +202,7 @@ void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->x, sh->y, 6.f, 5000);
+		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 6.f, 5000);
 	}
 	if(sh->health < 0)
 		sh->health = 0;
@@ -235,10 +235,11 @@ void firelaser(ship_t * sh, laser_t * las) {
 	}
 	if(tc) {
 		shDamage(tc,1.);
-		paLaser(x + min * cos(r), y + min * sin(r),tc->dx,tc->dy,las->color);
+		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
 	}
 	grSetColor(las->color);
-	grDrawLine(x, y, x + min * cos(r), y + min * sin(r));
+//	grDrawLine(x, y, x + min * cos(r), y + min * sin(r));
+	paLas(x, y, sh->dx, sh->dy, min, r, las->color);
 }
 
 /*
