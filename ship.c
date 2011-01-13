@@ -208,7 +208,7 @@ void shDamage(ship_t * sh, float dg) {
 		sh->health = 0;
 }
 
-void firelaser(ship_t * sh, laser_t * las) {
+void firelaser(ship_t * sh, laser_t * las, float dt) {
 	float x, y, r, len, min;
 	ship_t * en;
 	ship_t * tc = NULL;
@@ -234,7 +234,7 @@ void firelaser(ship_t * sh, laser_t * las) {
 		}
 	}
 	if(tc) {
-		shDamage(tc,1.);
+		shDamage(tc, dt);
 		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
 	}
 	grSetColor(las->color);
@@ -313,7 +313,7 @@ void shUpdateShips(float dt) {
 
 		if (sh->in.fire1) {
 			for (l = 0; l < sh->t->numlaser; l++) {
-				firelaser(sh, &sh->t->laser[l]);
+				firelaser(sh, &sh->t->laser[l], dt);
 			}
 		}
 	}

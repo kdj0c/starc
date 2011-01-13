@@ -151,15 +151,6 @@ void grReshape(int width, int height) {
 	grWidth = width;
 	grHeight = height;
 	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	/* coordinate tricks : we want width to be 10000 unit */
-	height_u = (WIDTH_UNIT * height) / width;
-	glOrtho(0, WIDTH_UNIT, 0, height_u, 0, 1);
-	glDisable(GL_DEPTH_TEST);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glEnable(GL_LINE_SMOOTH);
 	printf("w,%d, h, %d\n", width, height);
 }
 

@@ -14,7 +14,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 CL_DIR:=cl_obj
-CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o)
+CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o menu.o gamemain.o)
 CL:=starc
 SV_DIR:=sv_obj
 SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o)
@@ -25,7 +25,7 @@ all: $(CL) $(SV)
 
 # Tool invocations
 $(CL): $(CL_OBJS)
-	gcc -Wall -lglut -lGLU -lz -lm -L. -lgrapple -o"$(CL)" $(CL_OBJS)
+	gcc -Wall -lglut -lGLU -lz -lm -L. -lgrapple -lftgl -o"$(CL)" $(CL_OBJS)
 	@echo ' '
 
 $(SV): $(SV_OBJS)
@@ -43,7 +43,7 @@ $(SV_DIR):
 	
 $(CL_DIR)/%.o : %.c
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -c -o"$@" "$<"
+	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -I/usr/include/freetype2 -c -o"$@" "$<"
 	
 $(SV_DIR)/%.o : %.c
 	@echo 'CC: $<'
