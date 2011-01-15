@@ -19,3 +19,13 @@ currently it can only connect to localhost, and there is only 1 singleplayer lev
 # Notes
 
 It's not ready yet, so may need to wait, before having an easy way to install/run the game.
+
+# External Dependancy
+
+FreeGlut (BSD?) http://freeglut.sourceforge.net/
+libgrapple (GNU LGPL) http://grapple.linuxgamepublishing.com/
+libconfig (GNU LGPL v2.1) Mark A Lindner http://www.hyperrealm.com/libconfig/
+Digeria font (can be used for free) http://jump.to/sdfonts
+pnglite (BSD?) Daniel Karling http://sourceforge.net/projects/pnglite/
+FTGL (LGPL) http://sourceforge.net/projects/ftgl/develop
+zlib (BSD-like) Jean-loup Gailly and Mark Adler http://www.zlib.net/

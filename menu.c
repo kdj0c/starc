@@ -119,8 +119,8 @@ void meSpecialDown(int key, int x, int y) {
 
 }
 void meInitMenu(void) {
-	menufont = ftglCreateTextureFont("FreeMono.ttf");
-	ftglSetFontFaceSize(menufont, 60, 60);
+	menufont = ftglCreateTextureFont("Digeria Normal.ttf");
+	ftglSetFontFaceSize(menufont, 30, 30);
 
 	glutKeyboardFunc(meKeyDown);
 	glutSpecialFunc(meSpecialDown);
