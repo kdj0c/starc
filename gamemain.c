@@ -119,10 +119,10 @@ void SpecialDown(int key, int x, int y) {
 		player->in.acceleration = 1;
 		break;
 	case GLUT_KEY_LEFT:
-		player->in.direction = 1;
+		player->in.direction += 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		player->in.direction = -1;
+		player->in.direction -= 1;
 		break;
 	default:
 		break;
@@ -137,10 +137,10 @@ void SpecialUp(int key, int x, int y) {
 		player->in.acceleration = 0;
 		break;
 	case GLUT_KEY_LEFT:
-		player->in.direction = 0;
+		player->in.direction -= 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		player->in.direction = 0;
+		player->in.direction += 1;
 		break;
 	default:
 		break;
@@ -165,14 +165,13 @@ void gmStartSingle(void) {
 	shLoadShipType();
 	shLoadShip();
 	paInit();
-	player = shCreateShip("v2", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("v1", 10000, 0, -1, 1, 0));
-	aiCreate(shCreateShip("v1", 10000, 900, -1, 1, 0));
-	aiCreate(shCreateShip("v2", 0, 900, 0, 0, 0));
-	aiCreate(shCreateShip("v2", 0, -900, 0, 0, 0));
-	aiCreate(shCreateShip("v1", -10000, -900, 0, 1, 0));
-	aiCreate(shCreateShip("v1", -10000, -1800, 0, 1, 0));
-	aiCreate(shCreateShip("v2", 0, 50000, 0, 0, 0));
+	player = shCreateShip("v1", 0, 0, 0, 0, 0);
+	aiCreate(shCreateShip("v1", 0, 2000, 0, 0, 0));
+	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
+	aiCreate(shCreateShip("w1", 10000, -1000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 10000, 1200, -1, 1, 0));
+	aiCreate(shCreateShip("w1", -11000, 1000, 0, 1, 0));
+	aiCreate(shCreateShip("w2", -11000, -1800, 0, 1, 0));
 
 	glutTimerFunc(10, grDraw, 0);
 }

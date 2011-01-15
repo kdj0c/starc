@@ -294,7 +294,8 @@
        y1="92.362183"
        x2="80"
        y2="252.36218"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,2.6171874e-6)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient6341-4"
@@ -308,16 +309,16 @@
        osb:paint="gradient"
        id="linearGradient6341-4">
       <stop
-         style="stop-color:#000080;stop-opacity:0.50196081;"
+         style="stop-color:#000080;stop-opacity:1;"
          offset="0"
          id="stop6343-1" />
       <stop
-         style="stop-color:#ffc702;stop-opacity:0.50196081;"
+         style="stop-color:#ffc702;stop-opacity:1;"
          offset="1"
          id="stop6345-1" />
     </linearGradient>
     <linearGradient
-       gradientTransform="translate(0,7.6171874e-6)"
+       gradientTransform="translate(0,1.2617187e-5)"
        y2="252.36218"
        x2="-80"
        y1="92.362183"
@@ -335,8 +336,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7071068"
-     inkscape:cx="-478.56252"
-     inkscape:cy="492.33121"
+     inkscape:cx="51.549584"
+     inkscape:cy="662.3739"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -364,7 +365,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -385,8 +386,8 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
     <path
-       style="fill:url(#linearGradient6333);fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;opacity:0.57307692"
-       d="m 0,112.36218 360,540 -700,0 z"
+       style="fill:url(#linearGradient6333);fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 0,112.36218 340,540 -680,0 z"
        id="path4004"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
@@ -407,8 +408,8 @@
        id="path4010-4"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:url(#linearGradient6378);fill-opacity:1.0;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 0,112.36218 360,540 -700,0 z"
+       style="opacity:0.5;fill:url(#linearGradient6378);fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 0,112.36218 340,540 -680,0 z"
        id="path4004-4"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
