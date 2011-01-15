@@ -23,7 +23,7 @@ static menu_t menu[] = {{
 		.name = "SinglePlayer",
 		.func = gmStartSingle,
 }, {
-		.name = "Multiplayer",
+		.name = "MultiPlayer",
 		.func =  gmStartMulti,
 }, {
 		.name = "Options",

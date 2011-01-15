@@ -14,6 +14,7 @@
 
 #define MAX_AIM 7000
 #define VAPP 2.0
+#define ADJ_VAPP 0.00004
 
 enum {
 	ai_aim,
@@ -59,11 +60,29 @@ void aiThink(void) {
 		sh->in.direction = 0;
 		sh->in.fire1 = 0;
 
+		if(sh->health <= 0)
+			continue;
+
+
 		if (!tg || tg->health <= 0) {
 			ai->target = shFindNearestEnemy(sh);
 			if (!ai->target)
-				return;
+				continue;
 			tg = ai->target;
+		} else {
+			ship_t * newtg;
+			newtg = shFindNearestEnemy(sh);
+			if (newtg != tg) {
+				float dx2, dy2;
+				dx = tg->x - sh->x;
+				dy = tg->y - sh->y;
+				dx2 = newtg->x - sh->x;
+				dy2 = newtg->y - sh->y;
+				if (dx2 * dx2 + dy2 * dy2 < dx * dx + dy * dy + 2000 * 2000) {
+					tg = newtg;
+					ai->target = tg;
+				}
+			}
 		}
 
 		dx = tg->x - sh->x;
@@ -80,6 +99,9 @@ void aiThink(void) {
 		s = tg->t->shieldsize / 2.;
 
 		switch (ai->state) {
+		/*
+		 * Just aim at the enemy, and fire if it is within range
+		 */
 		case ai_aim:
 			if (ty < 0)
 				sh->in.direction = 1;
@@ -96,8 +118,12 @@ void aiThink(void) {
 				sh->in.acceleration = 1;
 			}
 			break;
+		/*
+		 * try to approach target at a speed of VAPP
+		 */
 		case ai_approach:
-			ndx = tg->dx + VAPP * (dx / d) - sh->dx;
+			ndx = tg->dx + VAPP * (ADJ_VAPP * (d - LASER_RANGE) + 1.)
+					* (dx / d) - sh->dx;
 			ndy = tg->dy + VAPP * (dy / d) - sh->dy;
 			dd = ndx * ndx + ndy * ndy;
 			nr = atan2(ndy, ndx) - sh->r;

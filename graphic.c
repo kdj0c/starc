@@ -147,7 +147,6 @@ void grChangeview(float x, float y, float r, float scale) {
 }
 
 void grReshape(int width, int height) {
-	int height_u;
 	grWidth = width;
 	grHeight = height;
 	glViewport(0, 0, width, height);
