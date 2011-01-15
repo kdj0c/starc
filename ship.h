@@ -93,6 +93,7 @@ typedef struct ship_s {
 void shDrawShips(void);
 void shLoadShip(void);
 #endif
+void shLoadShipType(void);
 void shUpdateShips(float dt);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);

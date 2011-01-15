@@ -110,6 +110,7 @@ int main(int argc, char *argv[]) {
 	grapple_server_session_set(server, "Play my game");
 	grapple_server_start(server);
 
+	shLoadShipType();
 	aiCreate(shCreateShip("v1", 10000, 0, -1, 1,0));
 
 	while (1) {

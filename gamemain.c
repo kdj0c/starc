@@ -46,6 +46,11 @@ void grDraw(int value) {
 	}
 	dt = (float) time - prevtime;
 	prevtime = time;
+	/* Big Lag don't allow less than 2FPS */
+	if (dt > 500.)
+		dt = 500.;
+	else if (dt <= 0)
+		dt = 1.;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -157,7 +162,7 @@ void enterGameMode(void) {
 void gmStartSingle(void) {
 	net = 0;
 	enterGameMode();
-
+	shLoadShipType();
 	shLoadShip();
 	paInit();
 	player = shCreateShip("v2", 0, 0, 0, 0, 0);
@@ -177,6 +182,7 @@ void gmStartMulti(void) {
 	enterGameMode();
 
 	ntInit();
+	shLoadShipType();
 	shLoadShip();
 	paInit();
 	ntHandleMessage();

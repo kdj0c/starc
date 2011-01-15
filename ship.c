@@ -15,59 +15,10 @@
 #include "graphic.h"
 #include "ship.h"
 #include "particle.h"
+#include "config.h"
 
-shiptype_t shipv1 = {
-	.name = "v1",
-	.imgfile = "img/v1.png",
-	.size = 500,
-	.shieldfile = "img/shield.png",
-	.shieldsize = 700,
-	.maxhealth = 800,
-	.maniability = 0.001,
-	.thrust = 0.001,
-	.numlaser = 2,
-	.laser[0].x = 100,
-	.laser[0].y = -65,
-	.laser[0].r = 0,
-	.laser[0].color = 0xFF804000,
-	.laser[1].x = 100,
-	.laser[1].y = 65,
-	.laser[1].r = 0,
-	.laser[1].color = 0xFF804000,
-	.numburst = 2,
-	.burst[0].x = -180,
-	.burst[0].y = -215,
-	.burst[0].color = 0xFFFFA000,
-	.burst[1].x = -180,
-	.burst[1].y = 215,
-	.burst[1].color = 0xFFFFA000,
-};
-
-shiptype_t shipv2 = {
-	.name = "v2",
-	.imgfile = "img/v2.png",
-	.size = 640,
-	.shieldfile = "img/shield.png",
-	.shieldsize = 850,
-	.maxhealth = 1000,
-	.maniability = 0.001,
-	.thrust = 0.001,
-	.numlaser = 2,
-	.laser[0].x = 0,
-	.laser[0].y = 300,
-	.laser[0].r = 0,
-	.laser[0].color = 0xFF404000,
-	.laser[1].x = 0,
-	.laser[1].y = -300,
-	.laser[1].r = 0,
-	.laser[1].color = 0xFF404000,
-	.numburst = 1,
-	.burst[0].x = -300,
-	.burst[0].y = 0,
-	.burst[0].color = 0xA0A0FF00,
-};
-
-static shiptype_t * alltype[] = { &shipv1, &shipv2, NULL };
+static shiptype_t *alltype = NULL;
+static int numtype = 0;
 
 static ship_t * head = NULL;
 
@@ -93,30 +44,31 @@ static void removeShip(ship_t * sh) {
 		}
 	}
 }
+
+void shLoadShipType(void) {
+	alltype = cfReadShip(&numtype);
+}
+
 #ifndef DEDICATED
 void shLoadShip(void) {
-	shiptype_t * sht;
 	int i;
 
-	for (i = 0; i < 2; i++) {
-		sht = alltype[i];
-		sht->tex = grLoadTexture(sht->imgfile);
-		sht->shieldtex = grLoadTexture(sht->shieldfile);
+	for (i = 0; i < numtype; i++) {
+		alltype[i].tex = grLoadTexture(alltype[i].imgfile);
+		alltype[i].shieldtex = grLoadTexture(alltype[i].shieldfile);
 	}
 }
 #endif
 
 ship_t * shCreateShip(char * name, float x, float y, float r, int team, int netid) {
-	shiptype_t * sht;
 	ship_t * newship;
 	int i;
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
-	for (i = 0; i < 2; i++) {
-		sht = alltype[i];
-		if (!strcmp(name, sht->name))
-			newship->t = sht;
+	for (i = 0; i < numtype; i++) {
+		if (!strcmp(name, alltype[i].name))
+			newship->t = &alltype[i];
 	}
 	newship->x = x;
 	newship->y = y;
@@ -143,9 +95,9 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
-	for (i = 0; i < 2; i++) {
-		if (!strcmp(shn->typename, alltype[i]->name))
-			newship->t = alltype[i];
+	for (i = 0; i < numtype; i++) {
+		if (!strcmp(shn->typename, alltype[i].name))
+			newship->t = &alltype[i];
 	}
 	if(!newship->t) {
 		printf("can't create ship of type '%s'\n", shn->typename);
@@ -324,8 +276,10 @@ void shDetectCollision(void) {
 	for (sh = head; sh != NULL; sh = sh->next) {
 		ship_t * en;
 		float dx, dy, s;
+		if (sh->health <=0)
+			continue;
 		for (en = sh->next; en != NULL; en = en->next) {
-			if (sh->health <= 0)
+			if (en->health <= 0)
 				continue;
 			dx = en->x - sh->x;
 			dy = en->y - sh->y;
@@ -347,8 +301,8 @@ void shUpdateRespawn(float dt) {
 		sh->health -= dt;
 		if (sh->health < -5000.) {
 			sh->health = sh->t->maxhealth;
-			sh->x = (rand() % 10000 - 5000) * 10.;
-			sh->y = (rand() % 10000 - 5000) * 10.;
+			sh->x = (rand() % 10000 - 5000) * 2.;
+			sh->y = (rand() % 10000 - 5000) * 2.;
 			sh->r = (rand() % 360 - 180) * M_PI / 180.;
 			sh->dx = 0;
 			sh->dy = 0;

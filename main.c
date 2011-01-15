@@ -14,11 +14,16 @@
 #include "menu.h"
 #include "gamemain.h"
 #include "graphic.h"
+#include "config.h"
 
 int main(int argc, char *argv[], char *envp[]) {
 	int WindowName;
+	grconf_t c;
 
 	srand(1983);
+
+	cfReadGraphic(&c);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	WindowName = glutCreateWindow("StarC");
@@ -27,8 +32,11 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	glutReshapeFunc(grReshape);
 	glutDisplayFunc(meDisplayMenu);
-//	glutReshapeWindow(800,600);
-	glutFullScreen();
+
+	glutReshapeWindow(c.width,c.heigh);
+
+	if (c.fullscreen)
+		glutFullScreen();
 
 	meInitMenu();
 
