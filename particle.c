@@ -12,6 +12,8 @@
 #include "graphic.h"
 /* For testing only */
 #define NBPART 100000
+#define PA_LASER 0x1
+
 
 typedef struct {
 	float x;
@@ -20,10 +22,10 @@ typedef struct {
 	float dy;
 	float size;
 	float r;
-	float c;
 	unsigned int color;
-	int maxlife;
-	int life;
+	short int maxlife;
+	short int life;
+	unsigned int flag;
 } particle_t;
 
 static particle_t * parts;
@@ -56,7 +58,7 @@ void paExplosion(float x, float y, float dx, float dy, float v, int number) {
 		parts[i].life = parts[i].maxlife;
 		parts[i].color = 0xFFA0A000;
 		parts[i].size = rand() % 100 + 50;
-		parts[i].r = 0;
+		parts[i].flag = 0;
 	}
 	freePart += number;
 }
@@ -72,7 +74,7 @@ void paBurst(float x, float y, float dx, float dy, float r, unsigned int color) 
 	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 50;
 	parts[i].color = color;
-	parts[i].r = 0;
+	parts[i].flag = 0;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -89,7 +91,7 @@ void paLaser(float x, float y, float dx, float dy, unsigned int color) {
 	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 50;
 	parts[i].color = color;
-	parts[i].r = 0;
+	parts[i].flag = 0;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -107,6 +109,7 @@ void paLas(float x, float y, float dx, float dy, float len, float r, unsigned in
 	parts[i].r = r;
 	parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
+	parts[i].flag = PA_LASER;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -114,21 +117,20 @@ void paLas(float x, float y, float dx, float dy, float len, float r, unsigned in
 
 void paUpdate(float dt) {
 	int i;
+	float c;
 	grSetBlendAdd(texture);
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].life <= 0)
 			continue;
-		parts[i].c = (float) parts[i].life / (float) parts[i].maxlife;
+		c = (float) parts[i].life / (float) parts[i].maxlife;
 		parts[i].color &= ~0xFF;
-		parts[i].color |= (int) (parts[i].c * 255);
-		if (parts[i].life > 0) {
-			grSetColor(parts[i].color);
-			if (parts[i].r)
-				grBlitRectangle(parts[i].x, parts[i].y, parts[i].size,
-						parts[i].r, 40.);
-			else
-				grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
-		}
+		parts[i].color |= (int) (c * 255);
+		grSetColor(parts[i].color);
+		if (parts[i].flag == PA_LASER)
+			grBlitLaser(parts[i].x, parts[i].y, parts[i].size,
+					parts[i].r, 40.);
+		else
+			grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
 		parts[i].x += parts[i].dx * dt;
 		parts[i].y += parts[i].dy * dt;
 		parts[i].life -= dt;

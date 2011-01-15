@@ -62,7 +62,7 @@ void grSetShadow(float c) {
 	glColor4f(1.,1.,1.,c);
 }
 
-void grBlitRectangle(float x, float y, float len, float r, float width) {
+void grBlitLaser(float x, float y, float len, float r, float width) {
 	float ax, ay;
 
 	ax = - width * sin(r);
@@ -151,5 +151,24 @@ void grReshape(int width, int height) {
 	grHeight = height;
 	glViewport(0, 0, width, height);
 	printf("w,%d, h, %d\n", width, height);
+}
+
+void grDrawHUD(float health) {
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0.0, 800, 0., 600);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glColor3f(0.0, 1.0, 0.0);
+
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 }
 
