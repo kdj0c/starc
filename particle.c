@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "graphic.h"
 /* For testing only */
@@ -34,6 +35,7 @@ static int freePart = 0;
 
 void paInit(void) {
 	parts = malloc(NBPART * sizeof(*parts));
+	memset(parts, 0, NBPART * sizeof(*parts));
 	texture = grLoadTexture("img/particle.png");
 }
 

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libconfig.h>
+#include <math.h>
 
 
 #include "config.h"
@@ -91,6 +92,7 @@ shiptype_t * cfReadShip(int *num) {
 			cfReadShipFloat(csl2, "x", &st[i].laser[j].x);
 			cfReadShipFloat(csl2, "y", &st[i].laser[j].y);
 			cfReadShipFloat(csl2, "r", &st[i].laser[j].r);
+			st[i].laser[j].r *= M_PI / 180.;
 			config_setting_lookup_int(csl2, "color",(long *) &st[i].laser[j].color);
 		}
 		csl = config_setting_get_member(cst, "burst");
