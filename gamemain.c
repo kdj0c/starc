@@ -67,6 +67,7 @@ void grDraw(int value) {
 	stBlit();
 	paUpdate(dt);
 	shDrawShips();
+	grDrawHUD(player->health);
 	glutSwapBuffers();
 }
 
@@ -165,7 +166,7 @@ void gmStartSingle(void) {
 	shLoadShipType();
 	shLoadShip();
 	paInit();
-	player = shCreateShip("v1", 0, 0, 0, 0, 0);
+	player = shCreateShip("v3", 0, 0, 0, 0, 0);
 	aiCreate(shCreateShip("v1", 0, 2000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
 	aiCreate(shCreateShip("w1", 10000, -1000, -1, 1, 0));

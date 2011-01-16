@@ -33,7 +33,7 @@ static menu_t menu[] = {{
 		.func = meExit,
 }};
 
-static FTGLfont * menufont;
+FTGLfont * menufont;
 static int cursor = 0;
 
 void meOptions(void) {

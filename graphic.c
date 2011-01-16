@@ -10,12 +10,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <GL/glut.h>
+#include <FTGL/ftgl.h>
 
 #include "graphic.h"
 #include "pnglite.h"
 
 int grWidth = 100;
 int grHeight = 100;
+/* TODO remove this global variable */
+extern FTGLfont * menufont;
 
 unsigned int grLoadTexture(char * filename) {
 	png_t tex;
@@ -154,6 +157,8 @@ void grReshape(int width, int height) {
 }
 
 void grDrawHUD(float health) {
+	char h[16];
+	int hea;
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -165,10 +170,12 @@ void grDrawHUD(float health) {
 
 	glColor3f(0.0, 1.0, 0.0);
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	hea = (int) health;
+	if (hea < 0)
+		hea = 0;
+	sprintf(h,"+ %d", hea);
+	ftglRenderFont(menufont, h, FTGL_RENDER_ALL);
 
 }
 
