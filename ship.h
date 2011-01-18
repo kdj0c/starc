@@ -92,6 +92,7 @@ typedef struct ship_s {
 #ifndef DEDICATED
 void shDrawShips(void);
 void shLoadShip(void);
+void shDrawShipHUD(ship_t * pl);
 #endif
 void shLoadShipType(void);
 void shUpdateShips(float dt);

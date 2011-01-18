@@ -39,7 +39,7 @@ void paInit(void) {
 	texture = grLoadTexture("img/particle.png");
 }
 
-void paExplosion(float x, float y, float dx, float dy, float v, int number) {
+void paExplosion(float x, float y, float dx, float dy, float v, int number, unsigned int color) {
 	int i;
 
 	if( freePart + number >= NBPART)
@@ -58,7 +58,7 @@ void paExplosion(float x, float y, float dx, float dy, float v, int number) {
 		parts[i].dx = dx + rx * v;
 		parts[i].dy = dy + ry * v;
 		parts[i].life = parts[i].maxlife;
-		parts[i].color = 0xFFA0A000;
+		parts[i].color = color;
 		parts[i].size = rand() % 100 + 50;
 		parts[i].flag = 0;
 	}

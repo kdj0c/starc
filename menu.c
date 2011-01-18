@@ -14,12 +14,12 @@
 typedef struct {
 	char name[64];
 	void (*func)(void);
-} menu_t;
+} menuentry_t;
 
 void meOptions(void);
 void meExit(void);
 
-static menu_t menu[] = {{
+static menuentry_t menu[] = {{
 		.name = "SinglePlayer",
 		.func = gmStartSingle,
 }, {
@@ -46,7 +46,7 @@ void meExit(void) {
 void meDrawMenu(void) {
 	int i;
 	int nbentry = 3;
-	float w = 800.0, h = 600.0;
+	float h = 600.0;
 	float dh;
 
 	dh = h / (nbentry + 4);

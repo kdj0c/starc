@@ -19,6 +19,9 @@
 
 static shiptype_t *alltype = NULL;
 static int numtype = 0;
+#ifndef DEDICATED
+static int hudarrowtex = 0;
+#endif
 
 static ship_t * head = NULL;
 
@@ -57,6 +60,7 @@ void shLoadShip(void) {
 		alltype[i].tex = grLoadTexture(alltype[i].imgfile);
 		alltype[i].shieldtex = grLoadTexture(alltype[i].shieldfile);
 	}
+	hudarrowtex = grLoadTexture("img/arrow.png");
 }
 #endif
 
@@ -121,7 +125,7 @@ void shSync(shipcore_t * shc, int local) {
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shc->netid) {
 			if(sh->health > 0 && shc->health <= 0)
-				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000);
+				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
 			memcpy(sh, shc, size);
 			return;
 		}
@@ -154,7 +158,7 @@ void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 6.f, 5000);
+		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 6.f, 5000, sh->t->burst[0].color);
 	}
 	if(sh->health < 0)
 		sh->health = 0;
@@ -382,6 +386,28 @@ void shDrawShips(void) {
 			grSetBlendAdd(sh->t->shieldtex);
 			grBlit(sh->x, sh->y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
+	}
+}
+
+void shDrawShipHUD(ship_t * pl) {
+	ship_t * sh;
+	float dx,dy,r,x,y;
+	grSetBlend(hudarrowtex);
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if(sh->health <= 0 || sh  == pl)
+			continue;
+		dx = sh->x - pl->x;
+		dy = sh->y - pl->y;
+		if(dx * dx + dy * dy < LASER_RANGE * LASER_RANGE * 4)
+			continue;
+		r = atan2(dx, -dy) - pl->r;
+		x = 800 / 2. + 350. * cos(r);
+		y = 600. / 4. + 350 * sin(r);
+		if (pl->team == sh->team)
+			grSetColor(0x0000FF80);
+		else
+			grSetColor(0xFF000080);
+		grBlitRot(x, y, r, 10);
 	}
 }
 #endif

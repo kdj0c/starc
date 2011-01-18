@@ -158,24 +158,35 @@ void grReshape(int width, int height) {
 
 void grDrawHUD(float health) {
 	char h[16];
-	int hea;
+	int ih;
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	gluOrtho2D(0.0, 800, 0., 600);
+	gluOrtho2D(0., 800, 0., 600);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glColor3f(0.0, 1.0, 0.0);
+	glColor3f(0., 1., 0.);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	hea = (int) health;
-	if (hea < 0)
-		hea = 0;
-	sprintf(h,"+ %d", hea);
+	ih = (int) health;
+	if (ih < 0)
+		ih = 0;
+	sprintf(h,"+ %d", ih);
 	ftglRenderFont(menufont, h, FTGL_RENDER_ALL);
+
+	/* new projection for radar */
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0., 800., 0., 600., 0., 1.);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
 
 }
 
