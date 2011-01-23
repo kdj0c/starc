@@ -17,7 +17,15 @@ typedef struct {
 	long heigh;
 } grconf_t;
 
+typedef struct {
+	char * ip;
+	int port;
+	char * name;
+} ntconf_t;
+
 void cfReadGraphic(grconf_t * c);
+void cfReadNetwork(ntconf_t *c);
+
 shiptype_t * cfReadShip(int *num);
 
 #endif /* CONFIG_H_ */

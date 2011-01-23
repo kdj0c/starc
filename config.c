@@ -27,7 +27,7 @@ void cfReadGraphic(grconf_t *c) {
 
 	config_init(&conf);
 	if (config_read_file(&conf,"config.cfg") == CONFIG_FALSE) {
-		printf("ship.cfg:%d - %s\n",
+		printf("config.cfg:%d - %s\n",
 				config_error_line(&conf), config_error_text(&conf));
 		return;
 	}
@@ -36,6 +36,27 @@ void cfReadGraphic(grconf_t *c) {
 	config_lookup_int(&conf,"graphic.width", &c->width);
 	config_lookup_int(&conf,"graphic.heigh", &c->heigh);
 
+	config_destroy(&conf);
+}
+
+void cfReadNetwork(ntconf_t *c) {
+	const char *tmp;
+	c->ip = "127.0.0.1";
+	c->port = 1234;
+	c->name = "player";
+
+	config_init(&conf);
+	if (config_read_file(&conf, "config.cfg") == CONFIG_FALSE) {
+		printf("config.cfg:%d - %s\n", config_error_line(&conf),
+				config_error_text(&conf));
+		return;
+	}
+
+	config_lookup_string(&conf, "network.ip", &tmp);
+	strcpy(c->ip, tmp);
+	config_lookup_int(&conf, "network.port", (long *) &(c->port));
+	config_lookup_string(&conf, "network.name", &tmp);
+	strcpy(c->name, tmp);
 	config_destroy(&conf);
 }
 

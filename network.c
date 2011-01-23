@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <grapple.h>
 
+#include "config.h"
 #include "ship.h"
 #include "network.h"
 
@@ -18,12 +19,14 @@ static grapple_client client = 0;
 static int clid = 0;
 
 void ntInit(void) {
+	ntconf_t ntconf;
+	cfReadNetwork(&ntconf);
 	client = grapple_client_init("starc", "0.4");
-	grapple_client_address_set(client, NULL);
-	grapple_client_port_set(client, 1234);
+	grapple_client_address_set(client, ntconf.ip);
+	grapple_client_port_set(client, ntconf.port);
 	grapple_client_protocol_set(client, GRAPPLE_PROTOCOL_UDP);
 	grapple_client_start(client, 0);
-	grapple_client_name_set(client, "joc");
+	grapple_client_name_set(client, ntconf.name);
 }
 
 ship_t * ntCreateLocalPlayer(char * type) {

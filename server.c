@@ -16,6 +16,7 @@
 #include "ship.h"
 #include "ai.h"
 #include "network.h"
+#include "config.h"
 
 static grapple_server server;
 static ntmsg_t *datas;
@@ -100,18 +101,18 @@ void loop() {
 }
 
 int main(int argc, char *argv[]) {
-
-	//	datas = malloc(sizeof(ntmsg_t) + sizeof(shipcore_t) * 50);
+	ntconf_t ntconf;
+	cfReadNetwork(&ntconf);
 	datas = malloc(sizeof(ntmsg_t) + sizeof(shipcorename_t) * 50);
 	server = grapple_server_init("starc", "0.4");
-	grapple_server_ip_set(server, "127.0.0.1"); //OPTIONAL FUNCTION
-	grapple_server_port_set(server, 1234);
+
+	grapple_server_port_set(server, ntconf.port);
 	grapple_server_protocol_set(server, GRAPPLE_PROTOCOL_UDP);
 	grapple_server_session_set(server, "Play my game");
 	grapple_server_start(server);
 
 	shLoadShipType();
-	aiCreate(shCreateShip("v1", 10000, 0, -1, 1,0));
+	aiCreate(shCreateShip("v1", 10000, 0, -1, 1, 0));
 
 	while (1) {
 		loop();
