@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <grapple.h>
+#include <grapple/grapple.h>
 
 #include "config.h"
 #include "ship.h"

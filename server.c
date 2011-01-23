@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <grapple.h>
+#include <grapple/grapple.h>
 
 #include "ship.h"
 #include "ai.h"

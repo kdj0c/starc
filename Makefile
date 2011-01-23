@@ -43,11 +43,11 @@ $(SV_DIR):
 	
 $(CL_DIR)/%.o : %.c
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -I/usr/include/freetype2 -c -o"$@" "$<"
+	@gcc -O0 -Wall -g -I/usr/include/freetype2 -c -o"$@" "$<"
 	
 $(SV_DIR)/%.o : %.c
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -I../libgrapple-0.9.8/src/ -DDEDICATED -c -o"$@" "$<"
+	@gcc -O0 -Wall -g -DDEDICATED -c -o"$@" "$<"
      
 # Other Targets
 clean:
