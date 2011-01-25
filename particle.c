@@ -52,14 +52,14 @@ void paExplosion(float x, float y, float dx, float dy, float v, int number, unsi
 		angle = (float) (rand() % 1000) * M_PI / 500.f;
 		rx = len * cos(angle);
 		ry = len * sin(angle);
-		parts[i].maxlife = rand() % 1000;
-		parts[i].x = x + rx * 10.0;
-		parts[i].y = y + ry * 10.0;
+		parts[i].maxlife = rand() % 1000 + 500;
+		parts[i].x = x + rx * 50.0;
+		parts[i].y = y + ry * 50.0;
 		parts[i].dx = dx + rx * v;
 		parts[i].dy = dy + ry * v;
 		parts[i].life = parts[i].maxlife;
 		parts[i].color = color;
-		parts[i].size = rand() % 100 + 50;
+		parts[i].size = rand() % 200 + 50;
 		parts[i].flag = 0;
 	}
 	freePart += number;
@@ -133,8 +133,8 @@ void paUpdate(float dt) {
 					parts[i].r, 40.);
 		else
 			grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
-		parts[i].x += parts[i].dx * dt;
-		parts[i].y += parts[i].dy * dt;
+		parts[i].x += c * parts[i].dx * dt;
+		parts[i].y += c * parts[i].dy * dt;
 		parts[i].life -= dt;
 	}
 }

@@ -158,7 +158,7 @@ void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 6.f, 5000, sh->t->burst[0].color);
+		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 3.f, 2000, sh->t->burst[0].color);
 	}
 	if(sh->health < 0)
 		sh->health = 0;
@@ -194,7 +194,6 @@ void firelaser(ship_t * sh, laser_t * las, float dt) {
 		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
 	}
 	grSetColor(las->color);
-//	grDrawLine(x, y, x + min * cos(r), y + min * sin(r));
 	paLas(x, y, sh->dx, sh->dy, min, r, las->color);
 }
 
