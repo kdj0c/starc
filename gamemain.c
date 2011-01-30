@@ -21,6 +21,7 @@
 ship_t * player;
 static float scale = 1.f;
 static int net = 1;
+static int gpause = 0;
 
 void dummy() {
 
@@ -38,12 +39,19 @@ void grDraw(int value) {
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
 
+	if (gpause && !net) {
+		fpstime = time;
+		prevtime = time;
+		return;
+	}
+
 	if (time - fpstime > 1000) {
 		fps = frame * 1000.0 / ((float) (time - fpstime));
 		printf("fps %f\n", fps);
 		fpstime = time;
 		frame = 0;
 	}
+
 	dt = (float) time - prevtime;
 	prevtime = time;
 	/* Big Lag don't allow less than 2FPS */
@@ -110,6 +118,8 @@ void keydown(unsigned char key, int x, int y){
 	case '+':
 		scale *= 1.3;
 		break;
+	case 'p':
+		gpause ^= 1;
 	}
 	if(net)
 		ntSendInput(player);
