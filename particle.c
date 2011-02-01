@@ -31,12 +31,14 @@ typedef struct {
 
 static particle_t * parts;
 static unsigned int texture;
+static unsigned int lastex;
 static int freePart = 0;
 
 void paInit(void) {
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
 	texture = grLoadTexture("img/particle.png");
+	lastex = grLoadTexture("img/laser.png");
 }
 
 void paExplosion(float x, float y, float dx, float dy, float v, int number, unsigned int color) {
@@ -128,11 +130,14 @@ void paUpdate(float dt) {
 		parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (c * 255);
 		grSetColor(parts[i].color);
-		if (parts[i].flag == PA_LASER)
+		if (parts[i].flag == PA_LASER) {
+			grSetBlendAdd(lastex);
 			grBlitLaser(parts[i].x, parts[i].y, parts[i].size,
 					parts[i].r, 40.);
-		else
+			grSetBlendAdd(texture);
+		} else {
 			grBlitSquare(parts[i].x, parts[i].y, parts[i].size);
+		}
 		parts[i].x += c * parts[i].dx * dt;
 		parts[i].y += c * parts[i].dy * dt;
 		parts[i].life -= dt;

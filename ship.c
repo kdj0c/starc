@@ -124,6 +124,7 @@ void shSync(shipcore_t * shc, int local) {
 		size -= sizeof(shin_t);
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shc->netid) {
+			/* if ship died from last update, make an explosion */
 			if(sh->health > 0 && shc->health <= 0)
 				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
 			memcpy(sh, shc, size);

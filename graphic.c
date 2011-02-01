@@ -71,13 +71,13 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	ax = - width * sin(r);
 	ay = width * cos(r);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0., 0.5);
+	glTexCoord2f(0., 1.);
 	glVertex2f(x + ax, y + ay);
-	glTexCoord2f(0., 0.8);
+	glTexCoord2f(1., 1.);
 	glVertex2f(x + len * cos(r) + ax, y + len * sin(r) + ay);
-	glTexCoord2f(1., 0.8);
+	glTexCoord2f(1., 0.);
 	glVertex2f(x + len * cos(r) - ax, y + len * sin(r) - ay);
-	glTexCoord2f(1., 0.5);
+	glTexCoord2f(0., 0.);
 	glVertex2f(x - ax, y - ay);
 	glEnd();
 }
@@ -109,13 +109,13 @@ void grBlitRot(float x, float y, float r, float size) {
 
 void grBlit(float x, float y, float a, float b) {
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.f, 0.f);
+	glTexCoord2f(1.f, 0.f);
 	glVertex2f(x + a, y + b);
-	glTexCoord2f(0.f, 1.f);
+	glTexCoord2f(1.f, 1.f);
 	glVertex2f(x + b, y - a);
-	glTexCoord2f(1., 1.);
+	glTexCoord2f(0., 1.);
 	glVertex2f(x - a, y - b);
-	glTexCoord2f(1., 0.);
+	glTexCoord2f(0., 0.);
 	glVertex2f(x - b, y + a);
 	glEnd();
 }
