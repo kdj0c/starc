@@ -178,12 +178,12 @@ void gmStartSingle(void) {
 	shLoadShip();
 	paInit();
 	player = shCreateShip("v1", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("v1", 0, 2000, 0, 0, 0));
+	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
 	aiCreate(shCreateShip("w1", 10000, -1000, -1, 1, 0));
 	aiCreate(shCreateShip("w2", 10000, 1200, -1, 1, 0));
 	aiCreate(shCreateShip("w1", -11000, 1000, 0, 1, 0));
-	aiCreate(shCreateShip("w2", -11000, -1800, 0, 1, 0));
+	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
 
 	glutTimerFunc(10, grDraw, 0);
 }

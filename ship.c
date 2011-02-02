@@ -16,6 +16,8 @@
 #include "ship.h"
 #include "particle.h"
 #include "config.h"
+#include "turret.h"
+#include "mothership.h"
 
 static shiptype_t *alltype = NULL;
 static int numtype = 0;
@@ -175,7 +177,7 @@ void firelaser(ship_t * sh, laser_t * las, float dt) {
 	min = LASER_RANGE;
 	for (en = head; en != NULL; en = en->next) {
 		float dx, dy, tx, ty, s;
-		if (en == sh || en->health <= 0)
+		if (en == sh || en->health <= 0 || en->t->flag & SH_MOTHERSHIP)
 			continue;
 		dx = en->x - x;
 		dy = en->y - y;
@@ -282,8 +284,10 @@ void shDetectCollision(void) {
 		float dx, dy, s;
 		if (sh->health <=0)
 			continue;
+		if (sh->t->flag & SH_MOTHERSHIP)
+			continue;
 		for (en = sh->next; en != NULL; en = en->next) {
-			if (en->health <= 0)
+			if (en->health <= 0 || (en->t->flag & SH_MOTHERSHIP))
 				continue;
 			dx = en->x - sh->x;
 			dy = en->y - sh->y;
@@ -303,16 +307,30 @@ void shUpdateRespawn(float dt) {
 		if (sh->health > 0)
 			continue;
 		sh->health -= dt;
+
 		if (sh->health < -5000.) {
+			msRespawn(sh);
+			/*
 			sh->health = sh->t->maxhealth;
 			sh->x = (rand() % 10000 - 5000) * 2.;
 			sh->y = (rand() % 10000 - 5000) * 2.;
 			sh->r = (rand() % 360 - 180) * M_PI / 180.;
 			sh->dx = 0;
 			sh->dy = 0;
-			sh->drawshield = 0;
+			sh->drawshield = 0;*/
 		}
 	}
+}
+
+ship_t * shFindMotherShip(int team) {
+	ship_t * sh;
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if (sh->team != team)
+			continue;
+		if (sh->t->flag & SH_MOTHERSHIP)
+			return sh;
+	}
+	return NULL;
 }
 
 ship_t * shFindNearestEnemy(ship_t * self) {
@@ -385,6 +403,9 @@ void shDrawShips(void) {
 		if (sh->drawshield > 0) {
 			grSetBlendAdd(sh->t->shieldtex);
 			grBlit(sh->x, sh->y, sh->t->shieldsize * M_SQRT1_2, 0);
+		}
+		if (sh->t->numturret) {
+			tuDraw(sh);
 		}
 	}
 }
