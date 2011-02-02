@@ -239,7 +239,7 @@ void shBurst(ship_t *sh) {
 	for(i=0;i<sh->t->numburst;i++) {
 		x = sh->x + sh->t->burst[i].x * cos(sh->r) + sh->t->burst[i].y * sin(sh->r);
 		y = sh->y + sh->t->burst[i].x * sin(sh->r) - sh->t->burst[i].y * cos(sh->r);
-		paBurst(x, y, sh->dx, sh->dy, sh->r, sh->t->burst[i].color);
+		paBurst(x, y, sh->dx, sh->dy, sh->r, sh->t->burst[i].size, sh->t->burst[i].color);
 	}
 }
 

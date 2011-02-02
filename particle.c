@@ -67,7 +67,7 @@ void paExplosion(float x, float y, float dx, float dy, float v, int number, unsi
 	freePart += number;
 }
 
-void paBurst(float x, float y, float dx, float dy, float r, unsigned int color) {
+void paBurst(float x, float y, float dx, float dy, float r, float size, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 1000 + 1000;
@@ -76,7 +76,7 @@ void paBurst(float x, float y, float dx, float dy, float r, unsigned int color) 
 	parts[i].dx = dx - 0.8 * cos(r) + 0.2 * ((rand() % 1000 - 500) / 500.f);
 	parts[i].dy = dy - 0.8 * sin(r) + 0.2 * ((rand() % 1000 - 500) / 500.f);
 	parts[i].life = parts[i].maxlife;
-	parts[i].size = rand() % 100 + 50;
+	parts[i].size = (rand() % 100 + 50) * size;
 	parts[i].color = color;
 	parts[i].flag = 0;
 	freePart++;

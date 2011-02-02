@@ -25,6 +25,7 @@ typedef struct {
 typedef struct {
 	float x;
 	float y;
+	float size;
 	unsigned int color;
 } burst_t;
 

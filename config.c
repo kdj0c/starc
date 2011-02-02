@@ -105,6 +105,7 @@ void cfShipGetBurst(config_setting_t *cst, shiptype_t *st) {
 		csl2 = config_setting_get_elem(csl, j);
 		cfReadShipFloat(csl2, "x", &st->burst[j].x);
 		cfReadShipFloat(csl2, "y", &st->burst[j].y);
+		cfReadShipFloat(csl2, "size", &st->burst[j].size);
 		config_setting_lookup_int(csl2, "color", (long *) &st->burst[j].color);
 	}
 }
