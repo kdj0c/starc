@@ -17,7 +17,7 @@ CL_DIR:=cl_obj
 CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o menu.o gamemain.o config.o turret.o mothership.o)
 CL:=starc
 SV_DIR:=sv_obj
-SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o mothership.o)
+SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o turret.o mothership.o)
 SV:=ded_starc
 
 # All Target

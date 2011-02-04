@@ -9,7 +9,14 @@
 #ifndef TURRET_H_
 #define TURRET_H_
 
+#include "ship.h"
+
+void tuAddTurret(ship_t * sh);
+void tuUpdate(ship_t *sh, float dt);
+#ifndef DEDICATED
 void tuDraw(ship_t * sh);
-void tuUpdate(float dt);
+#else
+#define tuDraw
+#endif
 
 #endif /* TURRET_H_ */

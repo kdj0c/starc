@@ -82,6 +82,10 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team, int neti
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
 	newship->netid = netid;
+
+	if(newship->t->numturret)
+		tuAddTurret(newship);
+
 	addShip(newship);
 	return newship;
 }
@@ -94,7 +98,7 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shn->netid) {
 			/* we have already this ship no need to create a new one !*/
-			shSync((shipcore_t *) shn, 0);
+			shSync((shipcore_t *) &shn->x, 0);
 			return sh;
 		}
 	}
@@ -110,7 +114,7 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 		free(newship);
 		return NULL;
 	}
-	memcpy(newship, shn, sizeof(shipcore_t));
+	memcpy(newship, &shn->x, sizeof(shipcore_t));
 	addShip(newship);
 	return newship;
 }
@@ -129,7 +133,7 @@ void shSync(shipcore_t * shc, int local) {
 			/* if ship died from last update, make an explosion */
 			if(sh->health > 0 && shc->health <= 0)
 				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
-			memcpy(sh, shc, size);
+			memcpy(&sh->x, shc, size);
 			return;
 		}
 	}
@@ -167,23 +171,22 @@ void shDamage(ship_t * sh, float dg) {
 		sh->health = 0;
 }
 
-void firelaser(ship_t * sh, laser_t * las, float dt) {
-	float x, y, r, len, min;
+void shFireLaser(float x, float y, float r, laser_t *las, float dt) {
 	ship_t * en;
 	ship_t * tc = NULL;
-	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
-	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
-	r = sh->r + las->r;
+	float len, min;
+
 	min = LASER_RANGE;
 	for (en = head; en != NULL; en = en->next) {
 		float dx, dy, tx, ty, s;
-		if (en == sh || en->health <= 0 || en->t->flag & SH_MOTHERSHIP)
+		if (en->health <= 0 || en->t->flag & SH_MOTHERSHIP)
 			continue;
 		dx = en->x - x;
 		dy = en->y - y;
 		tx = dx * cos(r) + dy * sin(r);
 		ty = dx * sin(r) - dy * cos(r);
 		s = en->t->shieldsize / 2.f;
+
 		if (tx > 0 && tx < LASER_RANGE + s && ty > -s && ty < s) {
 			len = tx - sqrt(s * s - ty * ty);
 			if (len < min) {
@@ -196,8 +199,17 @@ void firelaser(ship_t * sh, laser_t * las, float dt) {
 		shDamage(tc, dt);
 		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
 	}
-	grSetColor(las->color);
-	paLas(x, y, sh->dx, sh->dy, min, r, las->color);
+	paLas(x, y,0., 0., min, r, las->color);
+}
+
+
+void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
+	float x, y, r;
+
+	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
+	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
+	r = sh->r + las->r;
+	shFireLaser(x, y, r, las, dt);
 }
 
 /*
@@ -271,10 +283,13 @@ void shUpdateShips(float dt) {
 
 		if (sh->in.fire1) {
 			for (l = 0; l < sh->t->numlaser; l++) {
-				firelaser(sh, &sh->t->laser[l], dt);
+				shShipFireLaser(sh, &sh->t->laser[l], dt);
 			}
 		}
+		if(sh->turret)
+			tuUpdate(sh, dt);
 	}
+
 }
 
 void shDetectCollision(void) {
@@ -344,7 +359,7 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 		if (sh->team == self->team)
 			continue;
 		dx = self->x - sh->x;
-		dy = self->y - self->y;
+		dy = self->y - sh->y;
 		d = dx * dx + dy * dy;
 
 		if (nr && d > min_d)
@@ -366,7 +381,7 @@ int shSerialize(shipcore_t * data) {
 
 	shc = data;
 	for (sh = head; sh != NULL; sh = sh->next) {
-		memcpy(shc, sh, sizeof(*shc));
+		memcpy(shc, &sh->x, sizeof(*shc));
 		shc++;
 		size += sizeof(*shc);
 	}
@@ -384,7 +399,7 @@ int shSerializeOnce(shipcorename_t * data) {
 
 	shn = data;
 	for (sh = head; sh != NULL; sh = sh->next) {
-		memcpy(shn, sh, sizeof(*shn));
+		memcpy(&shn->x, &sh->x, sizeof(shipcore_t));
 		strcpy(shn->typename,sh->t->name);
 		shn++;
 		size += sizeof(*shn);

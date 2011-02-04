@@ -73,8 +73,8 @@ void grDraw(int value) {
 	}
 	grChangeview(player->x, player->y, player->r, scale);
 	stBlit();
-	paUpdate(dt);
 	shDrawShips();
+	paUpdate(dt);
 	grDrawHUD(player->health);
 	shDrawShipHUD(player);
 	glutSwapBuffers();
@@ -177,12 +177,27 @@ void gmStartSingle(void) {
 	shLoadShipType();
 	shLoadShip();
 	paInit();
-	player = shCreateShip("v1", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
+	player = shCreateShip("mother1", 0, 0, 0, 0, 0);
+	aiCreate(shCreateShip("v1", 0, 20000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
-	aiCreate(shCreateShip("w1", 10000, -1000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 10000, 1200, -1, 1, 0));
-	aiCreate(shCreateShip("w1", -11000, 1000, 0, 1, 0));
+
+	aiCreate(shCreateShip("w1", 10000, 10000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 10000, 2000, -1, 1, 0));
+	aiCreate(shCreateShip("w1", 10000, -2000, 0, 1, 0));
+	aiCreate(shCreateShip("w1", 10000, -10000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 15000, 10000, -1, 1, 0));
+	aiCreate(shCreateShip("w1", 15000, -10000, 0, 1, 0));
+	aiCreate(shCreateShip("w1", 15000, 2000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 15000, -2000, -1, 1, 0));
+	aiCreate(shCreateShip("w1", 20000, 10000, 0, 1, 0));
+	aiCreate(shCreateShip("w1", 20000, -10000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 20000, 2000, -1, 1, 0));
+	aiCreate(shCreateShip("w1", 20000, -2000, 0, 1, 0));
+	aiCreate(shCreateShip("w1", 25000, -2000, -1, 1, 0));
+	aiCreate(shCreateShip("w2", 25000, 2000, -1, 1, 0));
+	aiCreate(shCreateShip("w1", 25000, 10000, 0, 1, 0));
+
+
 	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
 
 	glutTimerFunc(10, grDraw, 0);

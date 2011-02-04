@@ -36,7 +36,7 @@ typedef struct {
 	float maniability;
 	int numlaser;
 	laser_t laser[5];
-} turret_t;
+} turrettype_t;
 
 typedef struct {
 	float x;
@@ -61,7 +61,7 @@ typedef struct {
 	int numburst;
 	burst_t burst[5];
 	int numturret;
-	turret_t turret[15];
+	turrettype_t turret[15];
 	hangar_t hangar;
 } shiptype_t;
 
@@ -96,21 +96,33 @@ typedef struct {
 } shipcore_t;
 
 /*
- * append name at the end for network init
+ * add name before for network init
  */
 typedef struct {
-	ship_core
 	char typename[16];
+	ship_core
 } shipcorename_t;
 
+struct tur;
 /*
  * local structure
  */
 typedef struct ship_s {
-	ship_core
 	struct ship_s * next;
 	shiptype_t * t;
+	struct tur * turret;
+	ship_core
 } ship_t;
+
+struct tur {
+	float x;
+	float y;
+	float r;
+	ship_t *target;
+	int last_think;
+};
+
+typedef struct tur turret_t;
 
 #ifndef DEDICATED
 void shDrawShips(void);
@@ -119,6 +131,7 @@ void shDrawShipHUD(ship_t * pl);
 #endif
 void shLoadShipType(void);
 void shUpdateShips(float dt);
+void shFireLaser(float x, float y, float r, laser_t *las, float dt);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
 ship_t * shCreateShip(char *name, float x, float y, float r, int team, int netid);

@@ -63,6 +63,9 @@ void aiThink(void) {
 		if(sh->health <= 0)
 			continue;
 
+		/* need a specific IA for mothership */
+		if(sh->t->flag & SH_MOTHERSHIP)
+			continue;
 
 		if (!tg || tg->health <= 0) {
 			ai->target = shFindNearestEnemy(sh);

@@ -67,7 +67,7 @@ void cfReadShipString(config_setting_t *cst, const char * name, char * dest) {
 }
 
 void cfReadShipFloat(config_setting_t *cst, const char * name, float * dest) {
-	double tmp;
+	double tmp = 0;
 	config_setting_lookup_float(cst, name, &tmp);
 	*dest = (float) tmp;
 }
@@ -110,6 +110,25 @@ void cfShipGetBurst(config_setting_t *cst, shiptype_t *st) {
 	}
 }
 
+void cfTurretGetLaser(config_setting_t *cst, turrettype_t *tu) {
+	config_setting_t *csl;
+	config_setting_t *csl2;
+	int j;
+
+	csl = config_setting_get_member(cst, "laser");
+	if (!csl)
+		return;
+	tu->numlaser = config_setting_length(csl);
+	for (j = 0; j < tu->numlaser; j++) {
+		csl2 = config_setting_get_elem(csl, j);
+		cfReadShipFloat(csl2, "x", &tu->laser[j].x);
+		cfReadShipFloat(csl2, "y", &tu->laser[j].y);
+		cfReadShipFloat(csl2, "r", &tu->laser[j].r);
+		tu->laser[j].r *= M_PI / 180.;
+		config_setting_lookup_int(csl2, "color", (long *) &tu->laser[j].color);
+	}
+}
+
 void cfShipGetTurret(config_setting_t *cst, shiptype_t *st) {
 	config_setting_t *csl;
 	config_setting_t *csl2;
@@ -126,6 +145,7 @@ void cfShipGetTurret(config_setting_t *cst, shiptype_t *st) {
 		cfReadShipFloat(csl2, "y", &st->turret[j].y);
 		cfReadShipFloat(csl2, "maxhealth", &st->turret[j].maxhealth);
 		cfReadShipFloat(csl2, "maniability", &st->turret[j].maniability);
+		cfTurretGetLaser(csl2, &st->turret[j]);
 	}
 }
 
@@ -142,7 +162,6 @@ void cfShipGetHangar(config_setting_t *cst, shiptype_t *st) {
 	cfReadShipFloat(csl, "r", &st->hangar.r);
 	st->hangar.r *= M_PI / 180.;
 }
-
 
 shiptype_t * cfReadShip(int *num) {
 	config_setting_t *cs;
