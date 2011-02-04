@@ -131,7 +131,8 @@ void shDrawShipHUD(ship_t * pl);
 #endif
 void shLoadShipType(void);
 void shUpdateShips(float dt);
-void shFireLaser(float x, float y, float r, laser_t *las, float dt);
+void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
+		float dt);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
 ship_t * shCreateShip(char *name, float x, float y, float r, int team, int netid);

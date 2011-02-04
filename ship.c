@@ -167,11 +167,12 @@ void shDamage(ship_t * sh, float dg) {
 	if (sh->health <= 0 && sh->health + dg > 0) {
 		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 3.f, 2000, sh->t->burst[0].color);
 	}
-	if(sh->health < 0)
+	if (sh->health < 0)
 		sh->health = 0;
 }
 
-void shFireLaser(float x, float y, float r, laser_t *las, float dt) {
+void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
+		float dt) {
 	ship_t * en;
 	ship_t * tc = NULL;
 	float len, min;
@@ -199,9 +200,8 @@ void shFireLaser(float x, float y, float r, laser_t *las, float dt) {
 		shDamage(tc, dt);
 		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
 	}
-	paLas(x, y,0., 0., min, r, las->color);
+	paLas(x, y, dx, dy, min, r, las->color);
 }
-
 
 void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
 	float x, y, r;
@@ -209,7 +209,7 @@ void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
 	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
 	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
 	r = sh->r + las->r;
-	shFireLaser(x, y, r, las, dt);
+	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt);
 }
 
 /*

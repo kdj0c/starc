@@ -29,13 +29,13 @@ void tuAddTurret(ship_t * sh) {
 	}
 }
 
-void tufirelaser(turret_t * tu, laser_t * las, float dt) {
+void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float dt) {
 	float x, y, r;
 	x = tu->x + las->x * cos(tu->r) + las->y * sin(tu->r);
 	y = tu->y + las->x * sin(tu->r) - las->y * cos(tu->r);
 	r = tu->r + las->r;
 
-	shFireLaser(x, y, r, las, dt);
+	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt);
 }
 
 void tuUpdate(ship_t *sh, float dt) {
@@ -68,7 +68,7 @@ void tuUpdate(ship_t *sh, float dt) {
 
 			if (dx * dx + dy * dy < LASER_RANGE * LASER_RANGE) {
 				for (l = 0; l < sh->t->numlaser; l++) {
-					tufirelaser(tu, &sh->t->turret[i].laser[l], dt);
+					tufirelaser(sh, tu, &sh->t->turret[i].laser[l], dt);
 				}
 			}
 		}
