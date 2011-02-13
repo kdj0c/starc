@@ -14,9 +14,11 @@
 void tuAddTurret(ship_t * sh);
 void tuUpdate(ship_t *sh, float dt);
 #ifndef DEDICATED
+void tuLoadTurret(void);
 void tuDraw(ship_t * sh);
 #else
 #define tuDraw
+#define tuLoadTurret
 #endif
 
 #endif /* TURRET_H_ */

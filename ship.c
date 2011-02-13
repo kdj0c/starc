@@ -172,7 +172,7 @@ void shDamage(ship_t * sh, float dg) {
 }
 
 void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
-		float dt) {
+		float dt, ship_t *self) {
 	ship_t * en;
 	ship_t * tc = NULL;
 	float len, min;
@@ -180,7 +180,7 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 	min = LASER_RANGE;
 	for (en = head; en != NULL; en = en->next) {
 		float dx, dy, tx, ty, s;
-		if (en->health <= 0 || en->t->flag & SH_MOTHERSHIP)
+		if (en->health <= 0 || en == self || en->t->flag & SH_MOTHERSHIP)
 			continue;
 		dx = en->x - x;
 		dy = en->y - y;
@@ -209,7 +209,7 @@ void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
 	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
 	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
 	r = sh->r + las->r;
-	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt);
+	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt, sh);
 }
 
 /*

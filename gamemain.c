@@ -175,10 +175,11 @@ void gmStartSingle(void) {
 	net = 0;
 	enterGameMode();
 	shLoadShipType();
+	tuLoadTurret();
 	shLoadShip();
 	paInit();
-	player = shCreateShip("mother1", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("v1", 0, 20000, 0, 0, 0));
+	player = shCreateShip("v2", 0, 0, 0, 0, 0);
+	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
 
 	aiCreate(shCreateShip("w1", 10000, 10000, -1, 1, 0));
@@ -209,6 +210,7 @@ void gmStartMulti(void) {
 
 	ntInit();
 	shLoadShipType();
+	tuLoadTurret();
 	shLoadShip();
 	paInit();
 	ntHandleMessage();

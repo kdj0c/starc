@@ -13,12 +13,22 @@
 #include "graphic.h"
 #include "particle.h"
 
+#ifndef DEDICATED
+
+int tuTex=0;
+void tuLoadTurret(void) {
+   tuTex = grLoadTexture("img/tu.png");
+}
+#endif
+
+
 void tuAddTurret(ship_t * sh) {
 	turret_t *new;
 	turrettype_t *t;
 	int i;
 
 	new = malloc(sizeof(*new) * sh->t->numturret);
+	memset(new,0,sizeof(*new) * sh->t->numturret);
 	sh->turret = new;
 
 	for (i = 0; i < sh->t->numturret; i++) {
@@ -35,7 +45,7 @@ void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float dt) {
 	y = tu->y + las->x * sin(tu->r) - las->y * cos(tu->r);
 	r = tu->r + las->r;
 
-	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt);
+	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt, sh);
 }
 
 void tuUpdate(ship_t *sh, float dt) {
@@ -80,10 +90,11 @@ void tuDraw(ship_t * sh) {
 	turrettype_t *t;
 	int i;
 
+   grSetBlend(tuTex);
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
-		grBlitRot(tu->x, tu->y, tu->r, 1000.);
+		grBlitRot(tu->x, tu->y, tu->r, 700.);
 	}
 }
 #endif
