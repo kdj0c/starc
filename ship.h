@@ -30,13 +30,25 @@ typedef struct {
 } burst_t;
 
 typedef struct {
-	float x;
-	float y;
+	char name[16];
+	char imgfile[32];
+	unsigned int tex;
+	float size;
+	char shieldfile[32];
+	unsigned int shieldtex;
+	float shieldsize;
 	float maxhealth;
 	float maniability;
+	unsigned int flag;
 	int numlaser;
 	laser_t laser[5];
 } turrettype_t;
+
+typedef struct {
+	float x;
+	float y;
+	turrettype_t * t;
+} turretpos_t;
 
 typedef struct {
 	float x;
@@ -61,7 +73,7 @@ typedef struct {
 	int numburst;
 	burst_t burst[5];
 	int numturret;
-	turrettype_t turret[15];
+	turretpos_t turret[10];
 	hangar_t hangar;
 } shiptype_t;
 

@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ship.h"
 #include "graphic.h"
@@ -24,7 +25,7 @@ void tuLoadTurret(void) {
 
 void tuAddTurret(ship_t * sh) {
 	turret_t *new;
-	turrettype_t *t;
+	turretpos_t *t;
 	int i;
 
 	new = malloc(sizeof(*new) * sh->t->numturret);
@@ -50,7 +51,7 @@ void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float dt) {
 
 void tuUpdate(ship_t *sh, float dt) {
 	turret_t *tu;
-	turrettype_t *t;
+	turretpos_t *t;
 	int i,l;
 
 	for (i = 0; i < sh->t->numturret; i++) {
@@ -72,13 +73,13 @@ void tuUpdate(ship_t *sh, float dt) {
 			dy = tu->target->y - tu->y;
 			ty = dx * sin(tu->r) - dy * cos(tu->r);
 			if (ty > 10.)
-				tu->r -= sh->t->turret[i].maniability * dt;
+				tu->r -= t->t->maniability * dt;
 			else if (ty < 10.)
-				tu->r += sh->t->turret[i].maniability * dt;
+				tu->r += t->t->maniability * dt;
 
 			if (dx * dx + dy * dy < LASER_RANGE * LASER_RANGE) {
-				for (l = 0; l < sh->t->numlaser; l++) {
-					tufirelaser(sh, tu, &sh->t->turret[i].laser[l], dt);
+				for (l = 0; l < t->t->numlaser; l++) {
+					tufirelaser(sh, tu, &t->t->laser[l], dt);
 				}
 			}
 		}
@@ -87,12 +88,10 @@ void tuUpdate(ship_t *sh, float dt) {
 #ifndef DEDICATED
 void tuDraw(ship_t * sh) {
 	turret_t *tu;
-	turrettype_t *t;
 	int i;
 
    grSetBlend(tuTex);
 	for (i = 0; i < sh->t->numturret; i++) {
-		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
 		grBlitRot(tu->x, tu->y, tu->r, 700.);
 	}

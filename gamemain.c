@@ -17,6 +17,8 @@
 #include "star.h"
 #include "particle.h"
 #include "network.h"
+#include "turret.h"
+#include "config.h"
 
 ship_t * player;
 static float scale = 1.f;
@@ -174,7 +176,7 @@ void enterGameMode(void) {
 void gmStartSingle(void) {
 	net = 0;
 	enterGameMode();
-	shLoadShipType();
+	cfReadGameData();
 	tuLoadTurret();
 	shLoadShip();
 	paInit();
@@ -200,7 +202,7 @@ void gmStartSingle(void) {
 
 
 	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
-
+	shLoadShip();
 	glutTimerFunc(10, grDraw, 0);
 }
 
@@ -209,7 +211,7 @@ void gmStartMulti(void) {
 	enterGameMode();
 
 	ntInit();
-	shLoadShipType();
+	cfReadGameData();
 	tuLoadTurret();
 	shLoadShip();
 	paInit();

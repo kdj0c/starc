@@ -19,8 +19,6 @@
 #include "turret.h"
 #include "mothership.h"
 
-static shiptype_t *alltype = NULL;
-static int numtype = 0;
 #ifndef DEDICATED
 static int hudarrowtex = 0;
 #endif
@@ -51,16 +49,17 @@ static void removeShip(ship_t * sh) {
 }
 
 void shLoadShipType(void) {
-	alltype = cfReadShip(&numtype);
 }
 
 #ifndef DEDICATED
 void shLoadShip(void) {
-	int i;
+	ship_t * sh;
 
-	for (i = 0; i < numtype; i++) {
-		alltype[i].tex = grLoadTexture(alltype[i].imgfile);
-		alltype[i].shieldtex = grLoadTexture(alltype[i].shieldfile);
+	for (sh = head; sh != NULL; sh = sh->next) {
+		if(!sh->t->tex)
+			sh->t->tex = grLoadTexture(sh->t->imgfile);
+		if(!sh->t->shieldtex)
+			sh->t->shieldtex = grLoadTexture(sh->t->shieldfile);
 	}
 	hudarrowtex = grLoadTexture("img/arrow.png");
 }
@@ -68,14 +67,10 @@ void shLoadShip(void) {
 
 ship_t * shCreateShip(char * name, float x, float y, float r, int team, int netid) {
 	ship_t * newship;
-	int i;
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
-	for (i = 0; i < numtype; i++) {
-		if (!strcmp(name, alltype[i].name))
-			newship->t = &alltype[i];
-	}
+	newship->t = cfGetShip(name);
 	newship->x = x;
 	newship->y = y;
 	newship->r = r;
@@ -93,7 +88,6 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team, int neti
 ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	ship_t * newship;
 	ship_t * sh;
-	int i;
 
 	for (sh = head; sh != NULL; sh = sh->next) {
 		if (sh->netid == shn->netid) {
@@ -105,10 +99,7 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
-	for (i = 0; i < numtype; i++) {
-		if (!strcmp(shn->typename, alltype[i].name))
-			newship->t = &alltype[i];
-	}
+	newship->t = cfGetShip(shn->typename);
 	if(!newship->t) {
 		printf("can't create ship of type '%s'\n", shn->typename);
 		free(newship);

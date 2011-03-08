@@ -26,6 +26,9 @@ typedef struct {
 void cfReadGraphic(grconf_t * c);
 void cfReadNetwork(ntconf_t *c);
 
-shiptype_t * cfReadShip(int *num);
+int cfReadGameData(void);
+
+shiptype_t * cfGetShip(const char * name);
+turrettype_t * cfGetTurret(const char * name);
 
 #endif /* CONFIG_H_ */
