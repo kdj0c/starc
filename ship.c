@@ -26,9 +26,18 @@ static int hudarrowtex = 0;
 static ship_t * head = NULL;
 
 static void addShip(ship_t * sh) {
+	ship_t *s;
 	if (head) {
-		sh->next = head->next;
-		head->next = sh;
+		if (sh->t->flag & SH_MOTHERSHIP) {
+			s = head;
+			head = sh;
+			sh->next = s;
+		} else {
+			for (s = head; s->next != NULL; s = s->next) {
+			}
+			s->next = sh;
+			sh->next = NULL;
+		}
 	} else {
 		head = sh;
 		sh->next = NULL;
