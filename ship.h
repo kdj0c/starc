@@ -123,6 +123,7 @@ typedef struct ship_s {
 	struct ship_s * next;
 	shiptype_t * t;
 	struct tur * turret;
+	float respawn_time;
 	ship_core
 } ship_t;
 
