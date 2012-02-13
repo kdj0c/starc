@@ -14,14 +14,14 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 CL_DIR:=cl_obj
-CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o menu.o gamemain.o config.o turret.o mothership.o)
+CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o menu.o gamemain.o config.o turret.o mothership.o event.o)
 CL:=starc
 SV_DIR:=sv_obj
-SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o turret.o mothership.o)
+SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o turret.o mothership.o event.o)
 SV:=ded_starc
 
 # All Target
-all: $(CL) $(SV)
+all: $(CL)
 
 # Tool invocations
 $(CL): $(CL_OBJS)

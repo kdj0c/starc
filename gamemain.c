@@ -19,6 +19,7 @@
 #include "network.h"
 #include "turret.h"
 #include "config.h"
+#include "event.h"
 
 ship_t * player;
 static float scale = 1.f;
@@ -181,7 +182,9 @@ void gmStartSingle(void) {
 	shLoadShip();
 	paInit();
 	player = shCreateShip("v2", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
+
+
+/*	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
 
 	aiCreate(shCreateShip("w1", 10000, 10000, -1, 1, 0));
@@ -202,8 +205,12 @@ void gmStartSingle(void) {
 
 
 	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
+	*/
+	evPostEventNow(NULL, ev_newship);
+	evPostEventNow(NULL, ev_newtraj);
 	shLoadShip();
 	glutTimerFunc(10, grDraw, 0);
+	glutTimerFunc(10, evConsumeEvent, 0);
 }
 
 void gmStartMulti(void) {
