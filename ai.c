@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include "list.h"
 #include "ship.h"
 #include "ai.h"
 
@@ -22,16 +23,8 @@ enum {
 };
 
 static ai_t * aihead = NULL;
+LIST_HEAD(aih);
 
-static void addAi(ai_t * ai) {
-	if (aihead) {
-		ai->next = aihead->next;
-		aihead->next = ai;
-	} else {
-		aihead = ai;
-		ai->next = NULL;
-	}
-}
 
 ai_t * aiCreate(ship_t * sh) {
 	ai_t * newai;
@@ -40,7 +33,7 @@ ai_t * aiCreate(ship_t * sh) {
 	newai->ship = sh;
 	newai->target = NULL;
 	newai->state = ai_aim;
-	addAi(newai);
+	list_add(&newai->list, &aih);
 	return newai;
 }
 
@@ -51,8 +44,7 @@ void aiThink(void) {
 	float tx, ty, dx, dy, d, tdx, tdy, s;
 	float ndx, ndy, nr, dd;
 
-	for (ai = aihead; ai != NULL; ai = ai->next) {
-
+	list_for_each_entry(ai, &aih, list) {
 		sh = ai->ship;
 		tg = ai->target;
 

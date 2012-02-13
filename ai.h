@@ -9,7 +9,10 @@
 #ifndef AI_H_
 #define AI_H_
 
+#include "list.h"
+
 typedef struct ai_s {
+	struct list_head list;
 	struct ai_s * next;
 	ship_t * ship;
 	ship_t * target;

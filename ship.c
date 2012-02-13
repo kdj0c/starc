@@ -23,7 +23,6 @@
 static int hudarrowtex = 0;
 #endif
 
-static ship_t * head = NULL;
 LIST_HEAD(ship_head);
 
 static void addShip(ship_t * sh) {
