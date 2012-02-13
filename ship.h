@@ -10,6 +10,8 @@
 #ifndef SHIP_H_
 #define SHIP_H_
 
+#include "list.h"
+
 #define LASER_RANGE 5000
 
 /* Ship Flags */
@@ -120,7 +122,7 @@ struct tur;
  * local structure
  */
 typedef struct ship_s {
-	struct ship_s * next;
+	struct list_head list;
 	shiptype_t * t;
 	struct tur * turret;
 	float respawn_time;

@@ -26,11 +26,11 @@ all: $(CL) $(SV)
 # Tool invocations
 $(CL): $(CL_OBJS)
 	@echo 'LN: $(CL)'
-	@gcc -Wall -lglut -lGLU -lz -lm -L. -lgrapple -lftgl -lconfig -o"$(CL)" $(CL_OBJS)
+	@gcc -Wall -L. -o"$(CL)" $(CL_OBJS) -lglut -lGLU -lz -lm -lgrapple -lftgl -lconfig
 
 $(SV): $(SV_OBJS)
 	@echo 'LN: $(SV)'
-	@gcc -Wall -L. -lgrapple -lm -lconfig -o"$(SV)" $(SV_OBJS)
+	@gcc -Wall -L. -o"$(SV)" $(SV_OBJS) -lgrapple -lm -lconfig
 
 $(CL_OBJS): | $(CL_DIR)
 

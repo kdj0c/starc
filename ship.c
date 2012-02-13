@@ -24,37 +24,17 @@ static int hudarrowtex = 0;
 #endif
 
 static ship_t * head = NULL;
+LIST_HEAD(ship_head);
 
 static void addShip(ship_t * sh) {
-	ship_t *s;
-	if (head) {
-		if (sh->t->flag & SH_MOTHERSHIP) {
-			s = head;
-			head = sh;
-			sh->next = s;
-		} else {
-			for (s = head; s->next != NULL; s = s->next) {
-			}
-			s->next = sh;
-			sh->next = NULL;
-		}
-	} else {
-		head = sh;
-		sh->next = NULL;
-	}
+	if (sh->t->flag & SH_MOTHERSHIP)
+		list_add(&sh->list, &ship_head);
+	else
+		list_add_tail(&sh->list, &ship_head);
 }
 
 static void removeShip(ship_t * sh) {
-	ship_t * prev;
-	if(head == sh) {
-		head = sh->next;
-		return;
-	}
-	for (prev = head; prev != NULL; prev = prev->next) {
-		if(prev->next == sh) {
-			prev->next = sh->next;
-		}
-	}
+	list_del(&sh->list);
 }
 
 void shLoadShipType(void) {
@@ -64,7 +44,7 @@ void shLoadShipType(void) {
 void shLoadShip(void) {
 	ship_t * sh;
 
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if(!sh->t->tex)
 			sh->t->tex = grLoadTexture(sh->t->imgfile);
 		if(!sh->t->shieldtex)
@@ -98,7 +78,7 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	ship_t * newship;
 	ship_t * sh;
 
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->netid == shn->netid) {
 			/* we have already this ship no need to create a new one !*/
 			shSync((shipcore_t *) &shn->x, 0);
@@ -128,7 +108,7 @@ void shSync(shipcore_t * shc, int local) {
 	int size = sizeof(*shc);
 	if (local)
 		size -= sizeof(shin_t);
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->netid == shc->netid) {
 			/* if ship died from last update, make an explosion */
 			if(sh->health > 0 && shc->health <= 0)
@@ -141,7 +121,7 @@ void shSync(shipcore_t * shc, int local) {
 
 void shSetInput(shin_t * in, int netid) {
 	ship_t * sh;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->netid == netid) {
 			memcpy(&sh->in, in, sizeof(shin_t));
 			return;
@@ -153,7 +133,7 @@ void shSetInput(shin_t * in, int netid) {
  */
 void shDisconnect(int clid) {
 	ship_t * sh;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->netid >> 8 == clid) {
 			printf("Disconnect ship %d\n", sh->netid);
 			removeShip(sh);
@@ -178,7 +158,7 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 	float len, min;
 
 	min = LASER_RANGE;
-	for (en = head; en != NULL; en = en->next) {
+	list_for_each_entry(en, &ship_head, list) {
 		float dx, dy, tx, ty, s;
 		if (en->health <= 0 || en == self || en->t->flag & SH_MOTHERSHIP)
 			continue;
@@ -259,14 +239,14 @@ void shUpdateShips(float dt) {
 	ship_t * sh;
 	int l;
 
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
 		if (sh->drawshield > 0)
 			sh->drawshield -= dt;
 	}
 
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
 		if (sh->in.direction) {
@@ -294,14 +274,15 @@ void shUpdateShips(float dt) {
 
 void shDetectCollision(void) {
 	ship_t * sh;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		ship_t * en;
 		float dx, dy, s;
 		if (sh->health <=0)
 			continue;
 		if (sh->t->flag & SH_MOTHERSHIP)
 			continue;
-		for (en = sh->next; en != NULL; en = en->next) {
+		en = sh;
+		list_for_each_entry_continue(en, &ship_head, list) {
 			if (en->health <= 0 || (en->t->flag & SH_MOTHERSHIP))
 				continue;
 			dx = en->x - sh->x;
@@ -318,7 +299,7 @@ void shDetectCollision(void) {
 void shUpdateRespawn(float dt) {
 	ship_t * sh;
 
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health > 0)
 			continue;
 		sh->health -= dt;
@@ -339,7 +320,7 @@ void shUpdateRespawn(float dt) {
 
 ship_t * shFindMotherShip(int team) {
 	ship_t * sh;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->team != team)
 			continue;
 		if (sh->t->flag & SH_MOTHERSHIP)
@@ -353,7 +334,7 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 	float min_d;
 	float dx,dy,d;
 	ship_t * nr = NULL;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if (sh == self || sh->health <= 0)
 			continue;
 		if (sh->team == self->team)
@@ -380,7 +361,7 @@ int shSerialize(shipcore_t * data) {
 	int size = 0;
 
 	shc = data;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		memcpy(shc, &sh->x, sizeof(*shc));
 		shc++;
 		size += sizeof(*shc);
@@ -398,7 +379,7 @@ int shSerializeOnce(shipcorename_t * data) {
 	int size = 0;
 
 	shn = data;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		memcpy(&shn->x, &sh->x, sizeof(shipcore_t));
 		strcpy(shn->typename,sh->t->name);
 		shn++;
@@ -410,7 +391,7 @@ int shSerializeOnce(shipcorename_t * data) {
 #ifndef DEDICATED
 void shDrawShips(void) {
 	ship_t * sh;
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->health <= 0)
 			continue;
 		grSetBlend(sh->t->tex);
@@ -429,7 +410,7 @@ void shDrawShipHUD(ship_t * pl) {
 	ship_t * sh;
 	float dx,dy,r,x,y;
 	grSetBlend(hudarrowtex);
-	for (sh = head; sh != NULL; sh = sh->next) {
+	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->health <= 0 || sh  == pl)
 			continue;
 		dx = sh->x - pl->x;
