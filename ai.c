@@ -12,6 +12,7 @@
 #include "list.h"
 #include "ship.h"
 #include "ai.h"
+#include "event.h"
 
 #define MAX_AIM 7000
 #define VAPP 2.0
@@ -22,9 +23,7 @@ enum {
 	ai_approach,
 };
 
-static ai_t * aihead = NULL;
 LIST_HEAD(aih);
-
 
 ai_t * aiCreate(ship_t * sh) {
 	ai_t * newai;
@@ -43,14 +42,15 @@ void aiThink(void) {
 	ship_t * tg;
 	float tx, ty, dx, dy, d, tdx, tdy, s;
 	float ndx, ndy, nr, dd;
+	shin_t in;
 
 	list_for_each_entry(ai, &aih, list) {
 		sh = ai->ship;
 		tg = ai->target;
 
-		sh->in.acceleration = 0;
-		sh->in.direction = 0;
-		sh->in.fire1 = 0;
+		in.acceleration = 0;
+		in.direction = 0;
+		in.fire1 = 0;
 
 		if(sh->health <= 0)
 			continue;
@@ -99,18 +99,18 @@ void aiThink(void) {
 		 */
 		case ai_aim:
 			if (ty < 0)
-				sh->in.direction = 1;
+				in.direction = 1;
 			else
-				sh->in.direction = -1;
+				in.direction = -1;
 
 			if (d > MAX_AIM) {
 				ai->state = ai_approach;
 			} else if ((d < LASER_RANGE) && tx > 0 && ty > -s && ty < s) {
-				sh->in.fire1 = 1;
+				in.fire1 = 1;
 			}
 			if (d <= sqrt((dx + tdx) * (dx + tdx) + (dy + tdy) * (dy + tdy))
 					&& ty < s && ty > -s) {
-				sh->in.acceleration = 1;
+				in.acceleration = 1;
 			}
 			break;
 		/*
@@ -128,15 +128,17 @@ void aiThink(void) {
 				nr += 2 * M_PI;
 
 			if (nr > 0)
-				sh->in.direction = 1;
+				in.direction = 1;
 			else
-				sh->in.direction = -1;
+				in.direction = -1;
 
 			if (nr < 0.1 && nr > -0.1 && dd > 0.1)
-				sh->in.acceleration = 1;
+				in.acceleration = 1;
 
 			if (d < LASER_RANGE)
 				ai->state = ai_aim;
+			break;
 		}
+	evPostTrajEv(&in, sh->netid);
 	}
 }

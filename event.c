@@ -21,6 +21,26 @@ void evInit(void) {
 	evBuff  = malloc(4096);
 }
 
+void evPostTrajEv(shin_t *in, int owner) {
+	ev_tr_t ev;
+
+	ev.owner = owner;
+	ev.in = *in;
+	evPostEventNow((void *) &ev, sizeof(ev), ev_newtraj);
+}
+
+void evPostCreateShip(char *name, float x, float y, float r, int team, int netid) {
+	ev_cr_t ev;
+
+	ev.owner = netid;
+	ev.pos.p.x = x;
+	ev.pos.p.y = y;
+	ev.pos.r = r;
+	ev.team = team;
+	strcpy(ev.shipname, name);
+	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
+}
+
 void evPostEventNow(void *data, int size, event_e type) {
 	float time;
 	time = glutGet(GLUT_ELAPSED_TIME);
@@ -33,7 +53,8 @@ void evPostEvent(float time, void *data, int size, event_e type) {
 	new = malloc(sizeof(*new) + size);
 	new->type = type;
 	new->time = time;
-	memcpy(&new->data, data, size);
+	if (size && data)
+		memcpy(&new->data, data, size);
 
 	if (list_empty(&act_event)) {
 		list_add(&new->list, &act_event);
@@ -49,22 +70,33 @@ void evPostEvent(float time, void *data, int size, event_e type) {
 void evDoEvent(ev_t *ev) {
 	switch (ev->type) {
 	case ev_newship:
-		aiCreate(shCreateShip("v2", 1000, 0, 0, 1, 0));
+	{
+		ev_cr_t *cr;
+		ship_t *sh;
+		printf("create ship\n");
+		cr = (ev_cr_t *) ev->data;
+		sh = shCreateShip(cr->shipname, cr->pos.p.x, cr->pos.p.y, cr->pos.r, cr->team, cr->owner);
+		shLoadShip();
+		if (cr->owner > 0)
+			aiCreate(sh);
+	}
 		break;
 	case ev_newtraj:
-		aiCreate(shCreateShip("mother1", 10000, 0, 0, 1, 0));
+		{
+			ev_tr_t *tr;
+			tr = (ev_tr_t *) ev->data;
+			shSetInput(&tr->in, tr->owner);
+		}
 		break;
 	}
 }
 
-void evConsumeEvent(int dummy) {
+void evConsumeEvent(float time) {
 	ev_t *ev;
 	ev_t *safe;
-	float cur_time;
 
-	cur_time = glutGet(GLUT_ELAPSED_TIME);
 	list_for_each_entry_safe(ev, safe, &act_event, list) {
-		if (ev->time > cur_time)
+		if (ev->time > time)
 			return;
 		evDoEvent(ev);
 		list_del(&ev->list);

@@ -17,7 +17,6 @@
 #include "config.h"
 
 int main(int argc, char *argv[], char *envp[]) {
-	int WindowName;
 	grconf_t c;
 
 	srand(1983);
@@ -26,7 +25,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	WindowName = glutCreateWindow("StarC");
+	glutCreateWindow("StarC");
 
 	meInitMenu();
 
@@ -40,13 +39,6 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	meInitMenu();
 
-/*	aiCreate(shCreateShip("v1", 10000, 0, -1, 1));
-	aiCreate(shCreateShip("v1", 10000, 900, -1, 1));
-	aiCreate(shCreateShip("v2", 0, 900, 0, 0));
-	aiCreate(shCreateShip("v2", 0, -900, 0, 0));
-	aiCreate(shCreateShip("v1", -10000, -900, 0, 1));
-	aiCreate(shCreateShip("v1", -10000, -1800, 0, 1));
-	aiCreate(shCreateShip("v2", 0, 50000, 0, 0));*/
 	glutMainLoop();
 	return 0;
 }

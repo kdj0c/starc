@@ -144,6 +144,7 @@ void shDrawShips(void);
 void shLoadShip(void);
 void shDrawShipHUD(ship_t * pl);
 #endif
+ship_t *shGetByID(int id);
 void shLoadShipType(void);
 void shUpdateShips(float dt);
 void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,

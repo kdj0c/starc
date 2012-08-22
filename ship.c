@@ -159,7 +159,7 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 	min = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
 		float dx, dy, tx, ty, s;
-		if (en->health <= 0 || en == self || en->t->flag & SH_MOTHERSHIP)
+		if (en->health <= 0 || en == self || (en->t->flag & SH_MOTHERSHIP))
 			continue;
 		dx = en->x - x;
 		dy = en->y - y;
@@ -385,6 +385,16 @@ int shSerializeOnce(shipcorename_t * data) {
 		size += sizeof(*shn);
 	}
 	return size;
+}
+
+ship_t *shGetByID(int id) {
+	ship_t *sh;
+	list_for_each_entry(sh, &ship_head, list) {
+		if (sh->netid == id) {
+			return sh;
+		}
+	}
+	return NULL;
 }
 
 #ifndef DEDICATED

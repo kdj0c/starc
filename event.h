@@ -13,15 +13,17 @@
 #include "list.h"
 #include "vec.h"
 
+#include "ship.h"
+
 typedef enum {
 	ev_newship,
 	ev_newtraj,
 } event_e;
 
 enum {
-	local_player,
-	remote_player,
-	ai_player
+	pl_local,
+	pl_remote,
+	pl_ai
 };
 
 typedef struct {
@@ -34,13 +36,20 @@ typedef struct {
 
 typedef struct {
 	int owner;
+	int team;
 	pos_t pos;
 	char shipname[16];
 } ev_cr_t;
 
-void evConsumeEvent(int dummy);
+typedef struct {
+	int owner;
+	shin_t in;
+} ev_tr_t;
+
+void evConsumeEvent(float time);
 void evPostEvent(float time, void *data, int size, event_e type);
 void evPostEventNow(void *data, int size, event_e type);
-void evPostCreateShip(int owner, pos_t pos, char * name);
+void evPostTrajEv(shin_t *in, int owner);
+void evPostCreateShip(char *name, float x, float y, float r, int team, int netid);
 
 #endif

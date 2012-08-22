@@ -21,10 +21,11 @@
 #include "config.h"
 #include "event.h"
 
-ship_t * player;
+ship_t * player = NULL;
 static float scale = 1.f;
 static int net = 1;
 static int gpause = 0;
+shin_t pl_in = {0 ,};
 
 void dummy() {
 
@@ -41,6 +42,9 @@ void grDraw(int value) {
 	glutTimerFunc(10, grDraw, 0);
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
+	evConsumeEvent(time);
+	if (!player)
+		player = shGetByID(0);
 
 	if (gpause && !net) {
 		fpstime = time;
@@ -65,7 +69,11 @@ void grDraw(int value) {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-	stUpdate(player->x, player->y);
+	if (player)
+		stUpdate(player->x, player->y);
+	else
+		stUpdate(0.0, 0.0);
+
 	if(net)
 		ntHandleMessage();
 	aiThink();
@@ -74,29 +82,36 @@ void grDraw(int value) {
 		shDetectCollision();
 		shUpdateRespawn(dt);
 	}
-	grChangeview(player->x, player->y, player->r, scale);
+	if (player)
+		grChangeview(player->x, player->y, player->r, scale);
+	else
+		grChangeview(0.0, 0.0, 0.0, scale);
 	stBlit();
 	shDrawShips();
 	paUpdate(dt);
-	grDrawHUD(player->health);
-	shDrawShipHUD(player);
+	if (player) {
+		grDrawHUD(player->health);
+		shDrawShipHUD(player);
+	}
 	glutSwapBuffers();
 }
 
 void keyup(unsigned char key, int x, int y) {
 	switch(key) {
 	case 'c':
-		player->in.acceleration = 0;
+		pl_in.acceleration = 0;
 		break;
 	case 'h':
 	case 'n':
-		player->in.direction = 0;
+		pl_in.direction = 0;
 		break;
 	case ' ':
-		player->in.fire1 = 0;
+		pl_in.fire1 = 0;
+		break;
 	}
 	if(net)
 		ntSendInput(player);
+	evPostTrajEv(&pl_in, 0);
 }
 
 void keydown(unsigned char key, int x, int y){
@@ -104,16 +119,16 @@ void keydown(unsigned char key, int x, int y){
 	case 27:
 		exit(0);
 	case 'c':
-		player->in.acceleration = 1;
+		pl_in.acceleration = 1;
 		break;
 	case 'h':
-		player->in.direction = 1;
+		pl_in.direction = 1;
 		break;
 	case 'n':
-		player->in.direction = -1;
+		pl_in.direction = -1;
 		break;
 	case ' ':
-		player->in.fire1 = 1;
+		pl_in.fire1 = 1;
 		break;
 	case '-':
 		scale /= 1.3;
@@ -123,45 +138,49 @@ void keydown(unsigned char key, int x, int y){
 		break;
 	case 'p':
 		gpause ^= 1;
+		break;
 	}
 	if(net)
 		ntSendInput(player);
+	evPostTrajEv(&pl_in, 0);
 }
 
 void SpecialDown(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_UP:
-		player->in.acceleration = 1;
+		pl_in.acceleration = 1;
 		break;
 	case GLUT_KEY_LEFT:
-		player->in.direction += 1;
+		pl_in.direction += 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		player->in.direction -= 1;
+		pl_in.direction -= 1;
 		break;
 	default:
 		break;
 	}
 	if(net)
 		ntSendInput(player);
+	evPostTrajEv(&pl_in, 0);
 }
 
 void SpecialUp(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_UP:
-		player->in.acceleration = 0;
+		pl_in.acceleration = 0;
 		break;
 	case GLUT_KEY_LEFT:
-		player->in.direction -= 1;
+		pl_in.direction -= 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		player->in.direction += 1;
+		pl_in.direction += 1;
 		break;
 	default:
 		break;
 	}
 	if(net)
 		ntSendInput(player);
+	evPostTrajEv(&pl_in, 0);
 }
 
 void enterGameMode(void) {
@@ -181,10 +200,17 @@ void gmStartSingle(void) {
 	tuLoadTurret();
 	shLoadShip();
 	paInit();
-	player = shCreateShip("v2", 0, 0, 0, 0, 0);
 
+	evPostCreateShip("v2", 0, 0, 0, 0, 0);
+	evPostCreateShip("mother1", 0, 20000., 0, 0, 1);
 
-/*	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
+	evPostCreateShip("w1", 0, 23000., 0, 1, 2);
+	evPostCreateShip("w2", 0, 20000., 10000, 1, 3);
+
+/*	player = shCreateShip("v2", 0, 0, 0, 0, 0);
+	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 1));
+
+	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
 	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
 
 	aiCreate(shCreateShip("w1", 10000, 10000, -1, 1, 0));
@@ -206,11 +232,9 @@ void gmStartSingle(void) {
 
 	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
 	*/
-	evPostEventNow(NULL, ev_newship);
-	evPostEventNow(NULL, ev_newtraj);
-	shLoadShip();
+//	evPostEventNow(NULL, 0, ev_newship);
+//	evPostEventNow(NULL, 0, ev_newtraj);
 	glutTimerFunc(10, grDraw, 0);
-	glutTimerFunc(10, evConsumeEvent, 0);
 }
 
 void gmStartMulti(void) {
