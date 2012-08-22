@@ -9,23 +9,38 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
+
+#include "list.h"
+#include "vec.h"
+
 typedef enum {
 	ev_newship,
 	ev_newtraj,
 } event_e;
 
-#include "list.h"
+enum {
+	local_player,
+	remote_player,
+	ai_player
+};
+
 typedef struct {
 	struct list_head list;
 	struct list_head active;
 	event_e type;
 	float time;
-	void *pdata;
+	char data[];
 } ev_t;
 
+typedef struct {
+	int owner;
+	pos_t pos;
+	char shipname[16];
+} ev_cr_t;
 
 void evConsumeEvent(int dummy);
-void evPostEvent(float time, void *data, event_e type);
-void evPostEventNow(void *data, event_e type);
+void evPostEvent(float time, void *data, int size, event_e type);
+void evPostEventNow(void *data, int size, event_e type);
+void evPostCreateShip(int owner, pos_t pos, char * name);
 
 #endif

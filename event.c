@@ -6,6 +6,7 @@
  * published by the Free Software Foundation.
  */
 #include <GL/glut.h>
+#include <string.h>
 #include "event.h"
 #include "ship.h"
 #include "ai.h"
@@ -20,18 +21,19 @@ void evInit(void) {
 	evBuff  = malloc(4096);
 }
 
-void evPostEventNow(void *data, event_e type) {
+void evPostEventNow(void *data, int size, event_e type) {
 	float time;
 	time = glutGet(GLUT_ELAPSED_TIME);
-	evPostEvent(time, data, type);
+	evPostEvent(time, data, size, type);
 }
 
-void evPostEvent(float time, void *data, event_e type) {
+void evPostEvent(float time, void *data, int size, event_e type) {
 	ev_t *new;
 	ev_t *prec;
-	new = malloc(sizeof(*new));
+	new = malloc(sizeof(*new) + size);
 	new->type = type;
 	new->time = time;
+	memcpy(&new->data, data, size);
 
 	if (list_empty(&act_event)) {
 		list_add(&new->list, &act_event);
