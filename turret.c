@@ -34,19 +34,18 @@ void tuAddTurret(ship_t * sh) {
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
-		new[i].x = sh->pos.p.x + t->x * cos(sh->pos.r) + t->y * sin(sh->pos.r);
-		new[i].y = sh->pos.p.y + t->x * sin(sh->pos.r) - t->y * cos(sh->pos.r);
+		new[i].p = vmatrix(sh->pos.p, t->p, sh->pos.r);
 		new[i].r = sh->pos.r;
 	}
 }
 
 void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float dt) {
-	float x, y, r;
-	x = tu->x + las->x * cos(tu->r) + las->y * sin(tu->r);
-	y = tu->y + las->x * sin(tu->r) - las->y * cos(tu->r);
-	r = tu->r + las->r;
+    pos_t p;
 
-	shFireLaser(x, y, r, sh->pos.v.x, sh->pos.v.y, las, dt, sh);
+    p.p = vmatrix(tu->p, las->p, tu->r);
+    p.r = tu->r + las->r;
+    p.v = sh->pos.v;
+	shFireLaser(p, sh, las, dt);
 }
 
 void tuUpdate(ship_t *sh, float dt) {
@@ -65,12 +64,11 @@ void tuUpdate(ship_t *sh, float dt) {
 			tu->last_think = 0;
 		}
 
-		tu->x = sh->pos.p.x + t->x * cos(sh->pos.r) + t->y * sin(sh->pos.r);
-		tu->y = sh->pos.p.y + t->x * sin(sh->pos.r) - t->y * cos(sh->pos.r);
+		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
 		if (tu->target) {
 			float dx, dy, ty;
-			dx = tu->target->pos.p.x - tu->x;
-			dy = tu->target->pos.p.y - tu->y;
+			dx = tu->target->pos.p.x - tu->p.x;
+			dy = tu->target->pos.p.y - tu->p.y;
 			ty = dx * sin(tu->r) - dy * cos(tu->r);
 			if (ty > 10.)
 				tu->r -= t->t->maniability * dt;
@@ -93,7 +91,7 @@ void tuDraw(ship_t * sh) {
    grSetBlend(tuTex);
 	for (i = 0; i < sh->t->numturret; i++) {
 		tu = &sh->turret[i];
-		grBlitRot(tu->x, tu->y, tu->r, 700.);
+		grBlitRot(tu->p.x, tu->p.y, tu->r, 700.);
 	}
 }
 #endif

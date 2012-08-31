@@ -38,6 +38,13 @@ vec_t vmatrix(vec_t a, vec_t b, float r) {
     return v;
 }
 
+vec_t vmatrix1(vec_t a, float r) {
+    vec_t v;
+    v.x = a.x * cos(r) + a.y * sin(r);
+    v.y = a.x * sin(r) - a.y * cos(r);
+    return v;
+}
+
 vec_t vangle(float len, float r) {
 	vec_t v;
 	v.x = len * cos(r);

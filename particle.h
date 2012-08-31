@@ -11,18 +11,18 @@
 
 #ifndef DEDICATED
 void paInit(void);
-void paExplosion(float x, float y, float dx, float dy, float v, int number, unsigned int color);
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color);
 void paUpdate(float dt);
-void paBurst(float x, float y, float dx, float dy, float r, float size, unsigned int color);
-void paLaser(float x, float y, float dx, float dy, unsigned int color);
-void paLas(float x, float y, float dx, float dy, float len, float r, unsigned int color);
+void paBurst(pos_t p, float size, unsigned int color);
+void paLaser(vec_t p, vec_t v, unsigned int color);
+void paLas(pos_t p, float len, unsigned int color);
 #else
 #define paInit()
-#define paExplosion(x, y, dx, dy, v, number, color)
+#define paExplosion(p, v, s, number, color)
 #define paUpdate(dt)
-#define paBurst(x, y, dx, dy, r, size, color)
-#define paLaser(x, y, dx, dy, color)
-#define paLas(x, y, dx, dy, len, r, color)
+#define paBurst(p, size, color)
+#define paLaser(p, v, color)
+#define paLas(p, len, color)
 #endif
 
 #endif /* PARTICLE_H_ */

@@ -115,7 +115,7 @@ void shSync(shipcore_t * shc, int local) {
 		if (sh->netid == shc->netid) {
 			/* if ship died from last update, make an explosion */
 			if(sh->health > 0 && shc->health <= 0)
-				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
+//				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
 //			memcpy(&sh->pos.p.x, shc, size);
 			return;
 		}
@@ -198,7 +198,7 @@ void shDestroy(int netid) {
     ship_t *sh;
 
     sh = shGetByID(netid);
-    paExplosion(sh->pos.p.x, sh->pos.p.y, sh->pos.v.x, sh->pos.v.y, 3.f, 2000, sh->t->burst[0].color);
+    paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color);
     sh->health = 0;
 }
 
@@ -216,25 +216,24 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
     }
 }
 
-void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
-		float dt, ship_t *self) {
-	ship_t * en;
+void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt) {
+    ship_t * en;
 	ship_t * tc = NULL;
 	float len, min;
 
 	min = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
-		float dx, dy, tx, ty, s;
-		if (en->health <= 0 || en == self || (en->t->flag & SH_MOTHERSHIP))
+		float s;
+		vec_t d, t;
+		if (en->health <= 0 || en == sh || (en->t->flag & SH_MOTHERSHIP))
 			continue;
-		dx = en->pos.p.x - x;
-		dy = en->pos.p.y - y;
-		tx = dx * cos(r) + dy * sin(r);
-		ty = dx * sin(r) - dy * cos(r);
+        d = vsub(en->pos.p, p.p);
+        t = vmatrix1(d, p.r);
+
 		s = en->t->shieldsize / 2.f;
 
-		if (tx > 0 && tx < LASER_RANGE + s && ty > -s && ty < s) {
-			len = tx - sqrt(s * s - ty * ty);
+		if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
+			len = t.x - sqrt(s * s - t.y * t.y);
 			if (len < min) {
 				min = len;
 				tc = en;
@@ -242,20 +241,23 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 		}
 	}
 	if(tc) {
+	    vec_t tmp;
 		shDamage(tc, dt);
-		paLaser(x + min * cos(r), y + min * sin(r), tc->pos.v.x, tc->pos.v.y, las->color);
+		tmp = vadd(p.p, vangle(min, p.r));
+		paLaser(tmp, tc->pos.v, las->color);
 	}
-	paLas(x, y, dx, dy, min, r, las->color);
+	paLas(p, min, las->color);
 }
+
 
 void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
-	float x, y, r;
+	pos_t p;
 
-	x = sh->pos.p.x + las->x * cos(sh->pos.r) + las->y * sin(sh->pos.r);
-	y = sh->pos.p.y + las->x * sin(sh->pos.r) - las->y * cos(sh->pos.r);
-	r = sh->pos.r + las->r;
-	shFireLaser(x, y, r, sh->pos.v.x, sh->pos.v.y, las, dt, sh);
+	p.p = vmatrix(sh->pos.p, las->p, sh->pos.r);
+	p.r = sh->pos.r + las->r;
+    shFireLaser(p, sh, las, dt);
 }
+
 
 /*
  * ships are considered round (it bounce on shield)
@@ -291,12 +293,13 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 }
 
 void shBurst(ship_t *sh) {
-	float x,y;
 	int i;
 	for(i=0;i<sh->t->numburst;i++) {
-		x = sh->pos.p.x + sh->t->burst[i].x * cos(sh->pos.r) + sh->t->burst[i].y * sin(sh->pos.r);
-		y = sh->pos.p.y + sh->t->burst[i].x * sin(sh->pos.r) - sh->t->burst[i].y * cos(sh->pos.r);
-		paBurst(x, y, sh->pos.v.x, sh->pos.v.y, sh->pos.r, sh->t->burst[i].size, sh->t->burst[i].color);
+	    pos_t p;
+	    p.r = sh->pos.r;
+	    p.v = sh->pos.v;
+	    p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
+		paBurst(p, sh->t->burst[i].size, sh->t->burst[i].color);
 	}
 }
 

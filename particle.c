@@ -38,7 +38,7 @@ void paInit(void) {
 	lastex = grLoadTexture("img/laser.png");
 }
 
-void paExplosion(float x, float y, float dx, float dy, float s, int number, unsigned int color) {
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color) {
 	int i;
 
 	if( freePart + number >= NBPART)
@@ -46,20 +46,13 @@ void paExplosion(float x, float y, float dx, float dy, float s, int number, unsi
 
 	for (i = freePart; i < freePart + number; i++) {
 		float len,angle;
-		vec_t v;
-		vec_t p;
-		vec_t d;
+		vec_t d, v1;
 		len = (float) ((rand() % 1000) - 500) / 500.f;
 		angle = (float) (rand() % 1000) * M_PI / 500.f;
 
-		p.x = x;
-		p.y = y;
-		d.x = dx;
-		d.y = dy;
-
-		v = vangle(len, angle);
-		parts[i].p.p = vadd(p, vmul(v, 50.0));
-		parts[i].p.v = vadd(d, vmul(v, s));
+		v1 = vangle(len, angle);
+		parts[i].p.p = vadd(p, vmul(v1, 50.0));
+		parts[i].p.v = vadd(v, vmul(v1, s));
 
 		parts[i].maxlife = rand() % 1000 + 500;
 		parts[i].life = parts[i].maxlife;
@@ -70,21 +63,17 @@ void paExplosion(float x, float y, float dx, float dy, float s, int number, unsi
 	freePart += number;
 }
 
-void paBurst(float x, float y, float dx, float dy, float r, float size, unsigned int color) {
+void paBurst(pos_t p, float size, unsigned int color) {
 	int i;
-	vec_t p, d, t;
+	vec_t t;
 
 	i = freePart;
 
-	p.x = x;
-	p.y = y;
-	d.x = dx;
-	d.y = dy;
 	t.x = 0.2 * ((rand() % 1000 - 500) / 500.f);
 	t.y = 0.2 * ((rand() % 1000 - 500) / 500.f);
 
-	parts[i].p.p = p;
-	parts[i].p.v = vadd(vsub(d, vangle(size * 0.8f, r)), t);
+	parts[i].p.p = p.p;
+	parts[i].p.v = vadd(vsub(p.v, vangle(size * 0.8f, p.r)), t);
 
 	i = freePart;
 	parts[i].maxlife = rand() % 1000 + 1000 / size;
@@ -97,14 +86,12 @@ void paBurst(float x, float y, float dx, float dy, float r, float size, unsigned
 		freePart = 0;
 }
 
-void paLaser(float x, float y, float dx, float dy, unsigned int color) {
+void paLaser(vec_t p, vec_t v, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 500 + 50;
-	parts[i].p.p.x = x;
-	parts[i].p.p.y = y;
-	parts[i].p.v.x = dx;
-	parts[i].p.v.y = dy;
+	parts[i].p.p = p;
+	parts[i].p.v = v;
 	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 50;
 	parts[i].color = color;
@@ -114,16 +101,12 @@ void paLaser(float x, float y, float dx, float dy, unsigned int color) {
 		freePart = 0;
 }
 
-void paLas(float x, float y, float dx, float dy, float len, float r, unsigned int color) {
+void paLas(pos_t p, float len, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 30 + 30;
-	parts[i].p.p.x = x;
-	parts[i].p.p.y = y;
-	parts[i].p.v.x = dx;
-	parts[i].p.v.y = dy;
+	parts[i].p = p;
 	parts[i].size = len;
-	parts[i].p.r = r;
 	parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
 	parts[i].flag = PA_LASER;

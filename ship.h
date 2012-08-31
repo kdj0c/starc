@@ -19,15 +19,13 @@
 #define	SH_MOTHERSHIP 0x1
 
 typedef struct {
-	float x;
-	float y;
+    vec_t p;
 	float r;
 	unsigned int color;
 } laser_t;
 
 typedef struct {
-	float x;
-	float y;
+    vec_t p;
 	float size;
 	unsigned int color;
 } burst_t;
@@ -48,8 +46,7 @@ typedef struct {
 } turrettype_t;
 
 typedef struct {
-	float x;
-	float y;
+    vec_t p;
 	turrettype_t * t;
 } turretpos_t;
 
@@ -139,8 +136,7 @@ typedef struct ship_s {
 } ship_t;
 
 struct tur {
-	float x;
-	float y;
+    vec_t p;
 	float r;
 	ship_t *target;
 	int last_think;
@@ -156,8 +152,7 @@ void shDrawShipHUD(ship_t * pl);
 ship_t *shGetByID(int id);
 void shLoadShipType(void);
 void shUpdateShips(float dt);
-void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
-		float dt, ship_t *self);
+void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
 void shRespawn(int netid, pos_t *np, int msid, float time);

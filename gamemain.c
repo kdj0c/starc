@@ -110,6 +110,8 @@ void keyup(unsigned char key, int x, int y) {
 	case ' ':
 		pl_in.fire1 = 0;
 		break;
+    default:
+        return;
 	}
 	if(net)
 		ntSendInput(player);
@@ -141,6 +143,8 @@ void keydown(unsigned char key, int x, int y){
 	case 'p':
 		gpause ^= 1;
 		break;
+    default:
+        return;
 	}
 	if(net)
 		ntSendInput(player);
@@ -159,7 +163,7 @@ void SpecialDown(int key, int x, int y) {
 		pl_in.direction -= 1;
 		break;
 	default:
-		break;
+		return;
 	}
 	if(net)
 		ntSendInput(player);
@@ -178,7 +182,7 @@ void SpecialUp(int key, int x, int y) {
 		pl_in.direction += 1;
 		break;
 	default:
-		break;
+		return;
 	}
 	if(net)
 		ntSendInput(player);
