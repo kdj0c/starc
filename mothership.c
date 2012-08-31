@@ -22,10 +22,10 @@ void msRespawn(ship_t * sh) {
 		return;
 	hg = &ms->t->hangar;
 
-	sh->x = ms->x + hg->x * cos(ms->r) + hg->y * sin(ms->r);
-	sh->y = ms->y + hg->x * sin(ms->r) - hg->y * cos(ms->r);
-	sh->r = ms->r - hg->r;
-	sh->dx = 1. * cos(sh->r) + ms->dx;
-	sh->dy = 1. * sin(sh->r) + ms->dy;
+	sh->pos.p.x = ms->pos.p.x + hg->x * cos(ms->pos.r) + hg->y * sin(ms->pos.r);
+	sh->pos.p.y = ms->pos.p.y + hg->x * sin(ms->pos.r) - hg->y * cos(ms->pos.r);
+	sh->pos.r = ms->pos.r - hg->r;
+	sh->pos.v.x = 1. * cos(sh->pos.r) + ms->pos.v.x;
+	sh->pos.v.y = 1. * sin(sh->pos.r) + ms->pos.v.y;
 	sh->drawshield = 0;
 }

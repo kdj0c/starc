@@ -27,6 +27,7 @@ vec_t vmul(vec_t a, float b);
 vec_t vangle(float len, float r);
 
 #define vecn(x,y) { vec_t v = { .x = x, .y = y } }
+#define make_pos(a, b, c, d) pos_t pos_##a = { .p = { .x = b, .y = c }, .r = d }
 
 static inline vec_t vec(float x, float y) {
 	vec_t v;

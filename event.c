@@ -29,13 +29,11 @@ void evPostTrajEv(shin_t *in, int owner) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newtraj);
 }
 
-void evPostCreateShip(char *name, float x, float y, float r, int team, int netid) {
+void evPostCreateShip(char *name, pos_t *p, int team, int netid) {
 	ev_cr_t ev;
 
 	ev.owner = netid;
-	ev.pos.p.x = x;
-	ev.pos.p.y = y;
-	ev.pos.r = r;
+	ev.pos = *p;
 	ev.team = team;
 	strcpy(ev.shipname, name);
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
@@ -74,7 +72,7 @@ void evDoEvent(ev_t *ev) {
 		ev_cr_t *cr;
 		ship_t *sh;
 		cr = (ev_cr_t *) ev->data;
-		sh = shCreateShip(cr->shipname, cr->pos.p.x, cr->pos.p.y, cr->pos.r, cr->team, cr->owner);
+		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner);
 		shLoadShip();
 		if (cr->owner > 0)
 			aiCreate(sh);

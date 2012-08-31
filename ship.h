@@ -129,7 +129,13 @@ typedef struct ship_s {
 	shiptype_t * t;
 	struct tur * turret;
 	float respawn_time;
-	ship_core
+	float health;
+	float drawshield;
+	int netid;
+	int team;
+	shin_t in;
+	traj_t traj;
+	pos_t pos;
 } ship_t;
 
 struct tur {
@@ -154,7 +160,7 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 		float dt, ship_t *self);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
-ship_t * shCreateShip(char *name, float x, float y, float r, int team, int netid);
+ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid);
 ship_t * shCreateRemoteShip(shipcorename_t * shn);
 void shSync(shipcore_t * shc, int local);
 ship_t * shFindMotherShip(int team);

@@ -35,7 +35,7 @@ ship_t * ntCreateLocalPlayer(char * type) {
 	static unsigned int count = 0;
 	size_t size;
 
-	sh = shCreateShip(type, 0, 0, 0, 0, clid << 8 | count);
+//	sh = shCreateShip(type, 0, 0, 0, 0, clid << 8 | count);
 	size = sizeof(ntmsg_t) + sizeof(shipcorename_t);
 	msg = malloc(size);
 	msg->type = ntSpawn;

@@ -70,7 +70,7 @@ void grDraw(int value) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	if (player)
-		stUpdate(player->x, player->y);
+		stUpdate(player->pos.p.x, player->pos.p.y);
 	else
 		stUpdate(0.0, 0.0);
 
@@ -83,7 +83,7 @@ void grDraw(int value) {
 		shUpdateRespawn(dt);
 	}
 	if (player)
-		grChangeview(player->x, player->y, player->r, scale);
+		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
 		grChangeview(0.0, 0.0, 0.0, scale);
 	stBlit();
@@ -194,6 +194,12 @@ void enterGameMode(void) {
 }
 
 void gmStartSingle(void) {
+    pos_t toto = {.r = 0.};
+    make_pos(player, 0., 0., 0.);
+    make_pos(mother, 0., 20000., 0.);
+    make_pos(ai1, 23000., 0.,  0.);
+    make_pos(ai2, 20000., 0., 0.);
+
 	net = 0;
 	enterGameMode();
 	cfReadGameData();
@@ -201,11 +207,11 @@ void gmStartSingle(void) {
 	shLoadShip();
 	paInit();
 
-	evPostCreateShip("v2", 0, 0, 0, 0, 0);
-	evPostCreateShip("mother1", 0, 20000., 0, 0, 1);
+	evPostCreateShip("v2", &pos_player, 0, 0);
+	evPostCreateShip("mother1", &pos_mother, 0, 1);
 
-	evPostCreateShip("w1", 0, 23000., 0, 1, 2);
-	evPostCreateShip("w2", 0, 20000., 10000, 1, 3);
+	evPostCreateShip("w1", &pos_ai1, 1, 2);
+	evPostCreateShip("w2", &pos_ai2, 1, 3);
 
 /*	player = shCreateShip("v2", 0, 0, 0, 0, 0);
 	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 1));

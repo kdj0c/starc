@@ -53,18 +53,14 @@ void shLoadShip(void) {
 }
 #endif
 
-ship_t * shCreateShip(char * name, float x, float y, float r, int team, int netid) {
+ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid) {
 	ship_t * newship;
 
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
 	newship->t = cfGetShip(name);
-	newship->x = x;
-	newship->y = y;
-	newship->r = r;
-	newship->traj.base.p.x = x;
-	newship->traj.base.p.y = y;
-	newship->traj.base.r = r;
+	newship->traj.base = *pos;
+	newship->pos = *pos;
 	newship->traj.type = t_linear;
 	newship->traj.basetime = 0.0;
 	newship->team = team;
@@ -117,7 +113,7 @@ void shSync(shipcore_t * shc, int local) {
 			/* if ship died from last update, make an explosion */
 			if(sh->health > 0 && shc->health <= 0)
 				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
-			memcpy(&sh->x, shc, size);
+//			memcpy(&sh->pos.p.x, shc, size);
 			return;
 		}
 	}
@@ -172,7 +168,7 @@ void shDamage(ship_t * sh, float dg) {
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->x, sh->y, sh->dx, sh->dy, 3.f, 2000, sh->t->burst[0].color);
+		paExplosion(sh->pos.p.x, sh->pos.p.y, sh->pos.v.x, sh->pos.v.y, 3.f, 2000, sh->t->burst[0].color);
 	}
 	if (sh->health < 0)
 		sh->health = 0;
@@ -189,8 +185,8 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 		float dx, dy, tx, ty, s;
 		if (en->health <= 0 || en == self || (en->t->flag & SH_MOTHERSHIP))
 			continue;
-		dx = en->x - x;
-		dy = en->y - y;
+		dx = en->pos.p.x - x;
+		dy = en->pos.p.y - y;
 		tx = dx * cos(r) + dy * sin(r);
 		ty = dx * sin(r) - dy * cos(r);
 		s = en->t->shieldsize / 2.f;
@@ -205,7 +201,7 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 	}
 	if(tc) {
 		shDamage(tc, dt);
-		paLaser(x + min * cos(r), y + min * sin(r), tc->dx, tc->dy, las->color);
+		paLaser(x + min * cos(r), y + min * sin(r), tc->pos.v.x, tc->pos.v.y, las->color);
 	}
 	paLas(x, y, dx, dy, min, r, las->color);
 }
@@ -213,10 +209,10 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
 	float x, y, r;
 
-	x = sh->x + las->x * cos(sh->r) + las->y * sin(sh->r);
-	y = sh->y + las->x * sin(sh->r) - las->y * cos(sh->r);
-	r = sh->r + las->r;
-	shFireLaser(x, y, r, sh->dx, sh->dy, las, dt, sh);
+	x = sh->pos.p.x + las->x * cos(sh->pos.r) + las->y * sin(sh->pos.r);
+	y = sh->pos.p.y + las->x * sin(sh->pos.r) - las->y * cos(sh->pos.r);
+	r = sh->pos.r + las->r;
+	shFireLaser(x, y, r, sh->pos.v.x, sh->pos.v.y, las, dt, sh);
 }
 
 /*
@@ -233,21 +229,21 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 
 	m1 = sh->t->size;
 	m2 = en->t->size;
-	k = 2 * (dx * (sh->dx - en->dx) + dy * (sh->dy - en->dy));
+	k = 2 * (dx * (sh->pos.v.x - en->pos.v.x) + dy * (sh->pos.v.y - en->pos.v.y));
 	if(k == 0.)
 		return;
 	k /= (dx * dx + dy * dy);
 	k *= m1 * m2 / (m1 + m2);
-	sh->dx -= k * dx / m1;
-	sh->dy -= k * dy / m1;
-	en->dx += k * dx / m2;
-	en->dy += k * dy / m2;
+	sh->pos.v.x -= k * dx / m1;
+	sh->pos.v.y -= k * dy / m1;
+	en->pos.v.x += k * dx / m2;
+	en->pos.v.y += k * dy / m2;
 
 	shDamage(sh, 100);
 	shDamage(en, 100);
 	/* be sure ships are far enough before next collision test */
-/*	sh->x += sh->dx * 30;
-	sh->y += sh->dy * 30;
+/*	sh->pos.p.x += sh->pos.v.x * 30;
+	sh->pos.p.y += sh->pos.v.y * 30;
 	en->x += en->dx * 30;
 	en->y += en->dy * 30;*/
 }
@@ -256,9 +252,9 @@ void shBurst(ship_t *sh) {
 	float x,y;
 	int i;
 	for(i=0;i<sh->t->numburst;i++) {
-		x = sh->x + sh->t->burst[i].x * cos(sh->r) + sh->t->burst[i].y * sin(sh->r);
-		y = sh->y + sh->t->burst[i].x * sin(sh->r) - sh->t->burst[i].y * cos(sh->r);
-		paBurst(x, y, sh->dx, sh->dy, sh->r, sh->t->burst[i].size, sh->t->burst[i].color);
+		x = sh->pos.p.x + sh->t->burst[i].x * cos(sh->pos.r) + sh->t->burst[i].y * sin(sh->pos.r);
+		y = sh->pos.p.y + sh->t->burst[i].x * sin(sh->pos.r) - sh->t->burst[i].y * cos(sh->pos.r);
+		paBurst(x, y, sh->pos.v.x, sh->pos.v.y, sh->pos.r, sh->t->burst[i].size, sh->t->burst[i].color);
 	}
 }
 
@@ -284,21 +280,21 @@ void shUpdateShips(float time) {
 
         if (sh->traj.type != t_none) {
             get_pos(time, &sh->traj, &sh->pos);
-            sh->x = sh->pos.p.x;
-            sh->y = sh->pos.p.y;
-            sh->r = sh->pos.r;
+            sh->pos.p.x = sh->pos.p.x;
+            sh->pos.p.y = sh->pos.p.y;
+            sh->pos.r = sh->pos.r;
             continue;
         }
 
 		if (sh->in.direction) {
-			sh->r += sh->in.direction * dt * sh->t->maniability;
+			sh->pos.r += sh->in.direction * dt * sh->t->maniability;
 		}
 		if (sh->in.acceleration) {
-			sh->dx += sh->t->thrust * dt * cos(sh->r);
-			sh->dy += sh->t->thrust * dt * sin(sh->r);
+			sh->pos.v.x += sh->t->thrust * dt * cos(sh->pos.r);
+			sh->pos.v.y += sh->t->thrust * dt * sin(sh->pos.r);
 		}
-		sh->x += sh->dx * dt;
-		sh->y += sh->dy * dt;
+		sh->pos.p.x += sh->pos.v.x * dt;
+		sh->pos.p.y += sh->pos.v.y * dt;
 		if (sh->in.acceleration)
 			shBurst(sh);
 
@@ -326,8 +322,8 @@ void shDetectCollision(void) {
 		list_for_each_entry_continue(en, &ship_head, list) {
 			if (en->health <= 0 || (en->t->flag & SH_MOTHERSHIP))
 				continue;
-			dx = en->x - sh->x;
-			dy = en->y - sh->y;
+			dx = en->pos.p.x - sh->pos.p.x;
+			dy = en->pos.p.y - sh->pos.p.y;
 			s = (en->t->shieldsize + sh->t->shieldsize) / 2.f;
 			s = s * s;
 			if (dx * dx + dy * dy < s) {
@@ -349,11 +345,11 @@ void shUpdateRespawn(float dt) {
 			msRespawn(sh);
 			/*
 			sh->health = sh->t->maxhealth;
-			sh->x = (rand() % 10000 - 5000) * 2.;
-			sh->y = (rand() % 10000 - 5000) * 2.;
-			sh->r = (rand() % 360 - 180) * M_PI / 180.;
-			sh->dx = 0;
-			sh->dy = 0;
+			sh->pos.p.x = (rand() % 10000 - 5000) * 2.;
+			sh->pos.p.y = (rand() % 10000 - 5000) * 2.;
+			sh->pos.r = (rand() % 360 - 180) * M_PI / 180.;
+			sh->pos.v.x = 0;
+			sh->pos.v.y = 0;
 			sh->drawshield = 0;*/
 		}
 	}
@@ -380,8 +376,8 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 			continue;
 		if (sh->team == self->team)
 			continue;
-		dx = self->x - sh->x;
-		dy = self->y - sh->y;
+		dx = self->pos.p.x - sh->pos.p.x;
+		dy = self->pos.p.y - sh->pos.p.y;
 		d = dx * dx + dy * dy;
 
 		if (nr && d > min_d)
@@ -403,7 +399,7 @@ int shSerialize(shipcore_t * data) {
 
 	shc = data;
 	list_for_each_entry(sh, &ship_head, list) {
-		memcpy(shc, &sh->x, sizeof(*shc));
+		memcpy(shc, &sh->pos.p.x, sizeof(*shc));
 		shc++;
 		size += sizeof(*shc);
 	}
@@ -421,7 +417,7 @@ int shSerializeOnce(shipcorename_t * data) {
 
 	shn = data;
 	list_for_each_entry(sh, &ship_head, list) {
-		memcpy(&shn->x, &sh->x, sizeof(shipcore_t));
+		memcpy(&shn->x, &sh->pos.p.x, sizeof(shipcore_t));
 		strcpy(shn->typename,sh->t->name);
 		shn++;
 		size += sizeof(*shn);
@@ -446,10 +442,10 @@ void shDrawShips(void) {
 		if(sh->health <= 0)
 			continue;
 		grSetBlend(sh->t->tex);
-		grBlitRot(sh->x, sh->y, sh->r, sh->t->size);
+		grBlitRot(sh->pos.p.x, sh->pos.p.y, sh->pos.r, sh->t->size);
 		if (sh->drawshield > 0) {
 			grSetBlendAdd(sh->t->shieldtex);
-			grBlit(sh->x, sh->y, sh->t->shieldsize * M_SQRT1_2, 0);
+			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
 		if (sh->t->numturret) {
 			tuDraw(sh);
@@ -464,11 +460,11 @@ void shDrawShipHUD(ship_t * pl) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->health <= 0 || sh  == pl)
 			continue;
-		dx = sh->x - pl->x;
-		dy = sh->y - pl->y;
+		dx = sh->pos.p.x - pl->pos.p.x;
+		dy = sh->pos.p.y - pl->pos.p.y;
 		if(dx * dx + dy * dy < LASER_RANGE * LASER_RANGE * 4)
 			continue;
-		r = atan2(dx, -dy) - pl->r;
+		r = atan2(dx, -dy) - pl->pos.r;
 		x = 800 / 2. + 350. * cos(r);
 		y = 600. / 4. + 350 * sin(r);
 		if (pl->team == sh->team)
