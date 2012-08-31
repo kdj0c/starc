@@ -29,6 +29,21 @@ void evPostTrajEv(shin_t *in, int owner) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newtraj);
 }
 
+void evPostDestroy(int netid, float time) {
+    ev_ds_t ev;
+
+    ev.owner = netid;
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_destroyed);
+}
+
+void evPostRespawn(pos_t *newp, int netid, int msid, float time) {
+    ev_rp_t ev;
+    ev.owner = netid;
+    ev.ms = msid;
+    ev.newpos = *newp;
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_respawn);
+}
+
 void evPostCreateShip(char *name, pos_t *p, int team, int netid) {
 	ev_cr_t ev;
 
@@ -62,7 +77,7 @@ void evPostEvent(float time, void *data, int size, event_e type) {
 		if (prec->time > time)
 			break;
 	}
-	list_add(&new->list , &prec->list);
+	list_add_tail(&new->list , &prec->list);
 }
 
 void evDoEvent(ev_t *ev) {
@@ -86,6 +101,22 @@ void evDoEvent(ev_t *ev) {
 			shNewTraj(&tr->in, tr->owner, ev->time);
 		}
 		break;
+	case ev_destroyed:
+        {
+            ev_ds_t *ds;
+            ds = (ev_ds_t *) ev->data;
+            shDestroy(ds->owner);
+            printf("destroyed %d\n", ds->owner);
+        }
+        break;
+    case ev_respawn:
+        {
+            ev_rp_t *rp;
+            rp = (ev_rp_t *) ev->data;
+            shRespawn(rp->owner, &rp->newpos, rp->ms, ev->time);
+            printf("respawned %d\n", rp->owner);
+        }
+        break;
 	}
 }
 

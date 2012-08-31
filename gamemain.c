@@ -26,6 +26,7 @@ static float scale = 1.f;
 static int net = 1;
 static int gpause = 0;
 shin_t pl_in = {0 ,};
+float frametime;
 
 void dummy() {
 
@@ -43,6 +44,7 @@ void grDraw(int value) {
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
 	evConsumeEvent(time);
+	frametime = time;
 	if (!player)
 		player = shGetByID(0);
 
@@ -194,7 +196,6 @@ void enterGameMode(void) {
 }
 
 void gmStartSingle(void) {
-    pos_t toto = {.r = 0.};
     make_pos(player, 0., 0., 0.);
     make_pos(mother, 0., 20000., 0.);
     make_pos(ai1, 23000., 0.,  0.);

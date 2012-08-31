@@ -24,7 +24,9 @@ typedef struct {
 vec_t vadd(vec_t a, vec_t b);
 vec_t vsub(vec_t a, vec_t b);
 vec_t vmul(vec_t a, float b);
+vec_t vmatrix(vec_t a, vec_t b, float r);
 vec_t vangle(float len, float r);
+float sqdist(vec_t a, vec_t b);
 
 #define vecn(x,y) { vec_t v = { .x = x, .y = y } }
 #define make_pos(a, b, c, d) pos_t pos_##a = { .p = { .x = b, .y = c }, .r = d }

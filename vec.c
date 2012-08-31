@@ -31,12 +31,26 @@ vec_t vmul(vec_t a, float b) {
 	return r;
 }
 
+vec_t vmatrix(vec_t a, vec_t b, float r) {
+    vec_t v;
+    v.x = a.x + b.x * cos(r) + b.y * sin(r);
+    v.y = a.y + b.x * sin(r) - b.y * cos(r);
+    return v;
+}
+
 vec_t vangle(float len, float r) {
 	vec_t v;
 	v.x = len * cos(r);
 	v.y = len * sin(r);
 	return v;
 }
+
+float sqdist(vec_t a, vec_t b) {
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    return dx * dy;
+}
+
 
 void get_pos(float time, traj_t *traj, pos_t *pos) {
     float dt = time - traj->basetime;

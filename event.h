@@ -18,6 +18,8 @@
 typedef enum {
 	ev_newship,
 	ev_newtraj,
+	ev_respawn,
+	ev_destroyed,
 } event_e;
 
 enum {
@@ -46,10 +48,21 @@ typedef struct {
 	shin_t in;
 } ev_tr_t;
 
+typedef struct {
+    int owner;
+    int ms;
+    pos_t newpos;
+} ev_rp_t;
+
+typedef struct {
+    int owner;
+} ev_ds_t;
+
 void evConsumeEvent(float time);
 void evPostEvent(float time, void *data, int size, event_e type);
 void evPostEventNow(void *data, int size, event_e type);
 void evPostTrajEv(shin_t *in, int owner);
 void evPostCreateShip(char *name, pos_t *p, int team, int netid);
-
+void evPostRespawn(pos_t *newp, int netid, int msid, float time);
+void evPostDestroy(int netid, float time);
 #endif

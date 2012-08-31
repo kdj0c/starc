@@ -144,8 +144,8 @@ void cfShipGetHangar(config_setting_t *cst, shiptype_t *st) {
 		return;
 
 	st->flag |= SH_MOTHERSHIP;
-	cfReadShipFloat(csl, "x", &st->hangar.x);
-	cfReadShipFloat(csl, "y", &st->hangar.y);
+	cfReadShipFloat(csl, "x", &st->hangar.p.x);
+	cfReadShipFloat(csl, "y", &st->hangar.p.y);
 	cfReadShipFloat(csl, "r", &st->hangar.r);
 	st->hangar.r *= M_PI / 180.;
 }

@@ -14,20 +14,20 @@ void msInitMotherShip() {
 
 }
 
-void msRespawn(ship_t * sh) {
-	ship_t *ms;
+void msRespawn(ship_t *sh, ship_t *ms, float time) {
 	hangar_t *hg;
+	pos_t tmp;
+
 	sh->health = sh->t->maxhealth;
-	ms = shFindMotherShip(sh->team);
-	if (!ms)
-		return;
 	hg = &ms->t->hangar;
 
-	sh->traj.base.p.x = ms->pos.p.x + hg->x * cos(ms->pos.r) + hg->y * sin(ms->pos.r);
-	sh->traj.base.p.y = ms->pos.p.y + hg->x * sin(ms->pos.r) - hg->y * cos(ms->pos.r);
-	sh->traj.base.r = ms->pos.r - hg->r;
+	get_pos(time, &ms->traj, &tmp);
+
+	sh->traj.base.p = vmatrix(tmp.p, hg->p, tmp.r);
+//	sh->traj.base.p.x = tmp->p.x + hg->x * cos(tmp->r) + hg->y * sin(tmp->r);
+//	sh->traj.base.p.y = tmp->p.y + hg->x * sin(tmp->r) - hg->y * cos(tmp->r);
+	sh->traj.base.r = tmp.r - hg->r;
 	sh->traj.base.v = vadd(ms->pos.v, vangle(1., sh->traj.base.r));
-	sh->traj.basetime = glutGet(GLUT_ELAPSED_TIME);
-	//shNewTraj(&sh->in, sh->netid, time);
+	sh->traj.basetime = time;
 	sh->drawshield = 0;
 }

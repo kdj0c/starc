@@ -54,8 +54,7 @@ typedef struct {
 } turretpos_t;
 
 typedef struct {
-	float x;
-	float y;
+	vec_t p;
 	float r;
 } hangar_t;
 
@@ -131,6 +130,7 @@ typedef struct ship_s {
 	float respawn_time;
 	float health;
 	float drawshield;
+	float engpower;
 	int netid;
 	int team;
 	shin_t in;
@@ -160,6 +160,8 @@ void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
 		float dt, ship_t *self);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
+void shRespawn(int netid, pos_t *np, int msid, float time);
+void shDestroy(int netid);
 ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid);
 ship_t * shCreateRemoteShip(shipcorename_t * shn);
 void shSync(shipcore_t * shc, int local);

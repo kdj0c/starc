@@ -18,6 +18,9 @@
 #include "config.h"
 #include "turret.h"
 #include "mothership.h"
+#include "event.h"
+
+extern float frametime;
 
 #ifndef DEDICATED
 static int hudarrowtex = 0;
@@ -148,6 +151,7 @@ void shNewTraj(shin_t *in, int netid,  float time) {
         t->base = newbase;
         t->man = sh->t->maniability * in->direction;
         t->thrust = sh->t->thrust;
+        return;
 	}
 }
 
@@ -165,13 +169,51 @@ void shDisconnect(int clid) {
 }
 
 void shDamage(ship_t * sh, float dg) {
+    int msid;
+    ship_t *ms;
 	sh->health -= dg;
 	sh->drawshield = 500;
 	if (sh->health <= 0 && sh->health + dg > 0) {
-		paExplosion(sh->pos.p.x, sh->pos.p.y, sh->pos.v.x, sh->pos.v.y, 3.f, 2000, sh->t->burst[0].color);
+	    pos_t np;
+
+	    sh->health = 0;
+	    evPostDestroy(sh->netid, frametime);
+	    ms = shFindMotherShip(sh->team);
+	    if (ms)
+            msid = ms->netid;
+        else
+            msid = -1;
+
+        np.p.x = (rand() % 10000 - 5000) * 2.;
+        np.p.y = (rand() % 10000 - 5000) * 2.;
+        np.r = (rand() % 360 - 180) * M_PI / 180.;
+        np.v.x = 0;
+        np.v.y = 0;
+        sh->drawshield = 0;
+	    evPostRespawn(&np, sh->netid, msid, frametime + 5000.);
 	}
-	if (sh->health < 0)
-		sh->health = 0;
+}
+
+void shDestroy(int netid) {
+    ship_t *sh;
+
+    sh = shGetByID(netid);
+    paExplosion(sh->pos.p.x, sh->pos.p.y, sh->pos.v.x, sh->pos.v.y, 3.f, 2000, sh->t->burst[0].color);
+    sh->health = 0;
+}
+
+void shRespawn(int netid, pos_t *np, int msid, float time) {
+    ship_t *sh;
+    ship_t *ms;
+    sh = shGetByID(netid);
+    if (msid > 0) {
+        ms = shGetByID(msid);
+        msRespawn(sh, ms, time);
+    } else {
+        sh->health = sh->t->maxhealth;
+        sh->traj.base = *np;
+        sh->traj.basetime = time;
+    }
 }
 
 void shFireLaser(float x, float y, float r, float dx, float dy, laser_t *las,
@@ -295,7 +337,6 @@ void shUpdateShips(float time) {
 		if(sh->turret)
 			tuUpdate(sh, dt);
 	}
-
 }
 
 void shDetectCollision(void) {
@@ -323,25 +364,6 @@ void shDetectCollision(void) {
 }
 
 void shUpdateRespawn(float dt) {
-	ship_t * sh;
-
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->health > 0)
-			continue;
-		sh->health -= dt;
-
-		if (sh->health < -5000.) {
-			msRespawn(sh);
-			/*
-			sh->health = sh->t->maxhealth;
-			sh->pos.p.x = (rand() % 10000 - 5000) * 2.;
-			sh->pos.p.y = (rand() % 10000 - 5000) * 2.;
-			sh->pos.r = (rand() % 360 - 180) * M_PI / 180.;
-			sh->pos.v.x = 0;
-			sh->pos.v.y = 0;
-			sh->drawshield = 0;*/
-		}
-	}
 }
 
 ship_t * shFindMotherShip(int team) {
@@ -358,17 +380,15 @@ ship_t * shFindMotherShip(int team) {
 ship_t * shFindNearestEnemy(ship_t * self) {
 	ship_t * sh;
 	float min_d;
-	float dx,dy,d;
+	float d;
 	ship_t * nr = NULL;
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh == self || sh->health <= 0)
 			continue;
 		if (sh->team == self->team)
 			continue;
-		dx = self->pos.p.x - sh->pos.p.x;
-		dy = self->pos.p.y - sh->pos.p.y;
-		d = dx * dx + dy * dy;
 
+        d = sqdist(self->pos.p, sh->pos.p);
 		if (nr && d > min_d)
 			continue;
 
