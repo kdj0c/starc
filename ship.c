@@ -136,23 +136,21 @@ void shNewTraj(shin_t *in, int netid,  float time) {
 	ship_t *sh;
 	traj_t *t;
 	pos_t newbase;
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->netid != netid)
-            continue;
-        t = &sh->traj;
-        get_pos(time, t, &newbase);
-        if ( !in->acceleration && !in->direction)
-            t->type = t_linear;
-        else if (!in->direction)
-            t->type = t_linear_acc;
-        else
-            t->type = t_circle;
-        t->basetime = time;
-        t->base = newbase;
-        t->man = sh->t->maniability * in->direction;
-        t->thrust = sh->t->thrust;
-        return;
-	}
+
+	sh = shGetByID(netid);
+
+    t = &sh->traj;
+    get_pos(time, t, &newbase);
+    if (!in->acceleration)
+        t->type = t_linear;
+    else if (!in->direction)
+        t->type = t_linear_acc;
+    else
+        t->type = t_circle;
+    t->basetime = time;
+    t->base = newbase;
+    t->man = sh->t->maniability * in->direction;
+    t->thrust = sh->t->thrust;
 }
 
 /*
@@ -255,6 +253,7 @@ void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
 
 	p.p = vmatrix(sh->pos.p, las->p, sh->pos.r);
 	p.r = sh->pos.r + las->r;
+	p.v = sh->pos.v;
     shFireLaser(p, sh, las, dt);
 }
 
