@@ -85,6 +85,7 @@ void evDoEvent(ev_t *ev) {
 			ev_tr_t *tr;
 			tr = (ev_tr_t *) ev->data;
 			shSetInput(&tr->in, tr->owner);
+			shNewTraj(&tr->in, tr->owner, ev->time);
 		}
 		break;
 	}

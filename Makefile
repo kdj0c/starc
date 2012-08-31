@@ -20,6 +20,8 @@ SV_DIR:=sv_obj
 SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o turret.o mothership.o event.o)
 SV:=ded_starc
 
+DEP:=$(wildcard *.h)
+
 # All Target
 all: $(CL)
 
@@ -36,23 +38,23 @@ $(CL_OBJS): | $(CL_DIR)
 
 $(CL_DIR):
 	mkdir $(CL_DIR)
-	
+
 $(SV_OBJS): | $(SV_DIR)
 
 $(SV_DIR):
 	mkdir $(SV_DIR)
-	
-$(CL_DIR)/%.o : %.c
+
+$(CL_DIR)/%.o : %.c $(DEP)
 	@echo 'CC: $<'
 	@gcc -O0 -Wall -g -I/usr/include/freetype2 -c -o"$@" "$<"
-	
-$(SV_DIR)/%.o : %.c
+
+$(SV_DIR)/%.o : %.c $(DEP)
 	@echo 'CC: $<'
 	@gcc -O0 -Wall -g -DDEDICATED -c -o"$@" "$<"
-     
+
 # Other Targets
 clean:
-	-$(RM) $(CL_OBJS) $(CL) 
+	-$(RM) $(CL_OBJS) $(CL)
 	-$(RM) $(SV_OBJS) $(SV)
 	-@echo ' '
 

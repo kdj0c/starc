@@ -62,6 +62,11 @@ ship_t * shCreateShip(char * name, float x, float y, float r, int team, int neti
 	newship->x = x;
 	newship->y = y;
 	newship->r = r;
+	newship->traj.base.p.x = x;
+	newship->traj.base.p.y = y;
+	newship->traj.base.r = r;
+	newship->traj.type = t_linear;
+	newship->traj.basetime = 0.0;
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
 	newship->netid = netid;
@@ -127,6 +132,29 @@ void shSetInput(shin_t * in, int netid) {
 		}
 	}
 }
+
+void shNewTraj(shin_t *in, int netid,  float time) {
+	ship_t *sh;
+	traj_t *t;
+	pos_t newbase;
+	list_for_each_entry(sh, &ship_head, list) {
+		if (sh->netid != netid)
+            continue;
+        t = &sh->traj;
+        get_pos(time, t, &newbase);
+        if ( !in->acceleration && !in->direction)
+            t->type = t_linear;
+        else if (!in->direction)
+            t->type = t_linear_acc;
+        else
+            t->type = t_circle;
+        t->basetime = time;
+        t->base = newbase;
+        t->man = sh->t->maniability * in->direction;
+        t->thrust = sh->t->thrust;
+	}
+}
+
 /*
  * TODO Need to fix this wrong algo
  */
@@ -234,9 +262,14 @@ void shBurst(ship_t *sh) {
 	}
 }
 
-void shUpdateShips(float dt) {
+void shUpdateShips(float time) {
 	ship_t * sh;
 	int l;
+    static float prevup = 0.;
+    float dt;
+
+    dt = time - prevup;
+    prevup = time;
 
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
@@ -248,6 +281,15 @@ void shUpdateShips(float dt) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
+
+        if (sh->traj.type != t_none) {
+            get_pos(time, &sh->traj, &sh->pos);
+            sh->x = sh->pos.p.x;
+            sh->y = sh->pos.p.y;
+            sh->r = sh->pos.r;
+            continue;
+        }
+
 		if (sh->in.direction) {
 			sh->r += sh->in.direction * dt * sh->t->maniability;
 		}

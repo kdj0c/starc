@@ -38,6 +38,7 @@ static inline vec_t vec(float x, float y) {
 /* Trajectory lib */
 
 typedef enum {
+    t_none,
     t_linear,
     t_linear_acc,
     t_circle,
@@ -50,5 +51,7 @@ typedef struct {
     float thrust;
     float man;
 } traj_t;
+
+void get_pos(float time, traj_t *traj, pos_t *pos);
 
 #endif

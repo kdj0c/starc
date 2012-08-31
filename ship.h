@@ -11,6 +11,7 @@
 #define SHIP_H_
 
 #include "list.h"
+#include "vec.h"
 
 #define LASER_RANGE 5000
 
@@ -100,7 +101,9 @@ typedef struct {
 	float drawshield;	\
 	int netid;			\
 	int team;			\
-	shin_t in;
+	shin_t in;          \
+	traj_t traj;        \
+	pos_t pos;
 
 /*
  * only core, data synchronized by network
@@ -159,6 +162,7 @@ ship_t * shFindNearestEnemy(ship_t * self);
 int shSerialize(shipcore_t * data);
 int shSerializeOnce(shipcorename_t * data);
 void shSetInput(shin_t * in, int netid);
+void shNewTraj(shin_t *in, int netid,  float time);
 void shDisconnect(int clid);
 
 #endif /* SHIP_H_ */
