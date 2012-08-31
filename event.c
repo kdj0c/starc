@@ -73,7 +73,6 @@ void evDoEvent(ev_t *ev) {
 	{
 		ev_cr_t *cr;
 		ship_t *sh;
-		printf("create ship\n");
 		cr = (ev_cr_t *) ev->data;
 		sh = shCreateShip(cr->shipname, cr->pos.p.x, cr->pos.p.y, cr->pos.r, cr->team, cr->owner);
 		shLoadShip();

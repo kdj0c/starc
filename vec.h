@@ -18,6 +18,7 @@ typedef struct {
 	vec_t p; //position
 	vec_t v; //speed
 	float r; //angle
+	float dr; //angle speed
 } pos_t;
 
 vec_t vadd(vec_t a, vec_t b);
@@ -33,5 +34,21 @@ static inline vec_t vec(float x, float y) {
 	v.y = y;
 	return v;
 }
+
+/* Trajectory lib */
+
+typedef enum {
+    t_linear,
+    t_linear_acc,
+    t_circle,
+} traj_e;
+
+typedef struct {
+    traj_e type;
+    float basetime;
+    pos_t base;
+    float thrust;
+    float man;
+} traj_t;
 
 #endif

@@ -37,3 +37,35 @@ vec_t vangle(float len, float r) {
 	v.y = len * sin(r);
 	return v;
 }
+
+void get_pos(float time, traj_t *traj, pos_t *pos) {
+    float dt = time - traj->basetime;
+    vec_t tmp1;
+
+    switch(traj->type) {
+    case t_linear:
+        pos->v = traj->base.v;
+        pos->p = vadd(traj->base.p, vmul(pos->v, dt));
+        pos->dr = traj->man;
+        pos->r = traj->base.r + dt * traj->man * pos->dr;
+    break;
+    case t_linear_acc:
+        pos->r = traj->base.r;
+        pos->v = vadd(traj->base.v, vangle(dt * traj->thrust, pos->r));
+        pos->p = vadd(traj->base.p, vmul(traj->base.v, dt));
+        pos->p = vadd(pos->p, vangle(0.5 * dt * dt * traj->thrust, pos->r));
+        pos->dr = traj->man;
+    break;
+    /* p(t) = p0 + t*v0 + t*thrust/man*unitvec(r0 + pi/2) + thrust/(man * man) * (unitvec(r0) - unitvec(r(t))) */
+    case t_circle:
+        pos->dr = traj->man;
+        pos->r = traj->base.r + dt * traj->man;
+        pos->v = vadd(traj->base.v, vangle(traj->thrust / traj->man, pos->r + M_PI/2.0));
+        pos->v = vadd(pos->v, vangle(traj->thrust / traj->man, pos->r - M_PI/2.0 + traj->man * dt));
+        pos->p = vadd(traj->base.p, vmul(traj->base.v, dt));
+        pos->p = vadd(pos->p, vangle(dt * traj->thrust / traj->man, traj->base.r + M_PI/2.0));
+        tmp1 = vsub(vangle(1., traj->base.r), vangle(1., pos->r));
+        pos->p = vadd(pos->p, vmul(tmp1, traj->thrust / (traj->man * traj->man)));
+    break;
+    }
+}
