@@ -7,6 +7,7 @@
  */
 
 #include <math.h>
+#include <GL/glut.h>
 #include "ship.h"
 
 void msInitMotherShip() {
@@ -22,10 +23,11 @@ void msRespawn(ship_t * sh) {
 		return;
 	hg = &ms->t->hangar;
 
-	sh->pos.p.x = ms->pos.p.x + hg->x * cos(ms->pos.r) + hg->y * sin(ms->pos.r);
-	sh->pos.p.y = ms->pos.p.y + hg->x * sin(ms->pos.r) - hg->y * cos(ms->pos.r);
-	sh->pos.r = ms->pos.r - hg->r;
-	sh->pos.v.x = 1. * cos(sh->pos.r) + ms->pos.v.x;
-	sh->pos.v.y = 1. * sin(sh->pos.r) + ms->pos.v.y;
+	sh->traj.base.p.x = ms->pos.p.x + hg->x * cos(ms->pos.r) + hg->y * sin(ms->pos.r);
+	sh->traj.base.p.y = ms->pos.p.y + hg->x * sin(ms->pos.r) - hg->y * cos(ms->pos.r);
+	sh->traj.base.r = ms->pos.r - hg->r;
+	sh->traj.base.v = vadd(ms->pos.v, vangle(1., sh->traj.base.r));
+	sh->traj.basetime = glutGet(GLUT_ELAPSED_TIME);
+	//shNewTraj(&sh->in, sh->netid, time);
 	sh->drawshield = 0;
 }

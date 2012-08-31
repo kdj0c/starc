@@ -283,18 +283,7 @@ void shUpdateShips(float time) {
             sh->pos.p.x = sh->pos.p.x;
             sh->pos.p.y = sh->pos.p.y;
             sh->pos.r = sh->pos.r;
-            continue;
         }
-
-		if (sh->in.direction) {
-			sh->pos.r += sh->in.direction * dt * sh->t->maniability;
-		}
-		if (sh->in.acceleration) {
-			sh->pos.v.x += sh->t->thrust * dt * cos(sh->pos.r);
-			sh->pos.v.y += sh->t->thrust * dt * sin(sh->pos.r);
-		}
-		sh->pos.p.x += sh->pos.v.x * dt;
-		sh->pos.p.y += sh->pos.v.y * dt;
 		if (sh->in.acceleration)
 			shBurst(sh);
 
