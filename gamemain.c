@@ -211,6 +211,7 @@ void gmStartSingle(void) {
 	tuLoadTurret();
 	shLoadShip();
 	paInit();
+	weInit();
 
 	evPostCreateShip("v2", &pos_player, 0, 0);
 	evPostCreateShip("mother1", &pos_mother, 0, 1);
@@ -257,6 +258,7 @@ void gmStartMulti(void) {
 	tuLoadTurret();
 	shLoadShip();
 	paInit();
+	weInit();
 	ntHandleMessage();
 	player = ntCreateLocalPlayer("v2");
 	glutTimerFunc(10, grDraw, 0);

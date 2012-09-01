@@ -75,7 +75,7 @@ void ntHandleUserMessage(void * data, int size, grapple_user id) {
 				local = 1;
 			else
 				local = 0;
-			shSync(shc, local);
+//			shSync(shc, local);
 			shc++;
 		}
 		break;

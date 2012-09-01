@@ -10,12 +10,12 @@
 #include "event.h"
 #include "ship.h"
 #include "ai.h"
+#include "weapon.h"
 
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
 
 void *evBuff;
-
 
 void evInit(void) {
 	evBuff  = malloc(4096);
@@ -52,6 +52,18 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid) {
 	ev.team = team;
 	strcpy(ev.shipname, name);
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
+}
+
+void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, float time) {
+    ev_la_t ev;
+
+    ev.owner = owner;
+    ev.width = width;
+    ev.color = color;
+    ev.len = len;
+    ev.p = *p;
+    ev.lifetime = lifetime;
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_laser);
 }
 
 void evPostEventNow(void *data, int size, event_e type) {
@@ -97,7 +109,6 @@ void evDoEvent(ev_t *ev) {
 		{
 			ev_tr_t *tr;
 			tr = (ev_tr_t *) ev->data;
-			shSetInput(&tr->in, tr->owner);
 			shNewTraj(&tr->in, tr->owner, ev->time);
 		}
 		break;
@@ -117,7 +128,15 @@ void evDoEvent(ev_t *ev) {
             printf("respawned %d\n", rp->owner);
         }
         break;
+	case ev_laser:
+        {
+            ev_la_t *la;
+            la = (ev_la_t *) ev->data;
+            shLaser(la->owner, &la->p, la->len, la->width, la->lifetime, la->color, ev->time);
+        }
+        break;
 	}
+
 }
 
 void evConsumeEvent(float time) {

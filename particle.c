@@ -21,6 +21,7 @@ typedef struct {
 	pos_t p;
 	float size;
 	unsigned int color;
+	traj_t traj;
 	short int maxlife;
 	short int life;
 	unsigned int flag;
@@ -46,7 +47,7 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color) {
 
 	for (i = freePart; i < freePart + number; i++) {
 		float len,angle;
-		vec_t d, v1;
+		vec_t v1;
 		len = (float) ((rand() % 1000) - 500) / 500.f;
 		angle = (float) (rand() % 1000) * M_PI / 500.f;
 
@@ -89,7 +90,7 @@ void paBurst(pos_t p, float size, unsigned int color) {
 void paLaser(vec_t p, vec_t v, unsigned int color) {
 	int i;
 	i = freePart;
-	parts[i].maxlife = rand() % 500 + 50;
+	parts[i].maxlife = rand() % 800 + 200;
 	parts[i].p.p = p;
 	parts[i].p.v = v;
 	parts[i].life = parts[i].maxlife;
@@ -104,8 +105,26 @@ void paLaser(vec_t p, vec_t v, unsigned int color) {
 void paLas(pos_t p, float len, unsigned int color) {
 	int i;
 	i = freePart;
-	parts[i].maxlife = rand() % 30 + 30;
+	parts[i].maxlife = rand() % 80 + 80;
 	parts[i].p = p;
+	parts[i].size = len;
+	parts[i].life = parts[i].maxlife;
+	parts[i].color = color;
+	parts[i].flag = PA_LASER;
+	freePart++;
+	if (freePart >= NBPART)
+		freePart = 0;
+}
+
+void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
+	int i;
+	i = freePart;
+	parts[i].maxlife = time + lifetime;
+	parts[i].traj.base = *p;
+	parts[i].size = len;
+
+	parts[i].maxlife = rand() % 30 + 30;
+	parts[i].p = *p;
 	parts[i].size = len;
 	parts[i].life = parts[i].maxlife;
 	parts[i].color = color;

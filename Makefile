@@ -13,11 +13,13 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o
+
 CL_DIR:=cl_obj
-CL_OBJS=$(addprefix $(CL_DIR)/,main.o pnglite.o graphic.o ship.o ai.o star.o particle.o network.o menu.o gamemain.o config.o turret.o mothership.o event.o vec.o)
+CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o pnglite.o graphic.o star.o particle.o menu.o gamemain.o)
 CL:=starc
 SV_DIR:=sv_obj
-SV_OBJS=$(addprefix $(SV_DIR)/,server.o ship.o network.o ai.o config.o turret.o mothership.o event.o)
+SV_OBJS=$(addprefix $(SV_DIR)/,$(COMMON) server.o)
 SV:=ded_starc
 
 DEP:=$(wildcard *.h)

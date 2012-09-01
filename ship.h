@@ -133,6 +133,7 @@ typedef struct ship_s {
 	shin_t in;
 	traj_t traj;
 	pos_t pos;
+	float lastfire;
 } ship_t;
 
 struct tur {
@@ -152,9 +153,11 @@ void shDrawShipHUD(ship_t * pl);
 ship_t *shGetByID(int id);
 void shLoadShipType(void);
 void shUpdateShips(float dt);
+void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time);
 void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt);
 void shDetectCollision(void);
 void shUpdateRespawn(float dt);
+void shDamage(ship_t *sh, float dg);
 void shRespawn(int netid, pos_t *np, int msid, float time);
 void shDestroy(int netid);
 ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid);

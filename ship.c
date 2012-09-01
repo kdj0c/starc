@@ -26,6 +26,8 @@ extern float frametime;
 static int hudarrowtex = 0;
 #endif
 
+#define RELOAD 200.
+
 LIST_HEAD(ship_head);
 
 static void addShip(ship_t * sh) {
@@ -37,9 +39,6 @@ static void addShip(ship_t * sh) {
 
 static void removeShip(ship_t * sh) {
 	list_del(&sh->list);
-}
-
-void shLoadShipType(void) {
 }
 
 #ifndef DEDICATED
@@ -84,7 +83,7 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->netid == shn->netid) {
 			/* we have already this ship no need to create a new one !*/
-			shSync((shipcore_t *) &shn->x, 0);
+//			shSync((shipcore_t *) &shn->x, 0);
 			return sh;
 		}
 	}
@@ -102,24 +101,57 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 	return newship;
 }
 
-/*
- * Synchronize local ship with server
- * don't overwrite inputs if it is a local ship
- */
-void shSync(shipcore_t * shc, int local) {
-	ship_t * sh;
-	int size = sizeof(*shc);
-	if (local)
-		size -= sizeof(shin_t);
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->netid == shc->netid) {
-			/* if ship died from last update, make an explosion */
-			if(sh->health > 0 && shc->health <= 0)
-//				paExplosion(shc->x, shc->y, shc->dx, shc->dy, 6.f, 5000, sh->t->burst[0].color);
-//			memcpy(&sh->pos.p.x, shc, size);
-			return;
+void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
+	float min;
+	ship_t *en;
+	ship_t *sh;
+	ship_t *tc = NULL;
+
+	sh = shGetByID(netid);
+
+	min = LASER_RANGE;
+	list_for_each_entry(en, &ship_head, list) {
+		float s;
+		pos_t enp;
+		vec_t d, t;
+		if (en->health <= 0 || en == sh || (en->t->flag & SH_MOTHERSHIP))
+			continue;
+        get_pos(time, &en->traj, &enp);
+        d = vsub(enp.p, p->p);
+        t = vmatrix1(d, p->r);
+
+		s = en->t->shieldsize / 2.f;
+
+		if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
+			len = t.x - sqrt(s * s - t.y * t.y);
+			if (len < min) {
+				min = len;
+				tc = en;
+			}
 		}
 	}
+	if(tc) {
+	    vec_t tmp;
+		shDamage(tc, 100.);
+		tmp = vadd(p->p, vangle(min, p->r));
+		paLaser(tmp, tc->pos.v, color);
+	}
+    paLas(*p, min, color);
+}
+
+
+void shShipFireLaser(ship_t *sh, pos_t *p, float time) {
+    int l;
+
+    for (l = 0; l < sh->t->numlaser; l++) {
+        pos_t pl;
+        laser_t *las = &sh->t->laser[l];
+        pl.p = vmatrix(p->p, las->p, p->r);
+        pl.r = p->r + las->r;
+        pl.v = p->v;
+        evPostLaser(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., time);
+    }
+    sh->lastfire = time;
 }
 
 void shSetInput(shin_t * in, int netid) {
@@ -141,16 +173,24 @@ void shNewTraj(shin_t *in, int netid,  float time) {
 
     t = &sh->traj;
     get_pos(time, t, &newbase);
-    if (!in->acceleration)
-        t->type = t_linear;
-    else if (!in->direction)
-        t->type = t_linear_acc;
-    else
-        t->type = t_circle;
-    t->basetime = time;
-    t->base = newbase;
-    t->man = sh->t->maniability * in->direction;
-    t->thrust = sh->t->thrust;
+
+	if (sh->in.acceleration != in->acceleration ||
+            sh->in.direction != in->direction) {
+        if (!in->acceleration)
+            t->type = t_linear;
+        else if (!in->direction)
+            t->type = t_linear_acc;
+        else
+            t->type = t_circle;
+        t->basetime = time;
+        t->base = newbase;
+        t->man = sh->t->maniability * in->direction;
+        t->thrust = sh->t->thrust;
+	}
+	if (in->fire1 && sh->lastfire + RELOAD < time) {
+	    shShipFireLaser(sh, &newbase, time);
+	}
+	memcpy(&sh->in, in, sizeof(*in));
 }
 
 /*
@@ -166,7 +206,7 @@ void shDisconnect(int clid) {
 	}
 }
 
-void shDamage(ship_t * sh, float dg) {
+void shDamage(ship_t *sh, float dg) {
     int msid;
     ship_t *ms;
 	sh->health -= dg;
@@ -219,6 +259,8 @@ void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt) {
 	ship_t * tc = NULL;
 	float len, min;
 
+	return;
+
 	min = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
 		float s;
@@ -246,17 +288,6 @@ void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt) {
 	}
 	paLas(p, min, las->color);
 }
-
-
-void shShipFireLaser(ship_t * sh, laser_t * las, float dt) {
-	pos_t p;
-
-	p.p = vmatrix(sh->pos.p, las->p, sh->pos.r);
-	p.r = sh->pos.r + las->r;
-	p.v = sh->pos.v;
-    shFireLaser(p, sh, las, dt);
-}
-
 
 /*
  * ships are considered round (it bounce on shield)
@@ -293,18 +324,22 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 
 void shBurst(ship_t *sh) {
 	int i;
+	float size;
 	for(i=0;i<sh->t->numburst;i++) {
 	    pos_t p;
 	    p.r = sh->pos.r;
 	    p.v = sh->pos.v;
 	    p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
-		paBurst(p, sh->t->burst[i].size, sh->t->burst[i].color);
+	    size = sh->t->burst[i].size;
+	    if (!sh->in.acceleration)
+            size /= 2.;
+
+        paBurst(p, size, sh->t->burst[i].color);
 	}
 }
 
 void shUpdateShips(float time) {
 	ship_t * sh;
-	int l;
     static float prevup = 0.;
     float dt;
 
@@ -328,12 +363,16 @@ void shUpdateShips(float time) {
             sh->pos.p.y = sh->pos.p.y;
             sh->pos.r = sh->pos.r;
         }
-		if (sh->in.acceleration)
-			shBurst(sh);
+        shBurst(sh);
 
 		if (sh->in.fire1) {
-			for (l = 0; l < sh->t->numlaser; l++) {
-				shShipFireLaser(sh, &sh->t->laser[l], dt);
+		    if (time + 50. - sh->lastfire > RELOAD) {
+		        float ftime;
+		        pos_t p;
+
+		        ftime = sh->lastfire + RELOAD;
+                get_pos(ftime, &sh->traj, &p);
+				shShipFireLaser(sh, &p, ftime);
 			}
 		}
 		if(sh->turret)
