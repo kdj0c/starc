@@ -55,6 +55,8 @@ void shLoadShip(void) {
             if (!sh->t->turret[i].t->tex)
                 sh->t->turret[i].t->tex =
                 grLoadTexture(sh->t->turret[i].t->imgfile);
+                sh->t->turret[i].t->shieldtex =
+                grLoadTexture(sh->t->turret[i].t->shieldfile);
         }
 	}
 	hudarrowtex = grLoadTexture("img/arrow.png");
@@ -108,41 +110,55 @@ ship_t * shCreateRemoteShip(shipcorename_t * shn) {
 }
 
 void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
-	float min;
+	float closer;
 	ship_t *en;
 	ship_t *sh;
 	ship_t *tc = NULL;
+	turret_t *tu;
 
 	sh = shGetByID(netid);
 
-	min = LASER_RANGE;
+	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
 		float s;
 		pos_t enp;
 		vec_t d, t;
-		if (en->health <= 0 || en == sh || (en->t->flag & SH_MOTHERSHIP))
+		if (en->health <= 0 || en == sh)
 			continue;
         get_pos(time, &en->traj, &enp);
         d = vsub(enp.p, p->p);
-        t = vmatrix1(d, p->r);
-
 		s = en->t->shieldsize / 2.f;
 
-		if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
-			len = t.x - sqrt(s * s - t.y * t.y);
-			if (len < min) {
-				min = len;
-				tc = en;
-			}
-		}
+        if (norm(d) > LASER_RANGE + s)
+            continue;
+
+        if (en->t->flag & SH_MOTHERSHIP) {
+            // check for turret
+            tu = tuCheckTurret(en, p, &enp, len, &closer);
+            if (tu)
+                tc = en;
+        } else {
+            t = vmatrix1(d, p->r);
+            if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
+                len = t.x - sqrt(s * s - t.y * t.y);
+                if (len < closer) {
+                    closer = len;
+                    tc = en;
+                }
+            }
+        }
 	}
 	if(tc) {
 	    vec_t tmp;
-		shDamage(tc, 100., time);
-		tmp = vadd(p->p, vangle(min, p->r));
+	    if (tc->t->flag & SH_MOTHERSHIP) {
+	        tuDamage(tu, 50., time);
+	    } else {
+            shDamage(tc, 50., time);
+	    }
+		tmp = vadd(p->p, vangle(closer, p->r));
 		paLaser(tmp, tc->pos.v, color);
 	}
-    paLas(*p, min, color);
+    paLas(*p, closer, color);
 }
 
 void shFireLaser(ship_t *sh, pos_t *p, float time) {
@@ -192,7 +208,7 @@ void shNewTraj(shin_t *in, int netid,  float time) {
         t->man = sh->t->maniability * in->direction;
         t->thrust = sh->t->thrust;
 	}
-	if (in->fire1 && sh->lastfire + RELOAD < time) {
+	if (in->fire1 && sh->lastfire + RELOAD < time && sh->health > 0) {
 	    shFireLaser(sh, &newbase, time);
 	}
 	memcpy(&sh->in, in, sizeof(*in));
@@ -338,7 +354,7 @@ void shUpdateShips(float time) {
 			}
 		}
 		if(sh->turret)
-			tuUpdate(sh, dt);
+			tuUpdate(sh, time);
 	}
 }
 
@@ -457,7 +473,7 @@ void shDrawShips(void) {
 			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
 		if (sh->t->numturret) {
-			tuDraw(sh);
+			tuDraw(sh, frametime);
 		}
 	}
 }

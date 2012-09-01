@@ -13,6 +13,7 @@
 #include "ship.h"
 #include "ai.h"
 #include "weapon.h"
+#include "turret.h"
 
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
@@ -60,6 +61,15 @@ void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float 
     ev.p = *p;
     ev.lifetime = lifetime;
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_laser);
+}
+
+
+void evPostTurret(int owner, signed char *dir, float time) {
+    ev_tu_t ev;
+
+    ev.owner = owner;
+    memcpy(ev.direction, dir, sizeof(ev.direction));
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_turret);
 }
 
 void evPostEventNow(void *data, int size, event_e type) {
@@ -131,8 +141,14 @@ void evDoEvent(ev_t *ev) {
             shLaser(la->owner, &la->p, la->len, la->width, la->lifetime, la->color, ev->time);
         }
         break;
+	case ev_turret:
+        {
+            ev_tu_t *tu;
+            tu = (ev_tu_t *) ev->data;
+            tuSetMove(tu->owner, tu->direction, ev->time);
+        }
+        break;
 	}
-
 }
 
 void evConsumeEvent(float time) {

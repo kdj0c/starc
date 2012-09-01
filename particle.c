@@ -94,7 +94,7 @@ void paLaser(vec_t p, vec_t v, unsigned int color) {
 	parts[i].p.p = p;
 	parts[i].p.v = v;
 	parts[i].life = parts[i].maxlife;
-	parts[i].size = rand() % 100 + 50;
+	parts[i].size = rand() % 100 + 100;
 	parts[i].color = color;
 	parts[i].flag = 0;
 	freePart++;
@@ -105,7 +105,7 @@ void paLaser(vec_t p, vec_t v, unsigned int color) {
 void paLas(pos_t p, float len, unsigned int color) {
 	int i;
 	i = freePart;
-	parts[i].maxlife = rand() % 80 + 80;
+	parts[i].maxlife = rand() % 50 + 150;
 	parts[i].p = p;
 	parts[i].size = len;
 	parts[i].life = parts[i].maxlife;

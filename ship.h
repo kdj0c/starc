@@ -18,6 +18,11 @@
 /* Ship Flags */
 #define	SH_MOTHERSHIP 0x1
 
+#define MAX_TURRET 10
+#define MAX_LASER 5
+#define MAX_ENGINE 5
+
+
 typedef struct {
     vec_t p;
 	float r;
@@ -42,7 +47,7 @@ typedef struct {
 	float maniability;
 	unsigned int flag;
 	int numlaser;
-	laser_t laser[5];
+	laser_t laser[MAX_LASER];
 } turrettype_t;
 
 typedef struct {
@@ -68,11 +73,11 @@ typedef struct {
 	float thrust;
 	unsigned int flag;
 	int numlaser;
-	laser_t laser[5];
+	laser_t laser[MAX_LASER];
 	int numburst;
-	burst_t burst[5];
+	burst_t burst[MAX_ENGINE];
 	int numturret;
-	turretpos_t turret[10];
+	turretpos_t turret[MAX_TURRET];
 	hangar_t hangar;
 } shiptype_t;
 
@@ -139,8 +144,14 @@ typedef struct ship_s {
 struct tur {
     vec_t p;
 	float r;
+	float basetime;
+	float baseaim;
 	ship_t *target;
-	int last_think;
+	float lastthink;
+	float lastfire;
+	float lastdamage;
+	signed char dir;
+	float health;
 };
 
 typedef struct tur turret_t;
