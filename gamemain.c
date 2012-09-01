@@ -208,7 +208,6 @@ void gmStartSingle(void) {
 	net = 0;
 	enterGameMode();
 	cfReadGameData();
-	tuLoadTurret();
 	shLoadShip();
 	paInit();
 	weInit();
@@ -255,7 +254,6 @@ void gmStartMulti(void) {
 
 	ntInit();
 	cfReadGameData();
-	tuLoadTurret();
 	shLoadShip();
 	paInit();
 	weInit();

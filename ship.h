@@ -32,7 +32,7 @@ typedef struct {
 
 typedef struct {
 	char name[16];
-	char imgfile[32];
+	char imgfile[128];
 	unsigned int tex;
 	float size;
 	char shieldfile[32];

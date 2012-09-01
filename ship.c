@@ -44,12 +44,18 @@ static void removeShip(ship_t * sh) {
 #ifndef DEDICATED
 void shLoadShip(void) {
 	ship_t * sh;
+	int i;
 
 	list_for_each_entry(sh, &ship_head, list) {
 		if(!sh->t->tex)
 			sh->t->tex = grLoadTexture(sh->t->imgfile);
 		if(!sh->t->shieldtex)
 			sh->t->shieldtex = grLoadTexture(sh->t->shieldfile);
+        for (i = 0; i < sh->t->numturret; i++) {
+            if (!sh->t->turret[i].t->tex)
+                sh->t->turret[i].t->tex =
+                grLoadTexture(sh->t->turret[i].t->imgfile);
+        }
 	}
 	hudarrowtex = grLoadTexture("img/arrow.png");
 }

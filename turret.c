@@ -14,15 +14,6 @@
 #include "graphic.h"
 #include "particle.h"
 
-#ifndef DEDICATED
-
-int tuTex=0;
-void tuLoadTurret(void) {
-   tuTex = grLoadTexture("img/tu.png");
-}
-#endif
-
-
 void tuAddTurret(ship_t * sh) {
 	turret_t *new;
 	turretpos_t *t;
@@ -88,9 +79,9 @@ void tuDraw(ship_t * sh) {
 	turret_t *tu;
 	int i;
 
-   grSetBlend(tuTex);
 	for (i = 0; i < sh->t->numturret; i++) {
 		tu = &sh->turret[i];
+        grSetBlend(sh->t->turret[i].t->tex);
 		grBlitRot(tu->p.x, tu->p.y, tu->r, 700.);
 	}
 }
