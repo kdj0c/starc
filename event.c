@@ -17,12 +17,6 @@
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
 
-void *evBuff;
-
-void evInit(void) {
-	evBuff  = malloc(4096);
-}
-
 void evPostTrajEv(shin_t *in, int owner) {
 	ev_tr_t ev;
 
@@ -143,13 +137,16 @@ void evDoEvent(ev_t *ev) {
 
 void evConsumeEvent(float time) {
 	ev_t *ev;
-	ev_t *safe;
 
-	list_for_each_entry_safe(ev, safe, &act_event, list) {
-		if (ev->time > time)
-			return;
-		evDoEvent(ev);
-		list_del(&ev->list);
-		list_add(&ev->list, &old_event);
-	}
+    if (list_empty(&act_event))
+        return;
+	ev = list_first_entry(&act_event, ev_t, list);
+    while (ev && ev->time <= time) {
+        evDoEvent(ev);
+        list_del(&ev->list);
+        list_add(&ev->list, &old_event);
+        if (list_empty(&act_event))
+            return;
+        ev = list_first_entry(&act_event, ev_t, list);
+    }
 }
