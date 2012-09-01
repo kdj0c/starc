@@ -88,5 +88,7 @@ void get_pos(float time, traj_t *traj, pos_t *pos) {
         tmp1 = vsub(vangle(1., traj->base.r), vangle(1., pos->r));
         pos->p = vadd(pos->p, vmul(tmp1, traj->thrust / (traj->man * traj->man)));
     break;
+    default:
+        return;
     }
 }

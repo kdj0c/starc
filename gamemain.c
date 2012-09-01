@@ -20,6 +20,7 @@
 #include "turret.h"
 #include "config.h"
 #include "event.h"
+#include "weapon.h"
 
 ship_t * player = NULL;
 static float scale = 1.f;
@@ -82,7 +83,6 @@ void grDraw(int value) {
 	shUpdateShips(time);
 	if(!net) {
 		shDetectCollision();
-		shUpdateRespawn(dt);
 	}
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);

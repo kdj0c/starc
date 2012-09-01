@@ -47,7 +47,7 @@ void weLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 }
 
 void weUpdate(float time) {
-	int i;
+/*	int i;
     pos_t p;
     ship_t *tg;
 	for (i = 0; i < NBPART; i++) {
@@ -57,5 +57,5 @@ void weUpdate(float time) {
 //        tg = shFindShip(&p);
         if (tg)
             shDamage(tg, 10.);
-	}
+	}*/
 }

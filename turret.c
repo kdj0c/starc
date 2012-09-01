@@ -45,7 +45,7 @@ void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float dt) {
     p.p = vmatrix(tu->p, las->p, tu->r);
     p.r = tu->r + las->r;
     p.v = sh->pos.v;
-	shFireLaser(p, sh, las, dt);
+//	shFireLaser(p, sh, las, dt);
 }
 
 void tuUpdate(ship_t *sh, float dt) {

@@ -29,5 +29,4 @@ void msRespawn(ship_t *sh, ship_t *ms, float time) {
 	sh->traj.base.r = tmp.r - hg->r;
 	sh->traj.base.v = vadd(ms->pos.v, vangle(1., sh->traj.base.r));
 	sh->traj.basetime = time;
-	sh->drawshield = 0;
 }

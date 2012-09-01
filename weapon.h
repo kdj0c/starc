@@ -6,11 +6,11 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef PARTICLE_H_
-#define PARTICLE_H_
+#ifndef WEAPON_H_
+#define WEAPON_H_
 
 void weInit(void);
 void weLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time);
 void weUpdate(float time);
 
-#endif /* PARTICLE_H_ */
+#endif /* WEAPON_H_ */

@@ -132,15 +132,14 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 	}
 	if(tc) {
 	    vec_t tmp;
-		shDamage(tc, 100.);
+		shDamage(tc, 100., time);
 		tmp = vadd(p->p, vangle(min, p->r));
 		paLaser(tmp, tc->pos.v, color);
 	}
     paLas(*p, min, color);
 }
 
-
-void shShipFireLaser(ship_t *sh, pos_t *p, float time) {
+void shFireLaser(ship_t *sh, pos_t *p, float time) {
     int l;
 
     for (l = 0; l < sh->t->numlaser; l++) {
@@ -188,7 +187,7 @@ void shNewTraj(shin_t *in, int netid,  float time) {
         t->thrust = sh->t->thrust;
 	}
 	if (in->fire1 && sh->lastfire + RELOAD < time) {
-	    shShipFireLaser(sh, &newbase, time);
+	    shFireLaser(sh, &newbase, time);
 	}
 	memcpy(&sh->in, in, sizeof(*in));
 }
@@ -206,16 +205,16 @@ void shDisconnect(int clid) {
 	}
 }
 
-void shDamage(ship_t *sh, float dg) {
+void shDamage(ship_t *sh, float dg, float time) {
     int msid;
     ship_t *ms;
 	sh->health -= dg;
-	sh->drawshield = 500;
+	sh->lastdamage = time;
 	if (sh->health <= 0 && sh->health + dg > 0) {
 	    pos_t np;
 
 	    sh->health = 0;
-	    evPostDestroy(sh->netid, frametime);
+	    evPostDestroy(sh->netid, time);
 	    ms = shFindMotherShip(sh->team);
 	    if (ms)
             msid = ms->netid;
@@ -227,8 +226,7 @@ void shDamage(ship_t *sh, float dg) {
         np.r = (rand() % 360 - 180) * M_PI / 180.;
         np.v.x = 0;
         np.v.y = 0;
-        sh->drawshield = 0;
-	    evPostRespawn(&np, sh->netid, msid, frametime + 5000.);
+	    evPostRespawn(&np, sh->netid, msid, time + 5000.);
 	}
 }
 
@@ -252,41 +250,6 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
         sh->traj.base = *np;
         sh->traj.basetime = time;
     }
-}
-
-void shFireLaser(pos_t p, ship_t *sh, laser_t *las, float dt) {
-    ship_t * en;
-	ship_t * tc = NULL;
-	float len, min;
-
-	return;
-
-	min = LASER_RANGE;
-	list_for_each_entry(en, &ship_head, list) {
-		float s;
-		vec_t d, t;
-		if (en->health <= 0 || en == sh || (en->t->flag & SH_MOTHERSHIP))
-			continue;
-        d = vsub(en->pos.p, p.p);
-        t = vmatrix1(d, p.r);
-
-		s = en->t->shieldsize / 2.f;
-
-		if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
-			len = t.x - sqrt(s * s - t.y * t.y);
-			if (len < min) {
-				min = len;
-				tc = en;
-			}
-		}
-	}
-	if(tc) {
-	    vec_t tmp;
-		shDamage(tc, dt);
-		tmp = vadd(p.p, vangle(min, p.r));
-		paLaser(tmp, tc->pos.v, las->color);
-	}
-	paLas(p, min, las->color);
 }
 
 /*
@@ -313,8 +276,8 @@ void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
 	en->pos.v.x += k * dx / m2;
 	en->pos.v.y += k * dy / m2;
 
-	shDamage(sh, 100);
-	shDamage(en, 100);
+	shDamage(sh, 100, frametime);
+	shDamage(en, 100, frametime);
 	/* be sure ships are far enough before next collision test */
 /*	sh->pos.p.x += sh->pos.v.x * 30;
 	sh->pos.p.y += sh->pos.v.y * 30;
@@ -349,13 +312,6 @@ void shUpdateShips(float time) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
-		if (sh->drawshield > 0)
-			sh->drawshield -= dt;
-	}
-
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->health <= 0)
-			continue;
 
         if (sh->traj.type != t_none) {
             get_pos(time, &sh->traj, &sh->pos);
@@ -372,7 +328,7 @@ void shUpdateShips(float time) {
 
 		        ftime = sh->lastfire + RELOAD;
                 get_pos(ftime, &sh->traj, &p);
-				shShipFireLaser(sh, &p, ftime);
+				shFireLaser(sh, &p, ftime);
 			}
 		}
 		if(sh->turret)
@@ -402,9 +358,6 @@ void shDetectCollision(void) {
 			}
 		}
 	}
-}
-
-void shUpdateRespawn(float dt) {
 }
 
 ship_t * shFindMotherShip(int team) {
@@ -493,7 +446,7 @@ void shDrawShips(void) {
 			continue;
 		grSetBlend(sh->t->tex);
 		grBlitRot(sh->pos.p.x, sh->pos.p.y, sh->pos.r, sh->t->size);
-		if (sh->drawshield > 0) {
+		if (frametime - sh->lastdamage < 500.) {
 			grSetBlendAdd(sh->t->shieldtex);
 			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}

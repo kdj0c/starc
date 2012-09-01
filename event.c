@@ -7,6 +7,8 @@
  */
 #include <GL/glut.h>
 #include <string.h>
+#include <stdio.h>
+
 #include "event.h"
 #include "ship.h"
 #include "ai.h"
