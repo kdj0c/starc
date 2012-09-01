@@ -79,7 +79,7 @@ void grDraw(int value) {
 
 	if(net)
 		ntHandleMessage();
-	aiThink();
+	aiThink(time);
 	shUpdateShips(time);
 	if(!net) {
 		shDetectCollision();

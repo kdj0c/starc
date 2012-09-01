@@ -28,6 +28,7 @@ vec_t vmatrix(vec_t a, vec_t b, float r);
 vec_t vmatrix1(vec_t a, float r);
 vec_t vangle(float len, float r);
 float sqdist(vec_t a, vec_t b);
+float norm(vec_t a);
 
 #define vecn(x,y) { vec_t v = { .x = x, .y = y } }
 #define make_pos(a, b, c, d) pos_t pos_##a = { .p = { .x = b, .y = c }, .r = d }

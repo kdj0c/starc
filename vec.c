@@ -58,6 +58,10 @@ float sqdist(vec_t a, vec_t b) {
     return dx * dy;
 }
 
+float norm(vec_t a) {
+    return sqrt(a.x * a.x + a.y * a.y);
+}
+
 
 void get_pos(float time, traj_t *traj, pos_t *pos) {
     float dt = time - traj->basetime;

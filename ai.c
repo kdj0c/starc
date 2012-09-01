@@ -36,13 +36,15 @@ ai_t * aiCreate(ship_t * sh) {
 	return newai;
 }
 
-void aiThink(void) {
+void aiThink(float time) {
 	ai_t * ai;
 	ship_t * sh;
 	ship_t * tg;
-	float tx, ty, dx, dy, d, tdx, tdy, s;
+	float d, s;
 	float ndx, ndy, nr, dd;
+	vec_t di, t, td, tmp;
 	shin_t in;
+    pos_t tp, mp;
 
 	list_for_each_entry(ai, &aih, list) {
 		sh = ai->ship;
@@ -68,28 +70,22 @@ void aiThink(void) {
 			ship_t * newtg;
 			newtg = shFindNearestEnemy(sh);
 			if (newtg != tg) {
-				float dx2, dy2;
-				dx = tg->pos.p.x - sh->pos.p.x;
-				dy = tg->pos.p.y - sh->pos.p.y;
-				dx2 = newtg->pos.p.x - sh->pos.p.x;
-				dy2 = newtg->pos.p.y - sh->pos.p.y;
-				if (dx2 * dx2 + dy2 * dy2 < dx * dx + dy * dy + 2000 * 2000) {
+				if (sqdist(newtg->pos.p, sh->pos.p) < sqdist(tg->pos.p, sh->pos.p) + 2000 * 2000) {
 					tg = newtg;
 					ai->target = tg;
 				}
 			}
 		}
+		// get ship and target position 100ms in the futur
+        get_pos(time + 100., &tg->traj, &tp);
+        get_pos(time + 100., &sh->traj, &mp);
 
-		dx = tg->pos.p.x - sh->pos.p.x;
-		dy = tg->pos.p.y - sh->pos.p.y;
 
-		tx = dx * cos(sh->pos.r) + dy * sin(sh->pos.r);
-		ty = dx * sin(sh->pos.r) - dy * cos(sh->pos.r);
-
-		d = sqrt(dx * dx + dy * dy);
-
-		tdx = tg->pos.v.x - sh->pos.v.x;
-		tdy = tg->pos.v.y - sh->pos.v.y;
+		di = vsub(tp.p, mp.p);
+		t = vmatrix1(di, mp.r);
+		d = norm(di);
+		td = vsub(tp.v, mp.v);
+		tmp = vadd(td, di);
 
 		s = tg->t->shieldsize / 2.;
 
@@ -98,18 +94,18 @@ void aiThink(void) {
 		 * Just aim at the enemy, and fire if it is within range
 		 */
 		case ai_aim:
-			if (ty < 0)
+			if (t.y < 0)
 				in.direction = 1;
 			else
 				in.direction = -1;
 
 			if (d > MAX_AIM) {
 				ai->state = ai_approach;
-			} else if ((d < LASER_RANGE) && tx > 0 && ty > -s && ty < s) {
+			} else if ((d < LASER_RANGE) && t.x > 0 && t.y > -s && t.y < s) {
 				in.fire1 = 1;
 			}
-			if (d <= sqrt((dx + tdx) * (dx + tdx) + (dy + tdy) * (dy + tdy))
-					&& ty < s && ty > -s) {
+			if (d <= norm(tmp)
+					&& t.y < s && t.y > -s) {
 				in.acceleration = 1;
 			}
 			break;
@@ -117,11 +113,11 @@ void aiThink(void) {
 		 * try to approach target at a speed of VAPP
 		 */
 		case ai_approach:
-			ndx = tg->pos.v.x + VAPP * (ADJ_VAPP * (d - LASER_RANGE) + 1.)
-					* (dx / d) - sh->pos.v.x;
-			ndy = tg->pos.v.y + VAPP * (dy / d) - sh->pos.v.y;
+			ndx = tp.v.x + VAPP * (ADJ_VAPP * (d - LASER_RANGE) + 1.)
+					* (di.x / d) - mp.v.x;
+			ndy = tp.v.y + VAPP * (di.y / d) - mp.v.y;
 			dd = ndx * ndx + ndy * ndy;
-			nr = atan2(ndy, ndx) - sh->pos.r;
+			nr = atan2(ndy, ndx) - mp.r;
 			while (nr > M_PI)
 				nr -= 2 * M_PI;
 			while (nr < -M_PI)
@@ -139,6 +135,8 @@ void aiThink(void) {
 				ai->state = ai_aim;
 			break;
 		}
-	evPostTrajEv(&in, sh->netid);
+
+    if (memcmp(&sh->in, &in, sizeof(in)))
+        evPostTrajEv(&in, sh->netid);
 	}
 }
