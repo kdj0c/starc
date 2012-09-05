@@ -82,7 +82,7 @@ void grDraw(int value) {
 	aiThink(time);
 	shUpdateShips(time);
 	if(!net) {
-		shDetectCollision();
+		shDetectCollision(time);
 	}
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);

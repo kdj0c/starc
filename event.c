@@ -72,6 +72,15 @@ void evPostTurret(int owner, signed char *dir, float time) {
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_turret);
 }
 
+void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time) {
+    ev_co_t ev;
+    ev.owner1 = owner1;
+    ev.owner2 = owner2;
+    ev.p1 = *p1;
+    ev.p2 = *p2;
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_collide);
+}
+
 void evPostEventNow(void *data, int size, event_e type) {
 	float time;
 	time = glutGet(GLUT_ELAPSED_TIME);
@@ -146,6 +155,13 @@ void evDoEvent(ev_t *ev) {
             ev_tu_t *tu;
             tu = (ev_tu_t *) ev->data;
             tuSetMove(tu->owner, tu->direction, ev->time);
+        }
+        break;
+	case ev_collide:
+        {
+            ev_co_t *co;
+            co = (ev_co_t *) ev->data;
+            shCollide(co->owner1, co->owner2, &co->p1, &co->p2, ev->time);
         }
         break;
 	}

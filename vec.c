@@ -52,16 +52,17 @@ vec_t vangle(float len, float r) {
 	return v;
 }
 
-float sqdist(vec_t a, vec_t b) {
-    float dx = a.x - b.x;
-    float dy = a.y - b.y;
-    return dx * dy;
-}
+//float sqdist(vec_t a, vec_t b) {
+//    return (a.x - b.x) * (a.y - b.y);
+//}
 
 float norm(vec_t a) {
     return sqrt(a.x * a.x + a.y * a.y);
 }
 
+float scal(vec_t a, vec_t b) {
+    return (a.x * b.x + a.y * b.y);
+}
 
 void get_pos(float time, traj_t *traj, pos_t *pos) {
     float dt = time - traj->basetime;

@@ -22,6 +22,7 @@ typedef enum {
 	ev_destroyed,
 	ev_laser,
 	ev_turret,
+	ev_collide,
 } event_e;
 
 enum {
@@ -74,6 +75,13 @@ typedef struct {
     signed char direction[MAX_TURRET];
 } ev_tu_t;
 
+typedef struct {
+    int owner1;
+    int owner2;
+    pos_t p1;
+    pos_t p2;
+} ev_co_t;
+
 void evConsumeEvent(float time);
 void evPostEvent(float time, void *data, int size, event_e type);
 void evPostEventNow(void *data, int size, event_e type);
@@ -83,6 +91,7 @@ void evPostRespawn(pos_t *newp, int netid, int msid, float time);
 void evPostDestroy(int netid, float time);
 void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, float time);
 void evPostTurret(int owner, signed char *dir, float time);
+void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time);
 
 
 #endif

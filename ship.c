@@ -294,29 +294,34 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
  * ->    ->       ->     ->    ->       ->
  * Va' = Va - k * AB and Vb' = Vb + k * AB
  */
-void shCollide(ship_t * sh, ship_t * en, float dx, float dy) {
+void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	float k;
 	float m1, m2;
+	ship_t *sh1;
+	ship_t *sh2;
+	vec_t d, dv;
 
-	m1 = sh->t->size;
-	m2 = en->t->size;
-	k = 2 * (dx * (sh->pos.v.x - en->pos.v.x) + dy * (sh->pos.v.y - en->pos.v.y));
+	sh1 = shGetByID(netid1);
+	sh2 = shGetByID(netid2);
+    d = vsub(p1->p, p2->p);
+    dv = vsub(p1->v, p2->v);
+	m1 = sh1->t->size;
+	m2 = sh2->t->size;
+
+	k = 2 * scal(d, dv);
 	if(k == 0.)
 		return;
-	k /= (dx * dx + dy * dy);
+	k /= (norm(d) * norm(d));
 	k *= m1 * m2 / (m1 + m2);
-	sh->pos.v.x -= k * dx / m1;
-	sh->pos.v.y -= k * dy / m1;
-	en->pos.v.x += k * dx / m2;
-	en->pos.v.y += k * dy / m2;
+	sh1->traj.basetime = time;
+	sh2->traj.basetime = time;
+	p1->v = vsub(p1->v, vmul(d, (k / m1)));
+	p2->v = vadd(p2->v, vmul(d, (k / m2)));
+	sh1->traj.base = *p1;
+	sh2->traj.base = *p2;
 
-	shDamage(sh, 100, frametime);
-	shDamage(en, 100, frametime);
-	/* be sure ships are far enough before next collision test */
-/*	sh->pos.p.x += sh->pos.v.x * 30;
-	sh->pos.p.y += sh->pos.v.y * 30;
-	en->x += en->dx * 30;
-	en->y += en->dy * 30;*/
+	shDamage(sh1, 100, time);
+	shDamage(sh2, 100, time);
 }
 
 void shBurst(ship_t *sh) {
@@ -393,8 +398,8 @@ void shDetectCollision(float time) {
 
 	list_for_each_entry(sh, &ship_head, list) {
 		ship_t * en;
-		vec_t d;
 		float s;
+
 		if (sh->health <=0)
 			continue;
 		if (sh->t->flag & SH_MOTHERSHIP)
@@ -406,8 +411,9 @@ void shDetectCollision(float time) {
 				continue;
 			s = (en->t->shieldsize + sh->t->shieldsize) / 2.f;
 			s = s * s;
-			get_pos(time, &sh->traj, &p2);
-			if (sqdist(p1, p2) < s) {
+			get_pos(time, &en->traj, &p2);
+			if (sqdist(p1.p, p2.p) < s) {
+			    printf("collision, %d, %d, %f\n", sh->netid, en->netid, sqdist(p1.p, p2.p));
 			    evPostCollide(sh->netid, en->netid, &p1, &p2, time);
 			}
 		}

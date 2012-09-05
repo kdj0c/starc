@@ -166,7 +166,7 @@ void shLoadShipType(void);
 void shUpdateShips(float dt);
 void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time);
 void shFireLaser(ship_t *sh, pos_t *p, float time);
-void shDetectCollision(void);
+void shDetectCollision(float time);
 void shUpdateRespawn(float dt);
 void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
@@ -181,5 +181,5 @@ int shSerializeOnce(shipcorename_t * data);
 void shSetInput(shin_t * in, int netid);
 void shNewTraj(shin_t *in, int netid,  float time);
 void shDisconnect(int clid);
-
+void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time);
 #endif /* SHIP_H_ */

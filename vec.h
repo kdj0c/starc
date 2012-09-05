@@ -27,8 +27,12 @@ vec_t vmul(vec_t a, float b);
 vec_t vmatrix(vec_t a, vec_t b, float r);
 vec_t vmatrix1(vec_t a, float r);
 vec_t vangle(float len, float r);
-float sqdist(vec_t a, vec_t b);
+//#float sqdist(vec_t a, vec_t b);
+static inline float sqdist(vec_t a, vec_t b) {
+    return ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+}
 float norm(vec_t a);
+float scal(vec_t a, vec_t b);
 
 #define vecn(x,y) { vec_t v = { .x = x, .y = y } }
 #define make_pos(a, b, c, d) pos_t pos_##a = { .p = { .x = b, .y = c }, .r = d }
