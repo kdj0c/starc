@@ -132,7 +132,7 @@ typedef struct ship_s {
 	float respawn_time;
 	float health;
 	float lastdamage;
-	float engpower;
+	float engtime;
 	int netid;
 	int team;
 	shin_t in;

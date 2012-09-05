@@ -27,6 +27,7 @@ static int hudarrowtex = 0;
 #endif
 
 #define RELOAD 200.
+#define ENG_POWER 1000.
 
 LIST_HEAD(ship_head);
 
@@ -203,10 +204,20 @@ void shNewTraj(shin_t *in, int netid,  float time) {
             t->type = t_linear_acc;
         else
             t->type = t_circle;
-        t->basetime = time;
+
         t->base = newbase;
         t->man = sh->t->maniability * in->direction;
-        t->thrust = sh->t->thrust;
+
+        if (!sh->in.acceleration) {
+            sh->engtime += time - t->basetime;
+            if (sh->engtime > ENG_POWER)
+                sh->engtime = ENG_POWER;
+        }
+        t->basetime = time;
+        if (sh->engtime > 0.)
+            t->thrust = sh->t->thrust;
+        else
+            t->thrust = sh->t->thrust / 3.;
 	}
 	if (in->fire1 && sh->lastfire + RELOAD < time && sh->health > 0) {
 	    shFireLaser(sh, &newbase, time);
@@ -264,11 +275,12 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
     ship_t *sh;
     ship_t *ms;
     sh = shGetByID(netid);
+    sh->health = sh->t->maxhealth;
+    sh->engtime = ENG_POWER;
     if (msid > 0) {
         ms = shGetByID(msid);
         msRespawn(sh, ms, time);
     } else {
-        sh->health = sh->t->maxhealth;
         sh->traj.base = *np;
         sh->traj.basetime = time;
     }
@@ -317,8 +329,9 @@ void shBurst(ship_t *sh) {
 	    p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
 	    size = sh->t->burst[i].size;
 	    if (!sh->in.acceleration)
-            size /= 2.;
-
+            size /= 4.;
+        else
+            size *= sh->traj.thrust / sh->t->thrust;
         paBurst(p, size, sh->t->burst[i].color);
 	}
 }
@@ -336,6 +349,21 @@ void shUpdateShips(float time) {
 			continue;
 
         if (sh->traj.type != t_none) {
+            if (sh->in.acceleration && sh->engtime > 0.) {
+                float rem_power;
+
+                rem_power = sh->engtime - (time - sh->traj.basetime);
+                if ( rem_power < 0.) {
+                    float ptime;
+                    pos_t p;
+                    ptime = time + rem_power;
+                    get_pos(ptime, &sh->traj, &p);
+                    sh->traj.basetime = ptime;
+                    sh->traj.base = p;
+                    sh->traj.thrust /= 3.;
+                    sh->engtime = 0.;
+                }
+            }
             get_pos(time, &sh->traj, &sh->pos);
             sh->pos.p.x = sh->pos.p.x;
             sh->pos.p.y = sh->pos.p.y;
@@ -358,25 +386,29 @@ void shUpdateShips(float time) {
 	}
 }
 
-void shDetectCollision(void) {
+void shDetectCollision(float time) {
 	ship_t * sh;
+	pos_t p1;
+	pos_t p2;
+
 	list_for_each_entry(sh, &ship_head, list) {
 		ship_t * en;
-		float dx, dy, s;
+		vec_t d;
+		float s;
 		if (sh->health <=0)
 			continue;
 		if (sh->t->flag & SH_MOTHERSHIP)
 			continue;
 		en = sh;
+		get_pos(time, &sh->traj, &p1);
 		list_for_each_entry_continue(en, &ship_head, list) {
 			if (en->health <= 0 || (en->t->flag & SH_MOTHERSHIP))
 				continue;
-			dx = en->pos.p.x - sh->pos.p.x;
-			dy = en->pos.p.y - sh->pos.p.y;
 			s = (en->t->shieldsize + sh->t->shieldsize) / 2.f;
 			s = s * s;
-			if (dx * dx + dy * dy < s) {
-				shCollide(sh, en, dx, dy);
+			get_pos(time, &sh->traj, &p2);
+			if (sqdist(p1, p2) < s) {
+			    evPostCollide(sh->netid, en->netid, &p1, &p2, time);
 			}
 		}
 	}
