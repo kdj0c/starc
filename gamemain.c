@@ -90,6 +90,7 @@ void grDraw(int value) {
 		grChangeview(0.0, 0.0, 0.0, scale);
 	stBlit();
 	shDrawShips();
+	weUpdate(time);
 	paUpdate(dt);
 	if (player) {
 		grDrawHUD(player->health);

@@ -11,51 +11,49 @@
 #include <string.h>
 
 #include "vec.h"
-#include "particle.h"
 #include "ship.h"
+#include "graphic.h"
 /* For testing only */
-#define NBPART 1000
+#define NBPROJ 1000
 
 typedef struct {
-	float size;
-	unsigned int color;
 	traj_t traj;
-	short int maxlife;
+	float maxlife;
 } bullet_t;
 
 static bullet_t *bul;
 static int freeBul = 0;
+static unsigned int wetex;
 
 void weInit(void) {
-    bul = malloc(NBPART * sizeof(*bul));
-	memset(bul, 0, NBPART * sizeof(*bul));
+    bul = malloc(NBPROJ * sizeof(*bul));
+	memset(bul, 0, NBPROJ * sizeof(*bul));
+    wetex = grLoadTexture("img/m1.png");
 }
 
-void weLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
+void weMissile(int netid, pos_t *p, float time) {
 	int i;
 	i = freeBul;
-	bul[i].maxlife = time + lifetime;
+	bul[i].maxlife = time + 5000.;
+	p->v = vadd(p->v, vangle(5., p->r));
 	bul[i].traj.base = *p;
-	bul[i].size = len;
     bul[i].traj.basetime = time;
-	bul[i].color = color;
+    bul[i].traj.type = t_linear;
 
-	paLas(*p, len, color);
 	freeBul++;
-	if (freeBul >= NBPART)
+	if (freeBul >= NBPROJ)
 		freeBul = 0;
 }
 
 void weUpdate(float time) {
-/*	int i;
+	int i;
     pos_t p;
     ship_t *tg;
-	for (i = 0; i < NBPART; i++) {
+	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
         get_pos(time, &bul[i].traj, &p);
-//        tg = shFindShip(&p);
-        if (tg)
-            shDamage(tg, 10.);
-	}*/
+        grSetBlend(wetex);
+		grBlitRot(p.p.x, p.p.y, p.r, 500.);
+	}
 }

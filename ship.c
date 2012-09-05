@@ -19,6 +19,7 @@
 #include "turret.h"
 #include "mothership.h"
 #include "event.h"
+#include "weapon.h"
 
 extern float frametime;
 
@@ -119,6 +120,8 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 
 	sh = shGetByID(netid);
 
+    weMissile(netid, p, time);
+    return;
 	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
 		float s;

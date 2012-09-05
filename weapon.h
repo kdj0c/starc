@@ -10,7 +10,7 @@
 #define WEAPON_H_
 
 void weInit(void);
-void weLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time);
+void weMissile(int netid, pos_t *p, float time);
 void weUpdate(float time);
 
 #endif /* WEAPON_H_ */
