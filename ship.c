@@ -120,7 +120,7 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 
 	sh = shGetByID(netid);
 
-    weMissile(netid, p, time);
+    weMissile(netid, p, color, time);
     return;
 	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
@@ -163,6 +163,38 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 		paLaser(tmp, tc->pos.v, color);
 	}
     paLas(*p, closer, color);
+}
+
+int shDetectHit(int netid, pos_t *p, float size, float time) {
+	ship_t *sh;
+	turret_t *tu;
+
+	list_for_each_entry(sh, &ship_head, list) {
+		float s;
+		pos_t shp;
+		vec_t d, t;
+		if (sh->health <= 0)
+			continue;
+        if (sh->netid == netid)
+            continue;
+        get_pos(time, &sh->traj, &shp);
+        d = vsub(shp.p, p->p);
+		s = sh->t->shieldsize / 2.f;
+
+        if (norm(d) > size + s)
+            continue;
+
+        if (sh->t->flag & SH_MOTHERSHIP) {
+            // check for turret
+ /*           tu = tuCheckTurret(en, p, &enp, len, &closer);
+            if (tu)
+                tc = en; */
+        } else {
+            shDamage(sh, 50., time);
+            return 1;
+        }
+	}
+	return 0;
 }
 
 void shFireLaser(ship_t *sh, pos_t *p, float time) {
@@ -528,7 +560,7 @@ void shDrawShipHUD(ship_t * pl) {
 			continue;
 		dx = sh->pos.p.x - pl->pos.p.x;
 		dy = sh->pos.p.y - pl->pos.p.y;
-		if(dx * dx + dy * dy < LASER_RANGE * LASER_RANGE * 4)
+		if(dx * dx + dy * dy < 5000. * 5000. * 4)
 			continue;
 		r = atan2(dx, -dy) - pl->pos.r;
 		x = 800 / 2. + 350. * cos(r);

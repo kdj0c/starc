@@ -202,9 +202,9 @@ void enterGameMode(void) {
 
 void gmStartSingle(void) {
     make_pos(player, 0., 0., 0.);
-    make_pos(mother, 0., 20000., 0.);
-    make_pos(ai1, 23000., 0.,  0.);
-    make_pos(ai2, 20000., 0., 0.);
+    make_pos(mother, 0., 10000., 0.);
+    make_pos(ai1, 5000., 0.,  0.);
+    make_pos(ai2, 5000., 1000., 0.);
 
 	net = 0;
 	enterGameMode();

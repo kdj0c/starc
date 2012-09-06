@@ -19,6 +19,8 @@
 typedef struct {
 	traj_t traj;
 	float maxlife;
+	unsigned int color;
+	int netid;
 } bullet_t;
 
 static bullet_t *bul;
@@ -28,10 +30,10 @@ static unsigned int wetex;
 void weInit(void) {
     bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
-    wetex = grLoadTexture("img/m1.png");
+    wetex = grLoadTexture("img/particle.png");
 }
 
-void weMissile(int netid, pos_t *p, float time) {
+void weMissile(int netid, pos_t *p, unsigned int color, float time) {
 	int i;
 	i = freeBul;
 	bul[i].maxlife = time + 5000.;
@@ -39,7 +41,8 @@ void weMissile(int netid, pos_t *p, float time) {
 	bul[i].traj.base = *p;
     bul[i].traj.basetime = time;
     bul[i].traj.type = t_linear;
-
+    bul[i].color = color | 0xFF;
+    bul[i].netid = netid;
 	freeBul++;
 	if (freeBul >= NBPROJ)
 		freeBul = 0;
@@ -53,7 +56,15 @@ void weUpdate(float time) {
 		if (time >= bul[i].maxlife)
 			continue;
         get_pos(time, &bul[i].traj, &p);
-        grSetBlend(wetex);
+        if (shDetectHit(bul[i].netid, &p, 150., time)) {
+            bul[i].maxlife = time;
+            continue;
+        }
+/*        grSetBlend(wetex);
 		grBlitRot(p.p.x, p.p.y, p.r, 500.);
+*/
+        grSetBlendAdd(wetex);
+        grSetColor(bul[i].color);
+        grBlitSquare(p.p.x, p.p.y, 150.);
 	}
 }

@@ -13,7 +13,7 @@
 #include "list.h"
 #include "vec.h"
 
-#define LASER_RANGE 5000
+#define LASER_RANGE 15000
 
 /* Ship Flags */
 #define	SH_MOTHERSHIP 0x1
@@ -168,6 +168,7 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 void shFireLaser(ship_t *sh, pos_t *p, float time);
 void shDetectCollision(float time);
 void shUpdateRespawn(float dt);
+int shDetectHit(int netid, pos_t *p, float size, float time);
 void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
 void shDestroy(int netid);
