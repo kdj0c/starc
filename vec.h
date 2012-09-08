@@ -27,6 +27,8 @@ vec_t vmul(vec_t a, float b);
 vec_t vmatrix(vec_t a, vec_t b, float r);
 vec_t vmatrix1(vec_t a, float r);
 vec_t vangle(float len, float r);
+float sqnorm(vec_t a);
+
 //#float sqdist(vec_t a, vec_t b);
 static inline float sqdist(vec_t a, vec_t b) {
     return ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));

@@ -554,22 +554,23 @@ void shDrawShips(void) {
 void shDrawShipHUD(ship_t * pl) {
 	ship_t * sh;
 	float dx,dy,r,x,y;
+	vec_t d, v;
+	vec_t mid = {.x = 800/2., .y=600/4.};
+
 	grSetBlend(hudarrowtex);
 	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->health <= 0 || sh  == pl)
 			continue;
-		dx = sh->pos.p.x - pl->pos.p.x;
-		dy = sh->pos.p.y - pl->pos.p.y;
-		if(dx * dx + dy * dy < 5000. * 5000. * 4)
+		d = vsub(sh->pos.p, pl->pos.p);
+		if(sqnorm(d) < 5000. * 5000. * 4)
 			continue;
-		r = atan2(dx, -dy) - pl->pos.r;
-		x = 800 / 2. + 350. * cos(r);
-		y = 600. / 4. + 350 * sin(r);
+		r = atan2(d.x, -d.y) - pl->pos.r;
+		v = vadd(mid, vangle(350., r));
 		if (pl->team == sh->team)
 			grSetColor(0x0000FF80);
 		else
 			grSetColor(0xFF000080);
-		grBlitRot(x, y, r, 10);
+		grBlitRot(v.x, v.y, r, 10);
 	}
 }
 #endif

@@ -60,6 +60,10 @@ float norm(vec_t a) {
     return sqrt(a.x * a.x + a.y * a.y);
 }
 
+float sqnorm(vec_t a) {
+    return (a.x * a.x + a.y * a.y);
+}
+
 float scal(vec_t a, vec_t b) {
     return (a.x * b.x + a.y * b.y);
 }
