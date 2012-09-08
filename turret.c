@@ -73,7 +73,7 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
 	turret_t *tu;
 	turretpos_t *t;
     int i;
-    pos_t tp;
+    vec_t tp;
     turret_t *res = NULL;
     vec_t d, d1;
     float s;
@@ -81,12 +81,12 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
-		tp.p = vmatrix(ms->p, t->p, ms->r);
+		tp = vmatrix(ms->p, t->p, ms->r);
 
 		if (tu->health <= 0)
 			continue;
 
-        d = vsub(tp.p, p->p);
+        d = vsub(tp, p->p);
 		s = t->t->shieldsize / 2.f;
 
         if (norm(d) > LASER_RANGE + s)
@@ -104,6 +104,32 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
     return res;
 }
 
+turret_t *tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
+	turret_t *tu;
+	turretpos_t *t;
+    int i;
+    vec_t tp;
+    vec_t d;
+    float s;
+
+	for (i = 0; i < sh->t->numturret; i++) {
+		t = &sh->t->turret[i];
+		tu = &sh->turret[i];
+		tp = vmatrix(ms->p, t->p, ms->r);
+
+		if (tu->health <= 0)
+			continue;
+
+        d = vsub(tp, p->p);
+		s = t->t->shieldsize / 2.f;
+
+        if (norm(d) > s + len)
+            continue;
+        return tu;
+	}
+    return NULL;
+}
+
 void tuUpdate(ship_t *sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
@@ -116,6 +142,11 @@ void tuUpdate(ship_t *sh, float time) {
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
+
+		if (tu->health <= 0) {
+            dir[i] = 0;
+            continue;
+		}
 
 		if (time - tu->lastthink > 500.) {
 			tu->target = shFindNearestEnemy(sh);

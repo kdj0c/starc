@@ -15,6 +15,7 @@ void tuAddTurret(ship_t * sh);
 void tuUpdate(ship_t *sh, float dt);
 void tuSetMove(int netid, signed char *dir, float time);
 turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min);
+turret_t *tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len);
 void tuDamage(turret_t *tu, float dg, float time);
 
 #ifndef DEDICATED

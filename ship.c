@@ -172,7 +172,7 @@ int shDetectHit(int netid, pos_t *p, float size, float time) {
 	list_for_each_entry(sh, &ship_head, list) {
 		float s;
 		pos_t shp;
-		vec_t d, t;
+		vec_t d;
 		if (sh->health <= 0)
 			continue;
         if (sh->netid == netid)
@@ -186,9 +186,11 @@ int shDetectHit(int netid, pos_t *p, float size, float time) {
 
         if (sh->t->flag & SH_MOTHERSHIP) {
             // check for turret
- /*           tu = tuCheckTurret(en, p, &enp, len, &closer);
-            if (tu)
-                tc = en; */
+            tu = tuCheckTurretProj(sh, p, &shp, size);
+            if (tu) {
+                tuDamage(tu, 50., time);
+                return 1;
+            }
         } else {
             shDamage(sh, 50., time);
             return 1;
@@ -553,7 +555,7 @@ void shDrawShips(void) {
 
 void shDrawShipHUD(ship_t * pl) {
 	ship_t * sh;
-	float dx,dy,r,x,y;
+	float r;
 	vec_t d, v;
 	vec_t mid = {.x = 800/2., .y=600/4.};
 

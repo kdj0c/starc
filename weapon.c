@@ -51,7 +51,6 @@ void weMissile(int netid, pos_t *p, unsigned int color, float time) {
 void weUpdate(float time) {
 	int i;
     pos_t p;
-    ship_t *tg;
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
