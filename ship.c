@@ -86,31 +86,6 @@ ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid) {
 	return newship;
 }
 
-ship_t * shCreateRemoteShip(shipcorename_t * shn) {
-	ship_t * newship;
-	ship_t * sh;
-
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->netid == shn->netid) {
-			/* we have already this ship no need to create a new one !*/
-//			shSync((shipcore_t *) &shn->x, 0);
-			return sh;
-		}
-	}
-
-	newship = malloc(sizeof(ship_t));
-	memset(newship, 0, sizeof(ship_t));
-	newship->t = cfGetShip(shn->typename);
-	if(!newship->t) {
-		printf("can't create ship of type '%s'\n", shn->typename);
-		free(newship);
-		return NULL;
-	}
-	memcpy(newship, &shn->x, sizeof(shipcore_t));
-	addShip(newship);
-	return newship;
-}
-
 void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
 	float closer;
 	ship_t *en;
@@ -211,16 +186,6 @@ void shFireLaser(ship_t *sh, pos_t *p, float time) {
         evPostLaser(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., time);
     }
     sh->lastfire = time;
-}
-
-void shSetInput(shin_t * in, int netid) {
-	ship_t * sh;
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->netid == netid) {
-			memcpy(&sh->in, in, sizeof(shin_t));
-			return;
-		}
-	}
 }
 
 void shNewTraj(shin_t *in, int netid,  float time) {
@@ -487,42 +452,6 @@ ship_t * shFindNearestEnemy(ship_t * self) {
 		min_d = d;
 	}
 	return nr;
-}
-/*
- * Serialize all ships structure, to be sent by network
- * for every server update
- */
-int shSerialize(shipcore_t * data) {
-	ship_t * sh;
-	shipcore_t * shc;
-	int size = 0;
-
-	shc = data;
-	list_for_each_entry(sh, &ship_head, list) {
-		memcpy(shc, &sh->pos.p.x, sizeof(*shc));
-		shc++;
-		size += sizeof(*shc);
-	}
-	return size;
-}
-
-/*
- * Serialize all ships structure, and add typename and any
- * static information, to be sent by network, only once per ship
- */
-int shSerializeOnce(shipcorename_t * data) {
-	ship_t * sh;
-	shipcorename_t * shn;
-	int size = 0;
-
-	shn = data;
-	list_for_each_entry(sh, &ship_head, list) {
-		memcpy(&shn->x, &sh->pos.p.x, sizeof(shipcore_t));
-		strcpy(shn->typename,sh->t->name);
-		shn++;
-		size += sizeof(*shn);
-	}
-	return size;
 }
 
 ship_t *shGetByID(int id) {

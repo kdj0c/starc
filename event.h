@@ -16,13 +16,13 @@
 #include "ship.h"
 
 typedef enum {
-	ev_newship,
-	ev_newtraj,
-	ev_respawn,
-	ev_destroyed,
-	ev_laser,
-	ev_turret,
-	ev_collide,
+	ev_newship, //???
+	ev_newtraj, //client->server
+	ev_respawn, //server->client
+	ev_destroyed, //server->client
+	ev_laser, //client->server
+	ev_turret, //client->server
+	ev_collide, //server->client
 } event_e;
 
 enum {

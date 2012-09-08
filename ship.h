@@ -89,38 +89,6 @@ typedef struct {
 	char fire2;
 } shin_t;
 
-/*
- * core component of ship type
- */
-#define ship_core		\
-	float x;			\
-	float y;			\
-	float r;			\
-	float dx;			\
-	float dy;			\
-	float health;		\
-	float drawshield;	\
-	int netid;			\
-	int team;			\
-	shin_t in;          \
-	traj_t traj;        \
-	pos_t pos;
-
-/*
- * only core, data synchronized by network
- */
-typedef struct {
-	ship_core
-} shipcore_t;
-
-/*
- * add name before for network init
- */
-typedef struct {
-	char typename[16];
-	ship_core
-} shipcorename_t;
-
 struct tur;
 /*
  * local structure
@@ -173,13 +141,8 @@ void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
 void shDestroy(int netid);
 ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid);
-ship_t * shCreateRemoteShip(shipcorename_t * shn);
-void shSync(shipcore_t * shc, int local);
 ship_t * shFindMotherShip(int team);
 ship_t * shFindNearestEnemy(ship_t * self);
-int shSerialize(shipcore_t * data);
-int shSerializeOnce(shipcorename_t * data);
-void shSetInput(shin_t * in, int netid);
 void shNewTraj(shin_t *in, int netid,  float time);
 void shDisconnect(int clid);
 void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time);

@@ -10,10 +10,7 @@
 #define NETWORK_H_
 
 enum {
-	ntSpawn, /* client-> server */
-	ntShips, /* server-> client */
-	ntUpdate,/* server-> client */
-	ntInputs,/* client-> server */
+    e_event,
 };
 
 typedef struct {
@@ -26,13 +23,13 @@ typedef struct {
 		_NT_SPAWN
 #endif
 		{
-			shipcorename_t ship[0];
+			int ship[0];
 		} NT_SPAWN;
 #if defined __GNUC__ && (__GNUC__ < 3)
 		_NT_UPDATE
 #endif
 		struct {
-			shipcore_t ships[0];
+			int ships[0];
 		} NT_UPDATE;
 		struct
 #if defined __GNUC__ && (__GNUC__ < 3)

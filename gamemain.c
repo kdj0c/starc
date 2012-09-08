@@ -24,7 +24,7 @@
 
 ship_t * player = NULL;
 static float scale = 1.f;
-static int net = 1;
+int g_net = 1;
 static int gpause = 0;
 shin_t pl_in = {0 ,};
 float frametime;
@@ -49,7 +49,7 @@ void grDraw(int value) {
 	if (!player)
 		player = shGetByID(0);
 
-	if (gpause && !net) {
+	if (gpause && !g_net) {
 		fpstime = time;
 		prevtime = time;
 		return;
@@ -77,11 +77,11 @@ void grDraw(int value) {
 	else
 		stUpdate(0.0, 0.0);
 
-	if(net)
+	if(g_net)
 		ntHandleMessage();
 	aiThink(time);
 	shUpdateShips(time);
-	if(!net) {
+	if(!g_net) {
 		shDetectCollision(time);
 	}
 	if (player)
@@ -114,8 +114,6 @@ void keyup(unsigned char key, int x, int y) {
     default:
         return;
 	}
-	if(net)
-		ntSendInput(player);
 	evPostTrajEv(&pl_in, 0);
 }
 
@@ -147,8 +145,6 @@ void keydown(unsigned char key, int x, int y){
     default:
         return;
 	}
-	if(net)
-		ntSendInput(player);
 	evPostTrajEv(&pl_in, 0);
 }
 
@@ -166,8 +162,6 @@ void SpecialDown(int key, int x, int y) {
 	default:
 		return;
 	}
-	if(net)
-		ntSendInput(player);
 	evPostTrajEv(&pl_in, 0);
 }
 
@@ -185,8 +179,6 @@ void SpecialUp(int key, int x, int y) {
 	default:
 		return;
 	}
-	if(net)
-		ntSendInput(player);
 	evPostTrajEv(&pl_in, 0);
 }
 
@@ -206,7 +198,7 @@ void gmStartSingle(void) {
     make_pos(ai1, 5000., 0.,  0.);
     make_pos(ai2, 5000., 1000., 0.);
 
-	net = 0;
+	g_net = 0;
 	enterGameMode();
 	cfReadGameData();
 	shLoadShip();
@@ -250,7 +242,7 @@ void gmStartSingle(void) {
 }
 
 void gmStartMulti(void) {
-	net = 1;
+	g_net = 1;
 	enterGameMode();
 
 	ntInit();
