@@ -18,12 +18,10 @@
 
 
 typedef struct {
-	pos_t p;
 	float size;
 	unsigned int color;
 	traj_t traj;
 	short int maxlife;
-	short int life;
 	unsigned int flag;
 } particle_t;
 
@@ -93,9 +91,9 @@ void paLaser(vec_t p, vec_t v, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 800 + 200;
-	parts[i].p.p = p;
-	parts[i].p.v = v;
-	parts[i].life = parts[i].maxlife;
+//	parts[i].p.p = p;
+//	parts[i].p.v = v;
+//	parts[i].life = parts[i].maxlife;
 	parts[i].size = rand() % 100 + 100;
 	parts[i].color = color;
 	parts[i].flag = 0;
@@ -108,9 +106,9 @@ void paLas(pos_t p, float len, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 50 + 150;
-	parts[i].p = p;
+//	parts[i].p = p;
 	parts[i].size = len;
-	parts[i].life = parts[i].maxlife;
+//	parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
 	parts[i].flag = PA_LASER;
 	freePart++;
@@ -126,9 +124,9 @@ void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color
 	parts[i].size = len;
 
 	parts[i].maxlife = rand() % 30 + 30;
-	parts[i].p = *p;
+//	parts[i].p = *p;
 	parts[i].size = len;
-	parts[i].life = parts[i].maxlife;
+//	parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
 	parts[i].flag = PA_LASER;
 	freePart++;
@@ -136,7 +134,7 @@ void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color
 		freePart = 0;
 }
 
-void paUpdate(float time) {
+void paDraw(float time) {
 	int i;
 	float c;
 	pos_t p;

@@ -9,9 +9,7 @@
 #ifndef NETWORK_H_
 #define NETWORK_H_
 
-enum {
-    e_event,
-};
+#include "event.h"
 
 typedef struct {
 	int type;
@@ -20,34 +18,19 @@ typedef struct {
 #endif
 		struct
 #if defined __GNUC__ && (__GNUC__ < 3)
-		_NT_SPAWN
+		_EV_T
 #endif
 		{
-			int ship[0];
-		} NT_SPAWN;
-#if defined __GNUC__ && (__GNUC__ < 3)
-		_NT_UPDATE
-#endif
-		struct {
-			int ships[0];
-		} NT_UPDATE;
-		struct
-#if defined __GNUC__ && (__GNUC__ < 3)
-		_NT_INPUT
-#endif
-		{
-			shin_t in;
-			int netid;
-		} NT_INPUT;
+			ev_t ev;
+		} EV_T;
+
 #if !defined __GNUC__ || (__GNUC__ > 2)
 	};
 #endif
 } ntmsg_t;
 
 void ntInit(void);
-ship_t * ntCreateLocalPlayer(char * type);
 void ntHandleMessage(void);
-void ntSendInput(ship_t * sh);
-
+void ntSendEvent(float time, void *data, int size, event_e type);
 
 #endif /* NETWORK_H_ */

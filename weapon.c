@@ -49,7 +49,7 @@ void weMissile(int netid, pos_t *p, unsigned int color, float time) {
 }
 
 void weUpdate(float time) {
-	int i;
+    int i;
     pos_t p;
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
@@ -57,12 +57,21 @@ void weUpdate(float time) {
         get_pos(time, &bul[i].traj, &p);
         if (shDetectHit(bul[i].netid, &p, 150., time)) {
             bul[i].maxlife = time;
-            continue;
         }
-/*        grSetBlend(wetex);
-		grBlitRot(p.p.x, p.p.y, p.r, 500.);
-*/
-        grSetBlendAdd(wetex);
+	}
+}
+
+
+void weDraw(float time) {
+	int i;
+    pos_t p;
+
+    grSetBlendAdd(wetex);
+	for (i = 0; i < NBPROJ; i++) {
+		if (time >= bul[i].maxlife)
+			continue;
+
+        get_pos(time, &bul[i].traj, &p);
         grSetColor(bul[i].color);
         grBlitSquare(p.p.x, p.p.y, 150.);
 	}

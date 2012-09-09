@@ -14,6 +14,9 @@
 #include "ai.h"
 #include "weapon.h"
 #include "turret.h"
+#include "network.h"
+
+extern int g_net;
 
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
@@ -87,7 +90,7 @@ void evPostEventNow(void *data, int size, event_e type) {
 	evPostEvent(time, data, size, type);
 }
 
-void evPostEvent(float time, void *data, int size, event_e type) {
+void evPostEventLocal(float time, void *data, int size, event_e type) {
 	ev_t *new;
 	ev_t *prec;
 	new = malloc(sizeof(*new) + size);
@@ -105,6 +108,12 @@ void evPostEvent(float time, void *data, int size, event_e type) {
 			break;
 	}
 	list_add_tail(&new->list , &prec->list);
+}
+
+void evPostEvent(float time, void *data, int size, event_e type) {
+    evPostEventLocal(time, data, size, type);
+    if (g_net)
+        ntSendEvent(time, data, size, type);
 }
 
 void evDoEvent(ev_t *ev) {
@@ -131,7 +140,7 @@ void evDoEvent(ev_t *ev) {
         {
             ev_ds_t *ds;
             ds = (ev_ds_t *) ev->data;
-            shDestroy(ds->owner);
+            shDestroy(ds->owner, ev->time);
             printf("destroyed %d\n", ds->owner);
         }
         break;

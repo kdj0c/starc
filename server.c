@@ -102,7 +102,7 @@ void loop() {
 int main(int argc, char *argv[]) {
 	ntconf_t ntconf;
 	cfReadNetwork(&ntconf);
-	datas = malloc(sizeof(ntmsg_t) + sizeof(shipcorename_t) * 50);
+	datas = malloc(sizeof(ntmsg_t) + 4096);
 	server = grapple_server_init("starc", "0.4");
 
 	grapple_server_port_set(server, ntconf.port);

@@ -12,5 +12,6 @@
 void weInit(void);
 void weMissile(int netid, pos_t *p, unsigned int color, float time);
 void weUpdate(float time);
+void weDraw(float time);
 
 #endif /* WEAPON_H_ */

@@ -36,22 +36,18 @@ void dummy() {
 void grDraw(int value) {
 	static int fpstime = 0;
 	static int frame = 0;
-	static int prevtime = 0;
 	int time;
 	float fps;
-	float dt;
 
 	glutTimerFunc(10, grDraw, 0);
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
-	evConsumeEvent(time);
 	frametime = time;
 	if (!player)
 		player = shGetByID(0);
 
 	if (gpause && !g_net) {
 		fpstime = time;
-		prevtime = time;
 		return;
 	}
 
@@ -61,14 +57,6 @@ void grDraw(int value) {
 		fpstime = time;
 		frame = 0;
 	}
-
-	dt = (float) time - prevtime;
-	prevtime = time;
-	/* Big Lag don't allow less than 2FPS */
-	if (dt > 500.)
-		dt = 500.;
-	else if (dt <= 0)
-		dt = 1.;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -80,18 +68,22 @@ void grDraw(int value) {
 	if(g_net)
 		ntHandleMessage();
 	aiThink(time);
-	shUpdateShips(time);
+
+    evConsumeEvent(time);
 	if(!g_net) {
+	    shUpdateShips(time);
 		shDetectCollision(time);
+		weUpdate(time);
+        evConsumeEvent(time);
 	}
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
 		grChangeview(0.0, 0.0, 0.0, scale);
 	stBlit();
-	shDrawShips();
-	weUpdate(time);
-	paUpdate(dt);
+	shDrawShips(time);
+	weDraw(time);
+	paDraw(time);
 	if (player) {
 		grDrawHUD(player->health);
 		shDrawShipHUD(player);
@@ -196,7 +188,7 @@ void gmStartSingle(void) {
     make_pos(player, 0., 0., 0.);
     make_pos(mother, 0., 10000., 0.);
     make_pos(ai1, 5000., 0.,  0.);
-    make_pos(ai2, 5000., 1000., 0.);
+    make_pos(ai2, 5000., 3000., 0.);
 
 	g_net = 0;
 	enterGameMode();
@@ -242,6 +234,7 @@ void gmStartSingle(void) {
 }
 
 void gmStartMulti(void) {
+    make_pos(player, 0., 0., 0.);
 	g_net = 1;
 	enterGameMode();
 
@@ -251,7 +244,7 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-	player = ntCreateLocalPlayer("v2");
+    evPostCreateShip("v2", &pos_player, 0, 0);
 	glutTimerFunc(10, grDraw, 0);
 }
 

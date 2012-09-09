@@ -14,6 +14,7 @@
 #include "config.h"
 #include "ship.h"
 #include "network.h"
+#include "event.h"
 
 static grapple_client client = 0;
 static int clid = 0;
@@ -29,65 +30,15 @@ void ntInit(void) {
 	grapple_client_name_set(client, ntconf.name);
 }
 
-ship_t * ntCreateLocalPlayer(char * type) {
-	ship_t * sh;
-/*	ntmsg_t *msg;
-	static unsigned int count = 0;
-	size_t size;
-
-	size = sizeof(ntmsg_t) + sizeof(shipcorename_t);
-	msg = malloc(size);
-	msg->type = ntSpawn;
-	memcpy(msg->NT_SPAWN.ship, sh, sizeof(shipcore_t));
-	strcpy(msg->NT_SPAWN.ship[0].typename, type);
-	grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, msg, size);
-	count++; */
-	return sh;
-}
-
-void ntSendInput(ship_t * sh) {
-	char buf[sizeof(shin_t) + sizeof(ntmsg_t) + sizeof(int)];
-	ntmsg_t *msg = (ntmsg_t *) buf;
-	int size = sizeof(buf);
-
-	msg->type = ntInputs;
-	memcpy(&msg->NT_INPUT.in,&sh->in,sizeof(shin_t));
-	msg->NT_INPUT.netid = sh->netid;
-	grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, msg, size);
-}
-
-void ntHandleUserMessage(void * data, int size, grapple_user id) {
-	ntmsg_t * p;
-	int s;
-	int local;
+void ntHandleUserMessage(void *data, int size, grapple_user id) {
+	ntmsg_t *p;
+	ev_t *ev;
 
 	if (!size)
 		return;
 	p = data;
-	switch (p->type) {
-	case ntUpdate:
-/*		shc = p->NT_UPDATE.ships;
-		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcore_t)) {
-			if (shc->netid >> 8 == clid)
-				local = 1;
-			else
-				local = 0;
-//			shSync(shc, local);
-			shc++;
-		}*/
-		break;
-	case ntShips:
-/*		shn = p->NT_SPAWN.ship;
-		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcorename_t)) {
-			printf("create remote ship %d size %d\n",shn->netid, size);
-			shCreateRemoteShip(shn);
-			shn++;
-		}*/
-		break;
-	default:
-		printf("unexpected message received %d, size %d, id %d\n",p->type, size, id);
-		break;
-	}
+	ev = &p->EV_T.ev;
+    evPostEvent(ev->time, ev->data, size - sizeof(ev_t), ev->type);
 }
 
 void ntHandleMessage(void) {
@@ -133,4 +84,15 @@ void ntHandleMessage(void) {
 		}
 		grapple_message_dispose(message);
 	}
+}
+
+void ntSendEvent(float time, void *data, int size, event_e type) {
+    char buf[4096];
+    ntmsg_t *msg = (ntmsg_t *) buf;
+
+    msg->type = 0;
+    memcpy(&msg->EV_T.ev.data, data, size);
+    msg->EV_T.ev.time = time;
+    msg->EV_T.ev.type = type;
+    grapple_client_send(client, GRAPPLE_EVERYONE, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
 }
