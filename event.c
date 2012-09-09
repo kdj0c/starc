@@ -44,10 +44,11 @@ void evPostRespawn(pos_t *newp, int netid, int msid, float time) {
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_respawn);
 }
 
-void evPostCreateShip(char *name, pos_t *p, int team, int netid) {
+void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	ev_cr_t ev;
 
 	ev.owner = netid;
+	ev.control = control;
 	ev.pos = *p;
 	ev.team = team;
 	strcpy(ev.shipname, name);
@@ -123,9 +124,9 @@ void evDoEvent(ev_t *ev) {
 		ev_cr_t *cr;
 		ship_t *sh;
 		cr = (ev_cr_t *) ev->data;
-		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner);
+		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner, ev->time);
 		shLoadShip();
-		if (cr->owner > 0)
+		if (cr->control == pl_ai)
 			aiCreate(sh);
 	}
 		break;

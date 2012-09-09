@@ -197,11 +197,11 @@ void gmStartSingle(void) {
 	paInit();
 	weInit();
 
-	evPostCreateShip("v2", &pos_player, 0, 0);
-	evPostCreateShip("mother1", &pos_mother, 0, 1);
+	evPostCreateShip("v2", &pos_player, 0, 0, pl_local);
+	evPostCreateShip("mother1", &pos_mother, 0, 1, pl_ai);
 
-	evPostCreateShip("w1", &pos_ai1, 1, 2);
-	evPostCreateShip("w2", &pos_ai2, 1, 3);
+	evPostCreateShip("w1", &pos_ai1, 1, 2, pl_ai);
+	evPostCreateShip("w2", &pos_ai2, 1, 3, pl_ai);
 
 /*	player = shCreateShip("v2", 0, 0, 0, 0, 0);
 	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 1));
@@ -244,7 +244,7 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-    evPostCreateShip("v2", &pos_player, 0, 0);
+    evPostCreateShip("v2", &pos_player, 0, 0, pl_local);
 	glutTimerFunc(10, grDraw, 0);
 }
 

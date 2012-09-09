@@ -65,7 +65,7 @@ void shLoadShip(void) {
 }
 #endif
 
-ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid) {
+ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid, float time) {
 	ship_t * newship;
 
 	newship = malloc(sizeof(ship_t));
@@ -74,7 +74,7 @@ ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid) {
 	newship->traj.base = *pos;
 	newship->pos = *pos;
 	newship->traj.type = t_linear;
-	newship->traj.basetime = 0.0;
+	newship->traj.basetime = time;
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
 	newship->netid = netid;
@@ -84,6 +84,25 @@ ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid) {
 
 	addShip(newship);
 	return newship;
+}
+
+int shPostAllShips(float time, void *data) {
+    ship_t *sh;
+    ev_cr_t *ev;
+    int n = 0;
+
+    ev = (ev_cr_t *) data;
+    list_for_each_entry(sh, &ship_head, list) {
+        get_pos(time, &sh->traj, &ev->pos);
+        ev->owner = sh->netid;
+        ev->control = pl_remote;
+        ev->team = sh->team;
+        strcpy(ev->shipname, sh->t->name);
+//        ev->time = time;
+        ev++;
+        n++;
+    }
+    return n;
 }
 
 void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {

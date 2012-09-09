@@ -62,6 +62,7 @@ void loop() {
 
 		switch (message->type) {
 		case GRAPPLE_MSG_NEW_USER:
+
 			size = shSerializeOnce(datas->NT_SPAWN.ship) + sizeof(ntmsg_t);
 			datas->type = ntShips;
 			grapple_server_send(server, message->NEW_USER.id, GRAPPLE_RELIABLE,

@@ -41,6 +41,7 @@ typedef struct {
 
 typedef struct {
 	int owner;
+	int control;
 	int team;
 	pos_t pos;
 	char shipname[16];
@@ -86,7 +87,7 @@ void evConsumeEvent(float time);
 void evPostEvent(float time, void *data, int size, event_e type);
 void evPostEventNow(void *data, int size, event_e type);
 void evPostTrajEv(shin_t *in, int owner);
-void evPostCreateShip(char *name, pos_t *p, int team, int netid);
+void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control);
 void evPostRespawn(pos_t *newp, int netid, int msid, float time);
 void evPostDestroy(int netid, float time);
 void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, float time);

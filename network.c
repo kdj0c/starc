@@ -37,8 +37,7 @@ void ntHandleUserMessage(void *data, int size, grapple_user id) {
 	if (!size)
 		return;
 	p = data;
-	ev = &p->EV_T.ev;
-    evPostEvent(ev->time, ev->data, size - sizeof(ev_t), ev->type);
+    evPostEventLocal(p->time, ev->data, size, p->type);
 }
 
 void ntHandleMessage(void) {
@@ -90,9 +89,14 @@ void ntSendEvent(float time, void *data, int size, event_e type) {
     char buf[4096];
     ntmsg_t *msg = (ntmsg_t *) buf;
 
-    msg->type = 0;
-    memcpy(&msg->EV_T.ev.data, data, size);
-    msg->EV_T.ev.time = time;
-    msg->EV_T.ev.type = type;
+    msg->type = type;
+    msg->time = time;
+    memcpy(msg->DATA.data, data, size);
+
+    if (type == ev_newship) {
+        ev_cr_t *cr;
+        cr = (ev_cr_t *) msg->DATA.data;
+        cr->control = pl_remote;
+    }
     grapple_client_send(client, GRAPPLE_EVERYONE, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
 }
