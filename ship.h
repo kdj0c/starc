@@ -125,7 +125,7 @@ struct tur {
 typedef struct tur turret_t;
 
 #ifndef DEDICATED
-void shDrawShips(void);
+void shDrawShips(float time);
 void shLoadShip(void);
 void shDrawShipHUD(ship_t * pl);
 #endif
@@ -139,7 +139,7 @@ void shUpdateRespawn(float dt);
 int shDetectHit(int netid, pos_t *p, float size, float time);
 void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
-void shDestroy(int netid);
+void shDestroy(int netid, float time);
 ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid);
 ship_t * shFindMotherShip(int team);
 ship_t * shFindNearestEnemy(ship_t * self);

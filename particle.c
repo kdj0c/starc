@@ -39,7 +39,7 @@ void paInit(void) {
 	lastex = grLoadTexture("img/laser.png");
 }
 
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color) {
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time) {
 	int i;
 
 	if( freePart + number >= NBPART)
@@ -52,11 +52,12 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color) {
 		angle = (float) (rand() % 1000) * M_PI / 500.f;
 
 		v1 = vangle(len, angle);
-		parts[i].p.p = vadd(p, vmul(v1, 50.0));
-		parts[i].p.v = vadd(v, vmul(v1, s));
+		parts[i].traj.base.p = vadd(p, vmul(v1, 50.0));
+		parts[i].traj.base.v = vadd(v, vmul(v1, s));
+		parts[i].traj.basetime = time;
+		parts[i].traj.type = t_linear;
 
 		parts[i].maxlife = rand() % 1000 + 500;
-		parts[i].life = parts[i].maxlife;
 		parts[i].color = color;
 		parts[i].size = rand() % 200 + 50;
 		parts[i].flag = 0;
@@ -64,7 +65,7 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color) {
 	freePart += number;
 }
 
-void paBurst(pos_t p, float size, unsigned int color) {
+void paBurst(pos_t p, float size, unsigned int color, float time) {
 	int i;
 	vec_t t;
 
@@ -73,12 +74,13 @@ void paBurst(pos_t p, float size, unsigned int color) {
 	t.x = 0.2 * ((rand() % 1000 - 500) / 500.f);
 	t.y = 0.2 * ((rand() % 1000 - 500) / 500.f);
 
-	parts[i].p.p = p.p;
-	parts[i].p.v = vadd(vsub(p.v, vangle(size * 0.8f, p.r)), t);
+	parts[i].traj.base.p = p.p;
+	parts[i].traj.base.v = vadd(vsub(p.v, vangle(size * 0.8f, p.r)), t);
+	parts[i].traj.basetime = time;
+    parts[i].traj.type = t_linear;
 
 	i = freePart;
 	parts[i].maxlife = rand() % 1000 + 1000 / size;
-	parts[i].life = parts[i].maxlife;
 	parts[i].size = (rand() % 100 + 50) * size;
 	parts[i].color = color;
 	parts[i].flag = 0;
@@ -134,26 +136,29 @@ void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color
 		freePart = 0;
 }
 
-void paUpdate(float dt) {
+void paUpdate(float time) {
 	int i;
 	float c;
+	pos_t p;
 	grSetBlendAdd(texture);
 	for (i = 0; i < NBPART; i++) {
-		if (parts[i].life <= 0)
+		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
-		c = (float) parts[i].life / (float) parts[i].maxlife;
-		parts[i].color &= ~0xFF;
+        if ( time < parts[i].traj.basetime)
+            printf("oula\n");
+		c = 1. - (time - parts[i].traj.basetime) / ((float) parts[i].maxlife);
+        parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (c * 255);
 		grSetColor(parts[i].color);
+
+		get_pos(time, &parts[i].traj, &p);
 		if (parts[i].flag == PA_LASER) {
 			grSetBlendAdd(lastex);
-			grBlitLaser(parts[i].p.p.x, parts[i].p.p.y, parts[i].size,
-					parts[i].p.r, 40.);
+			grBlitLaser(p.p.x, p.p.y, parts[i].size,
+					p.r, 40.);
 			grSetBlendAdd(texture);
 		} else {
-			grBlitSquare(parts[i].p.p.x, parts[i].p.p.y, parts[i].size);
+			grBlitSquare(p.p.x, p.p.y, parts[i].size);
 		}
-		parts[i].p.p = vadd(parts[i].p.p ,vmul(parts[i].p.v, dt));
-		parts[i].life -= dt;
 	}
 }

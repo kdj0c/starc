@@ -265,11 +265,11 @@ void shDamage(ship_t *sh, float dg, float time) {
 	}
 }
 
-void shDestroy(int netid) {
+void shDestroy(int netid, float time) {
     ship_t *sh;
 
     sh = shGetByID(netid);
-    paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color);
+    paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color, time);
     sh->health = 0;
 }
 
@@ -326,7 +326,7 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	shDamage(sh2, 100, time);
 }
 
-void shBurst(ship_t *sh) {
+void shBurst(ship_t *sh, float time) {
 	int i;
 	float size;
 	for(i=0;i<sh->t->numburst;i++) {
@@ -339,7 +339,7 @@ void shBurst(ship_t *sh) {
             size /= 4.;
         else
             size *= sh->traj.thrust / sh->t->thrust;
-        paBurst(p, size, sh->t->burst[i].color);
+        paBurst(p, size, sh->t->burst[i].color, time);
 	}
 }
 
@@ -376,7 +376,7 @@ void shUpdateShips(float time) {
             sh->pos.p.y = sh->pos.p.y;
             sh->pos.r = sh->pos.r;
         }
-        shBurst(sh);
+        shBurst(sh, time);
 
 		if (sh->in.fire1) {
 		    if (time + 50. - sh->lastfire > RELOAD) {
@@ -465,19 +465,20 @@ ship_t *shGetByID(int id) {
 }
 
 #ifndef DEDICATED
-void shDrawShips(void) {
+void shDrawShips(float time) {
 	ship_t * sh;
 	list_for_each_entry(sh, &ship_head, list) {
 		if(sh->health <= 0)
 			continue;
 		grSetBlend(sh->t->tex);
+		get_pos(time, &sh->traj, &sh->pos);
 		grBlitRot(sh->pos.p.x, sh->pos.p.y, sh->pos.r, sh->t->size);
 		if (frametime - sh->lastdamage < 500.) {
 			grSetBlendAdd(sh->t->shieldtex);
 			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
 		if (sh->t->numturret) {
-			tuDraw(sh, frametime);
+			tuDraw(sh, time);
 		}
 	}
 }

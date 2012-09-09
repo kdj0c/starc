@@ -11,9 +11,9 @@
 
 #ifndef DEDICATED
 void paInit(void);
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color);
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time);
 void paUpdate(float dt);
-void paBurst(pos_t p, float size, unsigned int color);
+void paBurst(pos_t p, float size, unsigned int color, float time);
 void paLaser(vec_t p, vec_t v, unsigned int color);
 void paLas(pos_t p, float len, unsigned int color);
 #else
