@@ -21,53 +21,47 @@ static grapple_server server;
 static ntmsg_t *datas;
 
 void svHandleUserMessage(void * data, int size, grapple_user id) {
-	ntmsg_t * p;
-	ntmsg_t * new;
-	shipcorename_t * shn;
-	int s;
+	ntmsg_t *p;
 
 	if(!size)
 		return;
 
 	p = data;
-	switch (p->type) {
-	case ntSpawn:
-		shn = p->NT_SPAWN.ship;
-		for (s = sizeof(ntmsg_t); s < size; s += sizeof(shipcorename_t)) {
-			printf("create ship on the server id %d\n", shn->netid);
-			shCreateRemoteShip(shn);
-			shn++;
-		}
-		new = malloc(size);
-		memcpy(new, p, size);
-		new->type = ntShips;
-		grapple_server_send(server, GRAPPLE_EVERYONE, GRAPPLE_RELIABLE, new,
-				size);
-		free(new);
-		break;
-	case ntInputs:
-		shSetInput(&p->NT_INPUT.in, p->NT_INPUT.netid);
-		break;
-	default:
-		printf("unexpected user message received\n");
-		break;
-	}
+    evPostEventLocal(p->time, p->DATA.data, size, p->type);
+}
+
+void svNewClient(grapple_message *message) {
+    char buf[4096];
+    int nships, i;
+    float time;
+    ev_cr_t *ev;
+
+    ntmsg_t *msg = (ntmsg_t *) datas;
+
+    time = 0.f;
+    nships = shPostAllShips(time, buf);
+    ev = buf;
+    for (i=0; i< nships; i++) {
+        msg->type = ev_newship;
+        msg->time = time;
+        memcpy(msg->DATA.data, ev, sizeof(*ev));
+        grapple_server_send(server, message->NEW_USER.id, GRAPPLE_RELIABLE,
+            datas, sizeof(*ev) + sizeof(*msg));
+        ev++;
+    }
 }
 
 void loop() {
 	grapple_message * message;
 	int size;
+	int nships, i;
 	if (grapple_server_messages_waiting(server)) {
 		message = grapple_server_message_pull(server);
 
 		switch (message->type) {
 		case GRAPPLE_MSG_NEW_USER:
-
-			size = shSerializeOnce(datas->NT_SPAWN.ship) + sizeof(ntmsg_t);
-			datas->type = ntShips;
-			grapple_server_send(server, message->NEW_USER.id, GRAPPLE_RELIABLE,
-					datas, size);
-			printf("new user\n");
+            svNewClient(message);
+			printf("new user %d\n", message->NEW_USER.id);
 			break;
 		case GRAPPLE_MSG_USER_NAME:
 			printf("new user name\n");

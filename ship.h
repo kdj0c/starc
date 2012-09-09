@@ -128,6 +128,8 @@ typedef struct tur turret_t;
 void shDrawShips(float time);
 void shLoadShip(void);
 void shDrawShipHUD(ship_t * pl);
+#else
+#define shLoadShip()
 #endif
 ship_t *shGetByID(int id);
 void shLoadShipType(void);

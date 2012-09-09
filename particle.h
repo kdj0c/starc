@@ -18,9 +18,9 @@ void paLaser(vec_t p, vec_t v, unsigned int color);
 void paLas(pos_t p, float len, unsigned int color);
 #else
 #define paInit()
-#define paExplosion(p, v, s, number, color)
+#define paExplosion(p, v, s, number, color, time)
 #define paUpdate(dt)
-#define paBurst(p, size, color)
+#define paBurst(p, size, color, time)
 #define paLaser(p, v, color)
 #define paLas(p, len, color)
 #endif

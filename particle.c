@@ -142,8 +142,6 @@ void paDraw(float time) {
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
-        if ( time < parts[i].traj.basetime)
-            printf("oula\n");
 		c = 1. - (time - parts[i].traj.basetime) / ((float) parts[i].maxlife);
         parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (c * 255);

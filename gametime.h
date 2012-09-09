@@ -6,13 +6,8 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef WEAPON_H_
-#define WEAPON_H_
+#ifndef GAMETIME_H_
+#define GAMETIME_H_
 
-void weInit(void);
-void weMissile(int netid, pos_t *p, unsigned int color, float time);
-void weUpdate(float time);
-#ifndef DEDICATED
-void weDraw(float time);
-#endif
-#endif /* WEAPON_H_ */
+
+#endif /* GAMETIME_H_ */

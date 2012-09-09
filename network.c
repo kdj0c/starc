@@ -32,12 +32,11 @@ void ntInit(void) {
 
 void ntHandleUserMessage(void *data, int size, grapple_user id) {
 	ntmsg_t *p;
-	ev_t *ev;
 
 	if (!size)
 		return;
 	p = data;
-    evPostEventLocal(p->time, ev->data, size, p->type);
+    evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
 
 void ntHandleMessage(void) {

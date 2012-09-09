@@ -30,7 +30,9 @@ static unsigned int wetex;
 void weInit(void) {
     bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
+#ifndef DEDICATED
     wetex = grLoadTexture("img/particle.png");
+#endif
 }
 
 void weMissile(int netid, pos_t *p, unsigned int color, float time) {
@@ -61,7 +63,7 @@ void weUpdate(float time) {
 	}
 }
 
-
+#ifndef DEDICATED
 void weDraw(float time) {
 	int i;
     pos_t p;
@@ -76,3 +78,4 @@ void weDraw(float time) {
         grBlitSquare(p.p.x, p.p.y, 150.);
 	}
 }
+#endif
