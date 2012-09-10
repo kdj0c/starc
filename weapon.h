@@ -10,8 +10,11 @@
 #define WEAPON_H_
 
 void weInit(void);
-void weMissile(int netid, pos_t *p, unsigned int color, float time);
+int weGetFree(void);
+void weMissile(int netid, int id, pos_t *p, unsigned int color, float time);
 void weUpdate(float time);
+void weHit(int id, pos_t *p, float time);
+
 #ifndef DEDICATED
 void weDraw(float time);
 #endif

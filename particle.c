@@ -87,13 +87,15 @@ void paBurst(pos_t p, float size, unsigned int color, float time) {
 		freePart = 0;
 }
 
-void paLaser(vec_t p, vec_t v, unsigned int color) {
+void paLaser(vec_t p, vec_t v, unsigned int color, float time) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 800 + 200;
-//	parts[i].p.p = p;
-//	parts[i].p.v = v;
-//	parts[i].life = parts[i].maxlife;
+	parts[i].traj.base.p = p;
+	parts[i].traj.base.v = v;
+	parts[i].traj.basetime = time;
+	parts[i].traj.type = t_linear;
+
 	parts[i].size = rand() % 100 + 100;
 	parts[i].color = color;
 	parts[i].flag = 0;

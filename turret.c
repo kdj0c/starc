@@ -14,6 +14,7 @@
 #include "graphic.h"
 #include "particle.h"
 #include "event.h"
+#include "weapon.h"
 
 void tuAddTurret(ship_t * sh) {
 	turret_t *new;
@@ -43,7 +44,7 @@ void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float time) {
     p.p = vmatrix(tu->p, las->p, tu->r);
     p.r = tu->r + las->r;
     p.v = sh->pos.v;
-    evPostLaser(sh->netid, &p, las->color, 200., LASER_RANGE, 20., time);
+    evPostLaser(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time);
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {

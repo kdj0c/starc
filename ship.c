@@ -29,6 +29,7 @@ static int hudarrowtex = 0;
 
 #define RELOAD 200.
 #define ENG_POWER 1000.
+#define DEAD -12345.f
 
 LIST_HEAD(ship_head);
 
@@ -107,7 +108,7 @@ int shPostAllShips(float time, void *data) {
     return n;
 }
 
-void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
+void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time) {
 	float closer;
 	ship_t *en;
 	ship_t *sh;
@@ -116,7 +117,7 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 
 	sh = shGetByID(netid);
 
-    weMissile(netid, p, color, time);
+    weMissile(netid, id, p, color, time);
     return;
 	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
@@ -156,7 +157,7 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
             shDamage(tc, 50., time);
 	    }
 		tmp = vadd(p->p, vangle(closer, p->r));
-		paLaser(tmp, tc->pos.v, color);
+//		paLaser(tmp, tc->pos.v, color);
 	}
     paLas(*p, closer, color);
 }
@@ -184,19 +185,28 @@ int shDetectHit(int netid, pos_t *p, float size, float time) {
             // check for turret
             tu = tuCheckTurretProj(sh, p, &shp, size);
             if (tu) {
-                tuDamage(tu, 50., time);
-                return 1;
+                //tuDamage(tu, 50., time);
+                return sh->netid;
             }
         } else {
-            shDamage(sh, 50., time);
-            return 1;
+            p->v = shp.v;
+            //shDamage(sh, 50., time);
+            return sh->netid;
         }
 	}
-	return 0;
+	return -1;
+}
+
+void shHit(int owner, int tgid, pos_t *p, int weid, float time) {
+    ship_t *tg;
+
+    tg = shGetByID(tgid);
+    shDamage(tg, 10., time);
+    weHit(weid, p, time);
 }
 
 void shFireLaser(ship_t *sh, pos_t *p, float time) {
-    int l;
+    int l, weid;
 
     for (l = 0; l < sh->t->numlaser; l++) {
         pos_t pl;
@@ -204,7 +214,8 @@ void shFireLaser(ship_t *sh, pos_t *p, float time) {
         pl.p = vmatrix(p->p, las->p, p->r);
         pl.r = p->r + las->r;
         pl.v = p->v;
-        evPostLaser(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., time);
+        weid = weGetFree();
+        evPostLaser(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., weid, time);
     }
     sh->lastfire = time;
 }
@@ -262,28 +273,10 @@ void shDisconnect(int clid) {
 }
 
 void shDamage(ship_t *sh, float dg, float time) {
-    int msid;
-    ship_t *ms;
-	sh->health -= dg;
-	sh->lastdamage = time;
-	if (sh->health <= 0 && sh->health + dg > 0) {
-	    pos_t np;
-
-	    sh->health = 0;
-	    evPostDestroy(sh->netid, time);
-	    ms = shFindMotherShip(sh->team);
-	    if (ms)
-            msid = ms->netid;
-        else
-            msid = -1;
-
-        np.p.x = (rand() % 10000 - 5000) * 2.;
-        np.p.y = (rand() % 10000 - 5000) * 2.;
-        np.r = (rand() % 360 - 180) * M_PI / 180.;
-        np.v.x = 0;
-        np.v.y = 0;
-	    evPostRespawn(&np, sh->netid, msid, time + 5000.);
-	}
+    if (sh->health > 0) {
+        sh->health -= dg;
+        sh->lastdamage = time;
+    }
 }
 
 void shDestroy(int netid, float time) {
@@ -291,7 +284,7 @@ void shDestroy(int netid, float time) {
 
     sh = shGetByID(netid);
     paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color, time);
-    sh->health = 0;
+    //sh->health = 0;
 }
 
 void shRespawn(int netid, pos_t *np, int msid, float time) {
@@ -400,8 +393,39 @@ void shUpdateShips(float time) {
 	ship_t * sh;
 
 	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->health <= 0)
+		if (sh->health == DEAD)
 			continue;
+
+        if (sh->health <= 0 ) {
+            pos_t np;
+            int msid;
+            ship_t *ms;
+
+            printf("health %f\n", sh->health);
+
+            if (sh->health == DEAD)
+                printf("ko\n");
+
+            sh->health = DEAD;
+
+            if (sh->health == DEAD)
+                printf("ok\n");
+
+            evPostDestroy(sh->netid, time);
+            ms = shFindMotherShip(sh->team);
+            if (ms)
+                msid = ms->netid;
+            else
+                msid = -1;
+
+            np.p.x = (rand() % 10000 - 5000) * 2.;
+            np.p.y = (rand() % 10000 - 5000) * 2.;
+            np.r = (rand() % 360 - 180) * M_PI / 180.;
+            np.v.x = 0;
+            np.v.y = 0;
+            evPostRespawn(&np, sh->netid, msid, time + 5000.);
+            continue;
+        }
 
 		if (sh->in.fire1) {
 		    if (time + 50. - sh->lastfire > RELOAD) {
@@ -409,6 +433,8 @@ void shUpdateShips(float time) {
 		        pos_t p;
 
 		        ftime = sh->lastfire + RELOAD;
+		        if (ftime < time)
+                    ftime = time;
                 get_pos(ftime, &sh->traj, &p);
 				shFireLaser(sh, &p, ftime);
 			}

@@ -13,6 +13,8 @@
 #include "vec.h"
 #include "ship.h"
 #include "graphic.h"
+#include "particle.h"
+#include "event.h"
 /* For testing only */
 #define NBPROJ 1000
 
@@ -37,9 +39,19 @@ void weInit(void) {
 #endif
 }
 
-void weMissile(int netid, pos_t *p, unsigned int color, float time) {
+int weGetFree(void) {
+    int i;
+
+    i = freeBul;
+    freeBul++;
+    if (freeBul > NBPROJ)
+        freeBul = 0;
+    return i;
+}
+
+void weMissile(int netid, int id, pos_t *p, unsigned int color, float time) {
 	int i;
-	i = freeBul;
+	i = id;
 	bul[i].maxlife = time + 5000.;
 	p->v = vadd(p->v, vangle(5., p->r));
 	bul[i].traj.base = *p;
@@ -47,22 +59,28 @@ void weMissile(int netid, pos_t *p, unsigned int color, float time) {
     bul[i].traj.type = t_linear;
     bul[i].color = color | 0xFF;
     bul[i].netid = netid;
-	freeBul++;
-	if (freeBul >= NBPROJ)
-		freeBul = 0;
 }
 
 void weUpdate(float time) {
     int i;
+    int tgid;
     pos_t p;
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
         get_pos(time, &bul[i].traj, &p);
-        if (shDetectHit(bul[i].netid, &p, 150., time)) {
+        tgid = shDetectHit(bul[i].netid, &p, 150., time);
+        if (tgid >= 0) {
             bul[i].maxlife = time;
+            evPostHit(bul[i].netid, tgid, &p, i, time);
         }
 	}
+}
+
+void weHit(int id, pos_t *p, float time) {
+    printf("really hit %d\n", id);
+    paLaser(p->p, p->v, bul[id].color, time);
+    bul[id].maxlife = 0.;
 }
 
 #ifndef DEDICATED

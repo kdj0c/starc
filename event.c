@@ -56,7 +56,7 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
 }
 
-void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, float time) {
+void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time) {
     ev_la_t ev;
 
     ev.owner = owner;
@@ -64,10 +64,21 @@ void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float 
     ev.color = color;
     ev.len = len;
     ev.p = *p;
+    ev.id = id;
     ev.lifetime = lifetime;
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_laser);
 }
 
+void evPostHit(int owner, int target, pos_t *p, int id, float time) {
+    ev_hi_t ev;
+
+    ev.owner = owner;
+    ev.target = target;
+    ev.p = *p;
+    ev.id = id;
+    printf("hit %d\n", id);
+    evPostEvent(time, (void *) &ev, sizeof(ev), ev_hit);
+}
 
 void evPostTurret(int owner, signed char *dir, float time) {
     ev_tu_t ev;
@@ -158,7 +169,14 @@ void evDoEvent(ev_t *ev) {
         {
             ev_la_t *la;
             la = (ev_la_t *) ev->data;
-            shLaser(la->owner, &la->p, la->len, la->width, la->lifetime, la->color, ev->time);
+            shLaser(la->owner, &la->p, la->len, la->width, la->lifetime, la->color, la->id, ev->time);
+        }
+        break;
+	case ev_hit:
+        {
+            ev_hi_t *hi;
+            hi = (ev_hi_t *) ev->data;
+            shHit(hi->owner, hi->target, &hi->p, hi->id, ev->time);
         }
         break;
 	case ev_turret:
