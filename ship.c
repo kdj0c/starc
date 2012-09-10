@@ -32,6 +32,7 @@ static int hudarrowtex = 0;
 #define DEAD -12345.f
 
 LIST_HEAD(ship_head);
+static ship_t *shPlayer = NULL;
 
 static void addShip(ship_t * sh) {
 	if (sh->t->flag & SH_MOTHERSHIP)
@@ -42,6 +43,14 @@ static void addShip(ship_t * sh) {
 
 static void removeShip(ship_t * sh) {
 	list_del(&sh->list);
+}
+
+ship_t *shGetPlayer(void) {
+    return shPlayer;
+}
+
+void shSetPlayer(ship_t *sh) {
+    shPlayer = sh;
 }
 
 #ifndef DEDICATED
@@ -252,9 +261,6 @@ void shNewTraj(shin_t *in, int netid,  float time) {
             t->thrust = sh->t->thrust;
         else
             t->thrust = sh->t->thrust / 3.;
-	}
-	if (in->fire1 && sh->lastfire + RELOAD < time && sh->health > 0) {
-	    shFireLaser(sh, &newbase, time);
 	}
 	memcpy(&sh->in, in, sizeof(*in));
 }

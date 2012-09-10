@@ -132,6 +132,8 @@ void shDrawShipHUD(ship_t * pl);
 #define shLoadShip()
 #endif
 ship_t *shGetByID(int id);
+ship_t *shGetPlayer(void);
+void shSetPlayer(ship_t *sh);
 void shLoadShipType(void);
 void shUpdateLocal(float time);
 void shUpdateShips(float time);

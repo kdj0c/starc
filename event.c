@@ -140,6 +140,8 @@ void evDoEvent(ev_t *ev) {
 		shLoadShip();
 		if (cr->control == pl_ai)
 			aiCreate(sh);
+        else if (cr->control == pl_local)
+            shSetPlayer(sh);
 	}
 		break;
 	case ev_newtraj:

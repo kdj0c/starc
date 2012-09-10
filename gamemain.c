@@ -45,7 +45,7 @@ void grDraw(int value) {
 	time = gtGetTime();
 	frametime = time;
 	if (!player)
-		player = shGetByID(0);
+		player = shGetPlayer();
 
 	if (gpause && !g_net) {
 		fpstime = time;
@@ -94,6 +94,13 @@ void grDraw(int value) {
 	glutSwapBuffers();
 }
 
+static void sendkey(void) {
+    if (!player)
+        return;
+
+    evPostTrajEv(&pl_in, player->netid);
+}
+
 void keyup(unsigned char key, int x, int y) {
 	switch(key) {
 	case 'c':
@@ -109,7 +116,7 @@ void keyup(unsigned char key, int x, int y) {
     default:
         return;
 	}
-	evPostTrajEv(&pl_in, 0);
+	sendkey();
 }
 
 void keydown(unsigned char key, int x, int y){
@@ -140,7 +147,7 @@ void keydown(unsigned char key, int x, int y){
     default:
         return;
 	}
-	evPostTrajEv(&pl_in, 0);
+	sendkey();
 }
 
 void SpecialDown(int key, int x, int y) {
@@ -157,7 +164,7 @@ void SpecialDown(int key, int x, int y) {
 	default:
 		return;
 	}
-	evPostTrajEv(&pl_in, 0);
+    sendkey();
 }
 
 void SpecialUp(int key, int x, int y) {
@@ -174,7 +181,7 @@ void SpecialUp(int key, int x, int y) {
 	default:
 		return;
 	}
-	evPostTrajEv(&pl_in, 0);
+	sendkey();
 }
 
 void enterGameMode(void) {
@@ -201,11 +208,11 @@ void gmStartSingle(void) {
 	paInit();
 	weInit();
 
-	evPostCreateShip("v2", &pos_player, 0, 0, pl_local);
-	evPostCreateShip("mother1", &pos_mother, 0, 1, pl_ai);
+	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
+	evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
 
-	evPostCreateShip("w1", &pos_ai1, 1, 2, pl_ai);
-	evPostCreateShip("w2", &pos_ai2, 1, 3, pl_ai);
+	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
+	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
 
 /*	player = shCreateShip("v2", 0, 0, 0, 0, 0);
 	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 1));
@@ -249,7 +256,7 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-    evPostCreateShip("v2", &pos_player, 0, 0, pl_local);
+    evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
 	glutTimerFunc(10, grDraw, 0);
 }
 

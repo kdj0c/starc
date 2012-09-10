@@ -31,6 +31,7 @@ static int clid = 0;
 static grapple_server server;
 static ntmsg_t *datas;
 static net_e status = e_disconnected;
+static int curid = 0;
 
 void ntInit(void) {
 	ntconf_t ntconf;
@@ -45,6 +46,10 @@ void ntInit(void) {
 	grapple_client_start(client, 0);
 	grapple_client_name_set(client, ntconf.name);
     status = e_client;
+}
+
+int ntGetId(void) {
+    return curid++;
 }
 
 void ntHandleUserMessage(void *data, int size, grapple_user id) {
@@ -71,6 +76,7 @@ void ntHandleMessage(void) {
 		case GRAPPLE_MSG_NEW_USER_ME:
 			//Your code to handle this message
 			clid = message->NEW_USER.id;
+			curid = 256 * clid;
 			printf("my user id is %d\n",message->NEW_USER.id);
 			break;
 		case GRAPPLE_MSG_USER_NAME:
@@ -227,7 +233,7 @@ int main(int argc, char *argv[]) {
 
     gtInit();
     svInit();
-	evPostCreateShip("w1", &pos_ai1, 1, 2, pl_ai);
+	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
 
 	while (1) {
 		svLoop();
