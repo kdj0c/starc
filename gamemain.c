@@ -71,8 +71,10 @@ void grDraw(int value) {
 	aiThink(time);
 
     evConsumeEvent(time);
+    shUpdateLocal(time);
+
 	if(!g_net) {
-	    shUpdateShips(time);
+        shUpdateShips(time);
 		shDetectCollision(time);
 		weUpdate(time);
         evConsumeEvent(time);
@@ -239,6 +241,7 @@ void gmStartMulti(void) {
     make_pos(player, 0., 0., 0.);
 	g_net = 1;
 	enterGameMode();
+	gtInit();
 
 	ntInit();
 	cfReadGameData();

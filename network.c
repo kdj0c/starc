@@ -53,6 +53,8 @@ void ntHandleUserMessage(void *data, int size, grapple_user id) {
 	if (!size)
 		return;
 	p = data;
+
+	printf("client receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
 
@@ -114,9 +116,10 @@ void ntSendEvent(float time, void *data, int size, event_e type) {
         cr = (ev_cr_t *) msg->DATA.data;
         cr->control = pl_remote;
     }
-    if (status == e_client)
-        grapple_client_send(client, GRAPPLE_EVERYONE, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
-    else if (status == e_server)
+    if (status == e_client) {
+        grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
+        grapple_client_send(client, GRAPPLE_EVERYONEELSE, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
+    } else if (status == e_server)
         grapple_server_send(server, GRAPPLE_EVERYONE, GRAPPLE_RELIABLE, msg, size + sizeof(ntmsg_t) + sizeof(int));
 }
 
@@ -126,14 +129,18 @@ void svInit(void) {
 	if (status != e_disconnected)
         return;
 	cfReadNetwork(&ntconf);
+    cfReadGameData();
+    weInit();
+
 	datas = malloc(sizeof(ntmsg_t) + 4096);
-	server = grapple_server_init("starc", "0.4");
+	server = grapple_server_init("starc", "0.5");
 
 	grapple_server_port_set(server, ntconf.port);
 	grapple_server_protocol_set(server, GRAPPLE_PROTOCOL_UDP);
 	grapple_server_session_set(server, "Play my game");
 	grapple_server_start(server);
     status = e_server;
+    printf("server started, port %d\n", ntconf.port);
 }
 
 void svHandleUserMessage(void * data, int size, grapple_user id) {
@@ -142,6 +149,7 @@ void svHandleUserMessage(void * data, int size, grapple_user id) {
 	if(!size)
 		return;
 	p = data;
+    printf("host receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
 
@@ -178,7 +186,7 @@ void svHandleMessage(void) {
 			printf("new user %d\n", message->NEW_USER.id);
 			break;
 		case GRAPPLE_MSG_USER_NAME:
-			printf("new user name\n");
+			printf("new user name %s\n", message->USER_NAME.name);
 			//Your code to handle this message
 			break;
 		case GRAPPLE_MSG_USER_MSG:
@@ -207,6 +215,7 @@ void svLoop(void) {
 	time = gtGetTime();
 	aiThink(time);
     evConsumeEvent(time);
+    shUpdateLocal(time);
     shUpdateShips(time);
     shDetectCollision(time);
     weUpdate(time);

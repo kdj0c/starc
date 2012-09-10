@@ -46,9 +46,10 @@ void cfReadGraphic(grconf_t *c) {
 
 void cfReadNetwork(ntconf_t *c) {
 	const char *tmp;
-	c->ip = "127.0.0.1";
+
+	strcpy(c->ip, "127.0.0.1");
 	c->port = 1234;
-	c->name = "player";
+	strcpy(c->name, "player");
 
 	config_init(&conf);
 	if (config_read_file(&conf, "config.cfg") == CONFIG_FALSE) {
@@ -211,7 +212,7 @@ shiptype_t * cfGetShip(const char * name) {
 		if (!strcmp(name, stype[i].name))
 			return &stype[i];
 	}
-	printf("Error cannot find turret type %s\n", name);
+	printf("Error cannot find ship type %s\n", name);
 	return NULL;
 
 }

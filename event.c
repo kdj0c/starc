@@ -118,6 +118,7 @@ void evPostEvent(float time, void *data, int size, event_e type) {
 }
 
 void evDoEvent(ev_t *ev) {
+//    printf("do event %d, %f\n", ev->type, ev->time);
 	switch (ev->type) {
 	case ev_newship:
 	{

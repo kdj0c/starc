@@ -25,7 +25,9 @@ static inline struct timespec tssub(struct timespec a, struct timespec b) {
 }
 
 void gtInit(void) {
-   clock_gettime(CLOCK_MONOTONIC, &off);
+ //  clock_gettime(CLOCK_MONOTONIC, &off);
+off.tv_nsec = 0;
+off.tv_sec = 0;
 }
 
 float gtGetTime(void) {

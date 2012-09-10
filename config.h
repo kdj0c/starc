@@ -18,9 +18,9 @@ typedef struct {
 } grconf_t;
 
 typedef struct {
-	char * ip;
+	char ip[32];
 	int port;
-	char * name;
+	char name[64];
 } ntconf_t;
 
 void cfReadGraphic(grconf_t * c);

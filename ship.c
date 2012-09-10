@@ -68,6 +68,8 @@ void shLoadShip(void) {
 ship_t * shCreateShip(char * name, pos_t *pos, int team, int netid, float time) {
 	ship_t * newship;
 
+	printf("create new ship[%s], id %d\n", name, netid);
+
 	newship = malloc(sizeof(ship_t));
 	memset(newship, 0, sizeof(ship_t));
 	newship->t = cfGetShip(name);
@@ -362,13 +364,8 @@ void shBurst(ship_t *sh, float time) {
 	}
 }
 
-void shUpdateShips(float time) {
+void shUpdateLocal(float time) {
 	ship_t * sh;
-    static float prevup = 0.;
-    float dt;
-
-    dt = time - prevup;
-    prevup = time;
 
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
@@ -396,6 +393,15 @@ void shUpdateShips(float time) {
             sh->pos.r = sh->pos.r;
         }
         shBurst(sh, time);
+	}
+}
+
+void shUpdateShips(float time) {
+	ship_t * sh;
+
+	list_for_each_entry(sh, &ship_head, list) {
+		if (sh->health <= 0)
+			continue;
 
 		if (sh->in.fire1) {
 		    if (time + 50. - sh->lastfire > RELOAD) {
