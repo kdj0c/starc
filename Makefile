@@ -13,19 +13,19 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o
+COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o
 
 CL_DIR:=cl_obj
 CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o pnglite.o graphic.o star.o particle.o menu.o gamemain.o)
 CL:=starc
 SV_DIR:=sv_obj
-SV_OBJS=$(addprefix $(SV_DIR)/,$(COMMON) server.o)
+SV_OBJS=$(addprefix $(SV_DIR)/,$(COMMON))
 SV:=ded_starc
 
 DEP:=$(wildcard *.h)
 
 # All Target
-all: $(CL)
+all: $(CL) $(SV)
 
 # Tool invocations
 $(CL): $(CL_OBJS)
@@ -34,7 +34,7 @@ $(CL): $(CL_OBJS)
 
 $(SV): $(SV_OBJS)
 	@echo 'LN: $(SV)'
-	@gcc -Wall -L. -o"$(SV)" $(SV_OBJS) -lgrapple -lm -lconfig
+	@gcc -Wall -L. -o"$(SV)" $(SV_OBJS) -lgrapple -lm -lconfig -lrt
 
 $(CL_OBJS): | $(CL_DIR)
 

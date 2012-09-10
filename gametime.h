@@ -9,5 +9,8 @@
 #ifndef GAMETIME_H_
 #define GAMETIME_H_
 
+void gtInit(void);
+float gtGetTime(void);
+void gtSetOffset(float offset);
 
 #endif /* GAMETIME_H_ */

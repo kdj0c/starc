@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#include <GL/glut.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "event.h"
 #include "ship.h"
@@ -15,6 +15,7 @@
 #include "weapon.h"
 #include "turret.h"
 #include "network.h"
+#include "gametime.h"
 
 extern int g_net;
 
@@ -87,7 +88,7 @@ void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time) {
 
 void evPostEventNow(void *data, int size, event_e type) {
 	float time;
-	time = glutGet(GLUT_ELAPSED_TIME);
+	time = gtGetTime();
 	evPostEvent(time, data, size, type);
 }
 
@@ -113,8 +114,7 @@ void evPostEventLocal(float time, void *data, int size, event_e type) {
 
 void evPostEvent(float time, void *data, int size, event_e type) {
     evPostEventLocal(time, data, size, type);
-    if (g_net)
-        ntSendEvent(time, data, size, type);
+    ntSendEvent(time, data, size, type);
 }
 
 void evDoEvent(ev_t *ev) {

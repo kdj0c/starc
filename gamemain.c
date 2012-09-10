@@ -21,6 +21,7 @@
 #include "config.h"
 #include "event.h"
 #include "weapon.h"
+#include "gametime.h"
 
 ship_t * player = NULL;
 static float scale = 1.f;
@@ -41,7 +42,7 @@ void grDraw(int value) {
 
 	glutTimerFunc(10, grDraw, 0);
 	frame++;
-	time = glutGet(GLUT_ELAPSED_TIME);
+	time = gtGetTime();
 	frametime = time;
 	if (!player)
 		player = shGetByID(0);
@@ -191,6 +192,7 @@ void gmStartSingle(void) {
     make_pos(ai2, 5000., 3000., 0.);
 
 	g_net = 0;
+	gtInit();
 	enterGameMode();
 	cfReadGameData();
 	shLoadShip();

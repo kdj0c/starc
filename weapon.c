@@ -25,7 +25,9 @@ typedef struct {
 
 static bullet_t *bul;
 static int freeBul = 0;
+#ifndef DEDICATED
 static unsigned int wetex;
+#endif
 
 void weInit(void) {
     bul = malloc(NBPROJ * sizeof(*bul));

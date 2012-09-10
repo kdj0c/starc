@@ -14,19 +14,21 @@ static struct timespec off;
 static inline struct timespec tssub(struct timespec a, struct timespec b) {
    struct timespec c;
 
-   if (a.nsec < b.nsec) {
+   if (a.tv_nsec < b.tv_nsec) {
       c.tv_sec = a.tv_sec - b.tv_sec - 1;
       c.tv_nsec = 1000000000 + a.tv_nsec - b.tv_nsec;
-   } else { 
+   } else {
       c.tv_sec = a.tv_sec - b.tv_sec;
       c.tv_nsec = a.tv_nsec - b.tv_nsec;
    }
+   return c;
 }
-float initGameTime(void) {
+
+void gtInit(void) {
    clock_gettime(CLOCK_MONOTONIC, &off);
 }
 
-float getGameTime(void) {
+float gtGetTime(void) {
    struct timespec ts;
    float t;
    clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -35,22 +37,22 @@ float getGameTime(void) {
    return t;
 }
 
-void setTimeOffset(float offset) {
+void gtSetOffset(float offset) {
    struct timespec o;
    long long int off64;
    int sign;
-   
+
    if (offset >= 0)
       sign = 1;
    else
       sign = -1;
-      
+
    offset = ((float) sign) * offset;
    off64 = (long long int) (offset * 1000000.f);
-   
+
    o.tv_sec = off64 / 1000;
    o.tv_nsec = off64 % 1000000000;
-   
+
    if (sign > 0) {
       off.tv_sec += o.tv_sec;
       off.tv_nsec += o.tv_nsec;
@@ -59,6 +61,6 @@ void setTimeOffset(float offset) {
          off.tv_sec++;
       }
    } else {
-      tssusb(off, o);
+      off = tssub(off, o);
    }
 }
