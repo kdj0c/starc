@@ -77,7 +77,6 @@ void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time) 
     ev.turret = turret;
     ev.p = *p;
     ev.id = id;
-    printf("hit %d\n", id);
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_hit);
 }
 

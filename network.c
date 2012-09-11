@@ -59,7 +59,7 @@ void ntHandleUserMessage(void *data, int size, grapple_user id) {
 		return;
 	p = data;
 
-	printf("client receive new message %d\n", p->type);
+//	printf("client receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
 
@@ -100,6 +100,7 @@ void ntHandleMessage(void) {
 			//Your code to handle this message
 			break;
 		case GRAPPLE_MSG_PING:
+            printf("client receive ping\n");
 			//Your code to handle this message
 			break;
 		default:
@@ -155,7 +156,7 @@ void svHandleUserMessage(void * data, int size, grapple_user id) {
 	if(!size)
 		return;
 	p = data;
-    printf("host receive new message %d\n", p->type);
+//    printf("host receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
 
@@ -205,6 +206,10 @@ void svHandleMessage(void) {
 			//Your code to handle this message
 			shDisconnect(message->USER_DISCONNECTED.id);
 			break;
+        case GRAPPLE_MSG_PING:
+            printf("server receive ping\n");
+            break;
+
 		default:
 			printf("unexpected message received\n");
 			break;

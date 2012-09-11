@@ -63,8 +63,8 @@ void weMissile(int netid, int id, pos_t *p, unsigned int color, float time) {
 
 void weUpdate(float time) {
     int i;
-    int tgid;
     pos_t p;
+
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
@@ -75,7 +75,6 @@ void weUpdate(float time) {
 }
 
 void weHit(int id, pos_t *p, float time) {
-    printf("really hit %d\n", id);
     paLaser(p->p, p->v, bul[id].color, time);
     bul[id].maxlife = 0.;
 }

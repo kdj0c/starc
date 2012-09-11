@@ -30,7 +30,6 @@ static int gpause = 0;
 shin_t pl_in = {0 ,};
 int kleft = 0;
 int kright  = 0;
-float frametime;
 
 void dummy() {
 
@@ -45,7 +44,6 @@ void grDraw(int value) {
 	glutTimerFunc(10, grDraw, 0);
 	frame++;
 	time = gtGetTime();
-	frametime = time;
 	if (!player)
 		player = shGetPlayer();
 

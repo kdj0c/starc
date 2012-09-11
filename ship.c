@@ -417,15 +417,7 @@ void shUpdateShips(float time) {
             int msid;
             ship_t *ms;
 
-            printf("health %f\n", sh->health);
-
-            if (sh->health == DEAD)
-                printf("ko\n");
-
             sh->health = DEAD;
-
-            if (sh->health == DEAD)
-                printf("ok\n");
 
             evPostDestroy(sh->netid, time);
             ms = shFindMotherShip(sh->team);
