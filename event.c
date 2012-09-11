@@ -195,6 +195,8 @@ void evDoEvent(ev_t *ev) {
             shCollide(co->owner1, co->owner2, &co->p1, &co->p2, ev->time);
         }
         break;
+	default:
+        break;
 	}
 }
 

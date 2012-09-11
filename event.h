@@ -24,6 +24,7 @@ typedef enum {
 	ev_hit,
 	ev_turret, //client->server
 	ev_collide, //server->client
+	ev_ping // network only
 } event_e;
 
 enum {
@@ -105,6 +106,5 @@ void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float 
 void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time);
 void evPostTurret(int owner, signed char *dir, float time);
 void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time);
-
 
 #endif

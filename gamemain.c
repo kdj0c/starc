@@ -57,6 +57,8 @@ void grDraw(int value) {
 		printf("fps %f\n", fps);
 		fpstime = time;
 		frame = 0;
+		if (g_net)
+            ntSendPing();
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -267,7 +269,7 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-    evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
+    evPostCreateShip("mother1", &pos_player, 0, ntGetId(), pl_local);
 	glutTimerFunc(10, grDraw, 0);
 }
 

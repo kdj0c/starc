@@ -49,6 +49,7 @@ typedef struct {
 } ntmsg_t;
 
 void ntInit(void);
+void ntSendPing(void);
 int ntGetId(void);
 void ntHandleMessage(void);
 void ntSendEvent(float time, void *data, int size, event_e type);

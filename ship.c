@@ -300,7 +300,8 @@ void shDestroy(int netid, float time) {
 
     sh = shGetByID(netid);
     paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color, time);
-    //sh->health = 0;
+    if (sh->health > 0)
+        sh->health = 0;
 }
 
 void shRespawn(int netid, pos_t *np, int msid, float time) {

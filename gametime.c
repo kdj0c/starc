@@ -25,9 +25,9 @@ static inline struct timespec tssub(struct timespec a, struct timespec b) {
 }
 
 void gtInit(void) {
- //  clock_gettime(CLOCK_MONOTONIC, &off);
-off.tv_nsec = 0;
-off.tv_sec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &off);
+//off.tv_nsec = 0;
+//off.tv_sec = 0;
 }
 
 float gtGetTime(void) {
@@ -46,13 +46,14 @@ void gtSetOffset(float offset) {
 
    if (offset >= 0)
       sign = 1;
-   else
+   else {
       sign = -1;
+      offset = -offset;
+   }
 
-   offset = ((float) sign) * offset;
    off64 = (long long int) (offset * 1000000.f);
 
-   o.tv_sec = off64 / 1000;
+   o.tv_sec = off64 / 1000000000;
    o.tv_nsec = off64 % 1000000000;
 
    if (sign > 0) {

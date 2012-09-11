@@ -131,7 +131,7 @@ void aiThink(float time) {
 			if (nr < 0.1 && nr > -0.1 && dd > 0.1)
 				in.acceleration = 1;
 
-			if (d < LASER_RANGE)
+			if (d < 5000.)
 				ai->state = ai_aim;
 			break;
 		}

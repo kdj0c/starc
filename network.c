@@ -32,6 +32,17 @@ static grapple_server server;
 static ntmsg_t *datas;
 static net_e status = e_disconnected;
 static int curid = 0;
+static float synctime;
+
+
+void ntSendPing(void) {
+    ntmsg_t msg;
+
+    synctime = gtGetTime();
+    msg.type = ev_ping;
+    msg.time = synctime;
+    grapple_client_send(client, GRAPPLE_SERVER, GRAPPLE_RELIABLE, &msg, sizeof(ntmsg_t));
+}
 
 void ntInit(void) {
 	ntconf_t ntconf;
@@ -45,11 +56,37 @@ void ntInit(void) {
 	grapple_client_protocol_set(client, GRAPPLE_PROTOCOL_UDP);
 	grapple_client_start(client, 0);
 	grapple_client_name_set(client, ntconf.name);
+    ntSendPing();
+    while (synctime)
+        ntHandleMessage();
+    ntSendPing();
+    while (synctime)
+        ntHandleMessage();
     status = e_client;
 }
 
 int ntGetId(void) {
     return curid++;
+}
+
+void ntSyncPing(ntmsg_t *p) {
+    float rtime;
+    float offset;
+
+    rtime = gtGetTime();
+    offset = ((rtime + synctime) / 2.f) - p->time;
+    synctime = 0.;
+    if (status == e_client) {
+        //runtime correction, make it smooth !
+        offset /= 5.;
+        if (offset > 10.)
+            offset = 10.;
+        else if (offset < -10.)
+            offset = -10.;
+    }
+    gtSetOffset(offset);
+    printf("client time %f, server time %f, offset %f\n", rtime, p->time, offset);
+    printf("new time %f\n", gtGetTime());
 }
 
 void ntHandleUserMessage(void *data, int size, grapple_user id) {
@@ -59,6 +96,10 @@ void ntHandleUserMessage(void *data, int size, grapple_user id) {
 		return;
 	p = data;
 
+	if (p->type == ev_ping) {
+	    ntSyncPing(p);
+	    return;
+	}
 //	printf("client receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
@@ -150,12 +191,29 @@ void svInit(void) {
     printf("server started, port %d\n", ntconf.port);
 }
 
+void svSendPing(int client) {
+    ntmsg_t msg;
+    float time;
+
+    time = gtGetTime();
+    msg.type = ev_ping;
+    msg.time = time;
+    grapple_server_send(server, client, GRAPPLE_RELIABLE, &msg, sizeof(ntmsg_t));
+}
+
 void svHandleUserMessage(void * data, int size, grapple_user id) {
 	ntmsg_t *p;
 
 	if(!size)
 		return;
+
 	p = data;
+
+	if (p->type == ev_ping) {
+        svSendPing(id);
+        return;
+	}
+
 //    printf("host receive new message %d\n", p->type);
     evPostEventLocal(p->time, p->DATA.data, size, p->type);
 }
@@ -234,15 +292,23 @@ void svLoop(void) {
 }
 
 int main(int argc, char *argv[]) {
-    make_pos(ai1, 5000., 0.,  0.);
+    make_pos(ai1, 0., 5000.,  0.);
+    make_pos(mother, 0., 10000., 0.);
+    make_pos(ai2, 5000., 0.,  0.);
+    make_pos(ai3, 5000., 3000., 0.);
 
     gtInit();
     svInit();
-	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai1, 0, ntGetId(), pl_ai);
+    evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
+
+	evPostCreateShip("w1", &pos_ai2, 1, ntGetId(), pl_ai);
+	evPostCreateShip("w2", &pos_ai3, 1, ntGetId(), pl_ai);
+
 
 	while (1) {
 		svLoop();
-		usleep(50000);
+		usleep(10000);
 	}
 	free(datas);
 }
