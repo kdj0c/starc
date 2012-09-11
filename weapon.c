@@ -69,11 +69,8 @@ void weUpdate(float time) {
 		if (time >= bul[i].maxlife)
 			continue;
         get_pos(time, &bul[i].traj, &p);
-        tgid = shDetectHit(bul[i].netid, &p, 150., time);
-        if (tgid >= 0) {
+        if (shDetectHit(bul[i].netid, &p, 150., i, time))
             bul[i].maxlife = time;
-            evPostHit(bul[i].netid, tgid, &p, i, time);
-        }
 	}
 }
 

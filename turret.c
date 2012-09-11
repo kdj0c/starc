@@ -105,7 +105,7 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
     return res;
 }
 
-turret_t *tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
+int tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
 	turret_t *tu;
 	turretpos_t *t;
     int i;
@@ -126,9 +126,9 @@ turret_t *tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
 
         if (norm(d) > s + len)
             continue;
-        return tu;
+        return i;
 	}
-    return NULL;
+    return -1;
 }
 
 void tuUpdate(ship_t *sh, float time) {

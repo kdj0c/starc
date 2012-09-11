@@ -76,6 +76,7 @@ typedef struct {
 typedef struct {
     int owner;
     int target;
+    int turret;
     pos_t p;
     int id;
 } ev_hi_t;
@@ -101,7 +102,7 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control);
 void evPostRespawn(pos_t *newp, int netid, int msid, float time);
 void evPostDestroy(int netid, float time);
 void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time);
-void evPostHit(int owner, int target, pos_t *p, int id, float time);
+void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time);
 void evPostTurret(int owner, signed char *dir, float time);
 void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time);
 

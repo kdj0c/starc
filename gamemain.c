@@ -28,6 +28,8 @@ static float scale = 1.f;
 int g_net = 1;
 static int gpause = 0;
 shin_t pl_in = {0 ,};
+int kleft = 0;
+int kright  = 0;
 float frametime;
 
 void dummy() {
@@ -98,6 +100,15 @@ static void sendkey(void) {
     if (!player)
         return;
 
+    if(kleft && kright)
+        pl_in.direction = 0;
+    else if (kleft)
+        pl_in.direction = 1;
+    else if (kright)
+        pl_in.direction = -1;
+    else
+        pl_in.direction = 0;
+
     evPostTrajEv(&pl_in, player->netid);
 }
 
@@ -107,8 +118,10 @@ void keyup(unsigned char key, int x, int y) {
 		pl_in.acceleration = 0;
 		break;
 	case 'h':
+        kleft = 0;
+        break;
 	case 'n':
-		pl_in.direction = 0;
+		kright = 0;
 		break;
 	case ' ':
 		pl_in.fire1 = 0;
@@ -127,10 +140,10 @@ void keydown(unsigned char key, int x, int y){
 		pl_in.acceleration = 1;
 		break;
 	case 'h':
-		pl_in.direction = 1;
+		kleft = 1;
 		break;
 	case 'n':
-		pl_in.direction = -1;
+		kright = -1;
 		break;
 	case ' ':
 		pl_in.fire1 = 1;
@@ -156,10 +169,10 @@ void SpecialDown(int key, int x, int y) {
 		pl_in.acceleration = 1;
 		break;
 	case GLUT_KEY_LEFT:
-		pl_in.direction += 1;
+		kleft = 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		pl_in.direction -= 1;
+		kright = 1;
 		break;
 	default:
 		return;
@@ -173,10 +186,10 @@ void SpecialUp(int key, int x, int y) {
 		pl_in.acceleration = 0;
 		break;
 	case GLUT_KEY_LEFT:
-		pl_in.direction -= 1;
+		kleft = 0;
 		break;
 	case GLUT_KEY_RIGHT:
-		pl_in.direction += 1;
+		kright = 0;
 		break;
 	default:
 		return;

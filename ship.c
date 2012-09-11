@@ -21,8 +21,6 @@
 #include "event.h"
 #include "weapon.h"
 
-extern float frametime;
-
 #ifndef DEDICATED
 static int hudarrowtex = 0;
 #endif
@@ -171,9 +169,9 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
     paLas(*p, closer, color);
 }
 
-int shDetectHit(int netid, pos_t *p, float size, float time) {
+int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 	ship_t *sh;
-	turret_t *tu;
+	int tu;
 
 	list_for_each_entry(sh, &ship_head, list) {
 		float s;
@@ -187,30 +185,42 @@ int shDetectHit(int netid, pos_t *p, float size, float time) {
         d = vsub(shp.p, p->p);
 		s = sh->t->shieldsize / 2.f;
 
-        if (norm(d) > size + s)
+        if (sqnorm(d) > s * s)
             continue;
 
         if (sh->t->flag & SH_MOTHERSHIP) {
             // check for turret
             tu = tuCheckTurretProj(sh, p, &shp, size);
-            if (tu) {
-                //tuDamage(tu, 50., time);
-                return sh->netid;
+            if (tu >= 0) {
+                p->v = shp.v;
+                evPostHit(netid, sh->netid, tu, p, weid, time);
+                return 1;
             }
         } else {
+/*            float l;
+
+            l = s * s - sqnorm(d);
+            l = sqrt(l);
+            p->p = vsub(p->p, vangle(l, p->r));*/
             p->v = shp.v;
-            //shDamage(sh, 50., time);
-            return sh->netid;
+            evPostHit(netid, sh->netid, 0, p, weid, time);
+            return 1;
         }
 	}
-	return -1;
+	return 0;
 }
 
-void shHit(int owner, int tgid, pos_t *p, int weid, float time) {
+void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time) {
     ship_t *tg;
 
     tg = shGetByID(tgid);
-    shDamage(tg, 10., time);
+    if (tg->t->numturret) {
+        turret_t *tu;
+
+        tu = &tg->turret[turret];
+        tuDamage(tu, 10., time);
+    } else
+        shDamage(tg, 10., time);
     weHit(weid, p, time);
 }
 
@@ -530,7 +540,7 @@ void shDrawShips(float time) {
 		grSetBlend(sh->t->tex);
 		get_pos(time, &sh->traj, &sh->pos);
 		grBlitRot(sh->pos.p.x, sh->pos.p.y, sh->pos.r, sh->t->size);
-		if (frametime - sh->lastdamage < 500.) {
+		if (time - sh->lastdamage < 500.) {
 			grSetBlendAdd(sh->t->shieldtex);
 			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
