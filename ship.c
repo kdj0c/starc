@@ -62,11 +62,12 @@ void shLoadShip(void) {
 		if(!sh->t->shieldtex)
 			sh->t->shieldtex = grLoadTexture(sh->t->shieldfile);
         for (i = 0; i < sh->t->numturret; i++) {
-            if (!sh->t->turret[i].t->tex)
+            if (!sh->t->turret[i].t->tex) {
                 sh->t->turret[i].t->tex =
                 grLoadTexture(sh->t->turret[i].t->imgfile);
                 sh->t->turret[i].t->shieldtex =
                 grLoadTexture(sh->t->turret[i].t->shieldfile);
+            }
         }
 	}
 	hudarrowtex = grLoadTexture("img/arrow.png");

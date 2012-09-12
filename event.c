@@ -80,7 +80,7 @@ void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time) 
     evPostEvent(time, (void *) &ev, sizeof(ev), ev_hit);
 }
 
-void evPostTurret(int owner, signed char *dir, float time) {
+void evPostTurret(int owner, float *dir, float time) {
     ev_tu_t ev;
 
     ev.owner = owner;

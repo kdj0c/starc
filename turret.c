@@ -51,7 +51,7 @@ float tuGetAim(turret_t *tu, float m, float time) {
     return tu->baseaim + m * (float) tu->dir * (time - tu->basetime);
 }
 
-void tuSetMove(int netid, signed char *dir, float time) {
+void tuSetMove(int netid, float *dir, float time) {
 	turret_t *tu;
 	turretpos_t *t;
     ship_t *sh;
@@ -136,7 +136,7 @@ void tuUpdate(ship_t *sh, float time) {
 	turretpos_t *t;
 	int i,l;
 	pos_t mp;
-    signed char dir[MAX_TURRET];
+    float dir[MAX_TURRET];
 
 	get_pos(time, &sh->traj, &mp);
 
@@ -160,25 +160,28 @@ void tuUpdate(ship_t *sh, float time) {
 			pos_t tp;
 			float a;
 
-			get_pos(time + 100., &tu->target->traj, &tp);
-			tu->r = tuGetAim(tu, t->t->maniability, time + 100.);
+			get_pos(time, &tu->target->traj, &tp);
+			tu->r = tuGetAim(tu, t->t->maniability, time);
 			d = vsub(tp.p, tu->p);
 			d1 = vmatrix1(d, tu->r);
-			a = atan2(d1.y, d1.x);
-			if (a > .05)
-				dir[i] = -1;
-			else if (a < .05)
-				dir[i] = 1;
-            else
-                dir[i] = 0;
+			a = -atan2f(d1.y, d1.x);
 
-			if (norm(d) < LASER_RANGE && ((time - tu->lastfire) > 200.) &&
-			a < .5 && a > -.5) {
+
+			if ( a < .03 && a > -.03 && norm(d) < LASER_RANGE &&
+                time - tu->lastfire > 200.) {
 				for (l = 0; l < t->t->numlaser; l++) {
 					tufirelaser(sh, tu, &t->t->laser[l], time);
 				}
 				tu->lastfire = time;
-			}
+            }
+
+            a /= t->t->maniability * 100.;
+			if (a > 1.)
+                a = 1.;
+            if (a < -1.)
+                a = -1.;
+
+            dir[i] = a;
 		} else {
 		    dir[i] = 0;
 		}
@@ -190,13 +193,15 @@ void tuDraw(ship_t * sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
 	int i;
+//	vec_t p;
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
+//		p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
-        grSetBlend(sh->t->turret[i].t->tex);
+        grSetBlend(t->t->tex);
 		grBlitRot(tu->p.x, tu->p.y, tu->r, 700.);
         if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd(t->t->shieldtex);

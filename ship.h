@@ -118,7 +118,7 @@ struct tur {
 	float lastthink;
 	float lastfire;
 	float lastdamage;
-	signed char dir;
+	float dir;
 	float health;
 };
 
