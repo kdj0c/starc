@@ -38,6 +38,7 @@ typedef struct {
 	struct list_head active;
 	event_e type;
 	float time;
+	int size;
 	char data[];
 } ev_t;
 

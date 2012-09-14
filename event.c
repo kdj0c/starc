@@ -109,6 +109,7 @@ void evPostEventLocal(float time, void *data, int size, event_e type) {
 	new = malloc(sizeof(*new) + size);
 	new->type = type;
 	new->time = time;
+	new->size = size;
 	if (size && data)
 		memcpy(&new->data, data, size);
 

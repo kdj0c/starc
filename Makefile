@@ -13,7 +13,7 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o
+COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o save.o
 
 CL_DIR:=cl_obj
 CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o pnglite.o graphic.o star.o particle.o menu.o gamemain.o)

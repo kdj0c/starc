@@ -6,20 +6,13 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef STATE_H_
-#define STATE_H_
+#ifndef SAVE_H_
+#define SAVE_H_
 
-#include "vec.h"
-#include "list.h"
+#include "event.h"
 
-typedef struct {
-	struct list_head list;
-	vec_t pos;
-	vec_t vit;
-	vec_t dir;
-	float t;
-	float dt;
-	void *priv;
-} state_t;
+void saInit(char *file);
+void saSaveEvent(ev_t *ev);
+void saReplay(char *file);
 
-#endif /* MOTHERSHIP_H_ */
+#endif /* SAVE_H_ */
