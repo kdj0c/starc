@@ -10,5 +10,6 @@
 
 void gmStartSingle(void);
 void gmStartMulti(void);
+void gmReplay(void);
 
 #endif /* GAMEMAIN_H_ */

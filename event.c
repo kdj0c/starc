@@ -16,8 +16,7 @@
 #include "turret.h"
 #include "network.h"
 #include "gametime.h"
-
-extern int g_net;
+#include "save.h"
 
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
@@ -52,7 +51,9 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	ev.control = control;
 	ev.pos = *p;
 	ev.team = team;
+	memset(ev.shipname, 0, sizeof(ev.shipname));
 	strcpy(ev.shipname, name);
+
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
 }
 
@@ -111,7 +112,9 @@ void evPostEventLocal(float time, void *data, int size, event_e type) {
 	new->time = time;
 	new->size = size;
 	if (size && data)
-		memcpy(&new->data, data, size);
+		memcpy(new->data, data, size);
+
+	saSaveEvent(new);
 
 	if (list_empty(&act_event)) {
 		list_add(&new->list, &act_event);

@@ -26,6 +26,9 @@ static menuentry_t menu[] = {{
 		.name = "MultiPlayer",
 		.func =  gmStartMulti,
 }, {
+		.name = "Replay",
+		.func = gmReplay,
+}, {
 		.name = "Options",
 		.func = meOptions,
 }, {

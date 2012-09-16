@@ -117,17 +117,15 @@ int shPostAllShips(float time, void *data) {
 }
 
 void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time) {
-	float closer;
+/*	float closer;
 	ship_t *en;
 	ship_t *sh;
 	ship_t *tc = NULL;
-	turret_t *tu;
-
-	sh = shGetByID(netid);
+	turret_t *tu;*/
 
     weMissile(netid, id, p, color, time);
     return;
-	closer = LASER_RANGE;
+/*	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
 		float s;
 		pos_t enp;
@@ -167,7 +165,7 @@ void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsign
 		tmp = vadd(p->p, vangle(closer, p->r));
 //		paLaser(tmp, tc->pos.v, color);
 	}
-    paLas(*p, closer, color);
+    paLas(*p, closer, color);*/
 }
 
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
@@ -357,7 +355,7 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	shDamage(sh1, 100, time);
 	shDamage(sh2, 100, time);
 }
-
+#ifndef DEDICATED
 void shBurst(ship_t *sh, float time) {
 	int i;
 	float size;
@@ -371,9 +369,10 @@ void shBurst(ship_t *sh, float time) {
             size /= 4.;
         else
             size *= sh->traj.thrust / sh->t->thrust;
-        paBurst(p, size, sh->t->burst[i].color, time);
+        paBurst(&p, size, sh->t->burst[i].color, time);
 	}
 }
+#endif
 
 void shUpdateLocal(float time) {
 	ship_t * sh;
@@ -399,11 +398,10 @@ void shUpdateLocal(float time) {
                 }
             }
             get_pos(time, &sh->traj, &sh->pos);
-            sh->pos.p.x = sh->pos.p.x;
-            sh->pos.p.y = sh->pos.p.y;
-            sh->pos.r = sh->pos.r;
         }
+#ifndef DEDICATED
         shBurst(sh, time);
+#endif
 	}
 }
 

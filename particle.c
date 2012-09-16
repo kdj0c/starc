@@ -63,7 +63,7 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, floa
 	freePart += number;
 }
 
-void paBurst(pos_t p, float size, unsigned int color, float time) {
+void paBurst(pos_t *p, float size, unsigned int color, float time) {
 	int i;
 	vec_t t;
 
@@ -72,8 +72,8 @@ void paBurst(pos_t p, float size, unsigned int color, float time) {
 	t.x = 0.2 * ((rand() % 1000 - 500) / 500.f);
 	t.y = 0.2 * ((rand() % 1000 - 500) / 500.f);
 
-	parts[i].traj.base.p = p.p;
-	parts[i].traj.base.v = vadd(vsub(p.v, vangle(size * 0.8f, p.r)), t);
+	parts[i].traj.base.p = p->p;
+	parts[i].traj.base.v = vadd(vsub(p->v, vangle(size * 0.8f, p->r)), t);
 	parts[i].traj.basetime = time;
     parts[i].traj.type = t_linear;
 

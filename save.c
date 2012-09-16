@@ -22,9 +22,11 @@ void saExit(void) {
 }
 
 void saInit(char *file) {
-    savefd = open(file, O_WRONLY | O_CREAT | O_NONBLOCK);
-    if (savefd < 0)
-        return;
+    savefd = open(file, O_WRONLY | O_CREAT | O_NONBLOCK | O_TRUNC, 0660 );
+    if (savefd < 0) {
+    	printf("cannot open %s", file);
+    	return;
+    }
     atexit(saExit);
 }
 
@@ -32,9 +34,12 @@ void saSaveEvent(ev_t *ev) {
     int n;
     if (savefd < 0)
         return;
-    n = write(savefd, ev, ev->size + sizeof(*ev));
-}
+    n = write(savefd, ev, sizeof(*ev));
+    n = write(savefd, ev->data, ev->size);
 
+    if (n < 0)
+    	printf("error writing replay\n");
+}
 
 void saReplay(char *file) {
     int fd;
@@ -44,9 +49,9 @@ void saReplay(char *file) {
 
     fd = open(file, O_RDONLY);
 
-    while (n > 0) {
+    do {
         n = read(fd, &ev, sizeof(ev));
         n = read(fd, buf, ev.size);
         evPostEventLocal(ev.time, buf, ev.size, ev.type);
-    }
+    } while (n > 0);
 }

@@ -12,7 +12,6 @@
 
 #include "list.h"
 #include "vec.h"
-
 #include "ship.h"
 
 typedef enum {

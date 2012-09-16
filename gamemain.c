@@ -22,6 +22,7 @@
 #include "event.h"
 #include "weapon.h"
 #include "gametime.h"
+#include "save.h"
 
 ship_t * player = NULL;
 static float scale = 1.f;
@@ -221,6 +222,7 @@ void gmStartSingle(void) {
 	paInit();
 	weInit();
 
+	saInit("replay1.rep");
 	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
 	evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
 
@@ -269,7 +271,21 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-    evPostCreateShip("mother1", &pos_player, 0, ntGetId(), pl_local);
+    evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
+	glutTimerFunc(10, grDraw, 0);
+}
+
+void gmReplay(void) {
+
+	g_net = 0;
+	gtInit();
+	enterGameMode();
+	cfReadGameData();
+	shLoadShip();
+	paInit();
+	weInit();
+
+	saReplay("replay1.rep");
 	glutTimerFunc(10, grDraw, 0);
 }
 
