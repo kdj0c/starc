@@ -32,6 +32,14 @@ shin_t pl_in = {0 ,};
 int kleft = 0;
 int kright  = 0;
 
+#ifndef NETWORK
+int curid = 0;
+
+int ntGetId(void) {
+    return curid++;
+}
+#endif
+
 void dummy() {
 
 }

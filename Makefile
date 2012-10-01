@@ -13,7 +13,17 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-COMMON:=ship.o network.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o save.o
+NETWORK?=1
+
+COMMON:=ship.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o save.o
+CFLAGS:=
+LDFLAGS:=-lm -lconfig -lrt
+
+ifeq ($(NETWORK),1)
+COMMON+=network.o
+CFLAGS+=-DNETWORK
+LDFLAGS+=-lgrapple
+endif
 
 CL_DIR:=cl_obj
 CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o pnglite.o graphic.o star.o particle.o menu.o gamemain.o)
@@ -25,16 +35,20 @@ SV:=ded_starc
 DEP:=$(wildcard *.h)
 
 # All Target
-all: $(CL) $(SV)
+all: $(CL)
+
+ifeq ($(NETWORK),1)
+all: $(SV)
+endif
 
 # Tool invocations
 $(CL): $(CL_OBJS)
 	@echo 'LN: $(CL)'
-	@gcc -Wall -L. -o"$(CL)" $(CL_OBJS) -lglut -lGLU -lz -lm -lgrapple -lftgl -lconfig
+	@gcc -Wall -L. -o"$(CL)" $(CL_OBJS) -lglut -lGLU -lftgl $(LDFLAGS)
 
 $(SV): $(SV_OBJS)
 	@echo 'LN: $(SV)'
-	@gcc -Wall -L. -o"$(SV)" $(SV_OBJS) -lgrapple -lm -lconfig -lrt
+	@gcc -Wall -L. -o"$(SV)" $(SV_OBJS) $(LDFLAGS)
 
 $(CL_OBJS): | $(CL_DIR)
 
@@ -48,11 +62,11 @@ $(SV_DIR):
 
 $(CL_DIR)/%.o : %.c $(DEP)
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -I/usr/include/freetype2 -c -o"$@" "$<"
+	@gcc -O0 -Wall -g $(CFLAGS) -I/usr/include/freetype2 -c -o"$@" "$<"
 
 $(SV_DIR)/%.o : %.c $(DEP)
 	@echo 'CC: $<'
-	@gcc -O0 -Wall -g -DDEDICATED -c -o"$@" "$<"
+	@gcc -O0 -Wall -g -DDEDICATED $(CFLAGS) -c -o"$@" "$<"
 
 # Other Targets
 clean:

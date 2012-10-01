@@ -48,10 +48,16 @@ typedef struct {
     NEW_UNION(COLLIDE, ev_co_t co;)
 } ntmsg_t;
 
+#ifdef NETWORK
 void ntInit(void);
 void ntSendPing(void);
 int ntGetId(void);
 void ntHandleMessage(void);
 void ntSendEvent(float time, void *data, int size, event_e type);
-
+#else
+static inline void ntInit(void) {};
+static inline void ntSendPing(void) {};
+static inline void ntHandleMessage(void) {};
+static inline void ntSendEvent(float time, void *data, int size, event_e type) {};
+#endif
 #endif /* NETWORK_H_ */
