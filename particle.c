@@ -16,7 +16,6 @@
 #define NBPART 100000
 #define PA_LASER 0x1
 
-
 typedef struct {
 	float size;
 	unsigned int color;
@@ -37,14 +36,15 @@ void paInit(void) {
 	lastex = grLoadTexture("img/laser.png");
 }
 
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time) {
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
+		float time) {
 	int i;
 
-	if( freePart + number >= NBPART)
+	if (freePart + number >= NBPART)
 		freePart = 0;
 
 	for (i = freePart; i < freePart + number; i++) {
-		float len,angle;
+		float len, angle;
 		vec_t v1;
 		len = (float) ((rand() % 1000) - 500) / 500.f;
 		angle = (float) (rand() % 1000) * M_PI / 500.f;
@@ -75,7 +75,7 @@ void paBurst(pos_t *p, float size, unsigned int color, float time) {
 	parts[i].traj.base.p = p->p;
 	parts[i].traj.base.v = vadd(vsub(p->v, vangle(size * 0.8f, p->r)), t);
 	parts[i].traj.basetime = time;
-    parts[i].traj.type = t_linear;
+	parts[i].traj.type = t_linear;
 
 	i = freePart;
 	parts[i].maxlife = rand() % 1000 + 1000 / size;
@@ -118,7 +118,8 @@ void paLas(pos_t p, float len, unsigned int color) {
 		freePart = 0;
 }
 
-void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
+void paLas2(pos_t *p, float len, float width, float lifetime,
+		unsigned int color, float time) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = time + lifetime;
@@ -145,15 +146,14 @@ void paDraw(float time) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
 		c = 1. - (time - parts[i].traj.basetime) / ((float) parts[i].maxlife);
-        parts[i].color &= ~0xFF;
+		parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (c * 255);
 		grSetColor(parts[i].color);
 
 		get_pos(time, &parts[i].traj, &p);
 		if (parts[i].flag == PA_LASER) {
 			grSetBlendAdd(lastex);
-			grBlitLaser(p.p.x, p.p.y, parts[i].size,
-					p.r, 40.);
+			grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
 			grSetBlendAdd(texture);
 		} else {
 			grBlitSquare(p.p.x, p.p.y, parts[i].size);

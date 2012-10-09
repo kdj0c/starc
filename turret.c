@@ -22,7 +22,7 @@ void tuAddTurret(ship_t * sh) {
 	int i;
 
 	new = malloc(sizeof(*new) * sh->t->numturret);
-	memset(new,0,sizeof(*new) * sh->t->numturret);
+	memset(new, 0, sizeof(*new) * sh->t->numturret);
 	sh->turret = new;
 
 	for (i = 0; i < sh->t->numturret; i++) {
@@ -34,38 +34,39 @@ void tuAddTurret(ship_t * sh) {
 }
 
 void tuDamage(turret_t *tu, float dg, float time) {
-    tu->health -= dg;
-    tu->lastdamage = time;
+	tu->health -= dg;
+	tu->lastdamage = time;
 }
 
 void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float time) {
-    pos_t p;
+	pos_t p;
 
-    p.p = vmatrix(tu->p, las->p, tu->r);
-    p.r = tu->r + las->r;
-    p.v = sh->pos.v;
-    evPostLaser(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time);
+	p.p = vmatrix(tu->p, las->p, tu->r);
+	p.r = tu->r + las->r;
+	p.v = sh->pos.v;
+	evPostLaser(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(),
+			time);
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {
-    return tu->baseaim + m * (float) tu->dir * (time - tu->basetime);
+	return tu->baseaim + m * (float) tu->dir * (time - tu->basetime);
 }
 
 void tuSetMove(int netid, float *dir, float time) {
 	turret_t *tu;
 	turretpos_t *t;
-    ship_t *sh;
-    int i;
+	ship_t *sh;
+	int i;
 
-    sh = shGetByID(netid);
+	sh = shGetByID(netid);
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
 		if (dir[i] != tu->dir) {
-		    tu->baseaim = tuGetAim(tu, t->t->maniability, time);
-		    tu->basetime = time;
-            tu->dir = dir[i];
+			tu->baseaim = tuGetAim(tu, t->t->maniability, time);
+			tu->basetime = time;
+			tu->dir = dir[i];
 		}
 	}
 }
@@ -73,11 +74,11 @@ void tuSetMove(int netid, float *dir, float time) {
 turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) {
 	turret_t *tu;
 	turretpos_t *t;
-    int i;
-    vec_t tp;
-    turret_t *res = NULL;
-    vec_t d, d1;
-    float s;
+	int i;
+	vec_t tp;
+	turret_t *res = NULL;
+	vec_t d, d1;
+	float s;
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
@@ -87,13 +88,13 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
 		if (tu->health <= 0)
 			continue;
 
-        d = vsub(tp, p->p);
+		d = vsub(tp, p->p);
 		s = t->t->shieldsize / 2.f;
 
-        if (norm(d) > LASER_RANGE + s)
-            continue;
+		if (norm(d) > LASER_RANGE + s)
+			continue;
 
-        d1 = vmatrix1(d, p->r);
+		d1 = vmatrix1(d, p->r);
 		if (d1.x > 0 && d1.x < LASER_RANGE + s && d1.y > -s && d1.y < s) {
 			len = d1.x - sqrt(s * s - d1.y * d1.y);
 			if (len < *min) {
@@ -102,16 +103,16 @@ turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) 
 			}
 		}
 	}
-    return res;
+	return res;
 }
 
 int tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
 	turret_t *tu;
 	turretpos_t *t;
-    int i;
-    vec_t tp;
-    vec_t d;
-    float s;
+	int i;
+	vec_t tp;
+	vec_t d;
+	float s;
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
@@ -121,22 +122,22 @@ int tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
 		if (tu->health <= 0)
 			continue;
 
-        d = vsub(tp, p->p);
+		d = vsub(tp, p->p);
 		s = t->t->shieldsize / 2.f;
 
-        if (norm(d) > s + len)
-            continue;
-        return i;
+		if (norm(d) > s + len)
+			continue;
+		return i;
 	}
-    return -1;
+	return -1;
 }
 
 void tuUpdate(ship_t *sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
-	int i,l;
+	int i, l;
 	pos_t mp;
-    float dir[MAX_TURRET];
+	float dir[MAX_TURRET];
 
 	get_pos(time, &sh->traj, &mp);
 
@@ -145,8 +146,8 @@ void tuUpdate(ship_t *sh, float time) {
 		tu = &sh->turret[i];
 
 		if (tu->health <= 0) {
-            dir[i] = 0;
-            continue;
+			dir[i] = 0;
+			continue;
 		}
 
 		if (time - tu->lastthink > 500.) {
@@ -166,27 +167,26 @@ void tuUpdate(ship_t *sh, float time) {
 			d1 = vmatrix1(d, tu->r);
 			a = -atan2f(d1.y, d1.x);
 
-
-			if ( a < .03 && a > -.03 && norm(d) < LASER_RANGE &&
-                time - tu->lastfire > 200.) {
+			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE
+					&& time - tu->lastfire > 200.) {
 				for (l = 0; l < t->t->numlaser; l++) {
 					tufirelaser(sh, tu, &t->t->laser[l], time);
 				}
 				tu->lastfire = time;
-            }
+			}
 
-            a /= t->t->maniability * 100.;
+			a /= t->t->maniability * 100.;
 			if (a > 1.)
-                a = 1.;
-            if (a < -1.)
-                a = -1.;
+				a = 1.;
+			if (a < -1.)
+				a = -1.;
 
-            dir[i] = a;
+			dir[i] = a;
 		} else {
-		    dir[i] = 0;
+			dir[i] = 0;
 		}
 	}
-    evPostTurret(sh->netid, dir, time);
+	evPostTurret(sh->netid, dir, time);
 }
 #ifndef DEDICATED
 void tuDraw(ship_t * sh, float time) {
@@ -201,9 +201,9 @@ void tuDraw(ship_t * sh, float time) {
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
 //		p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
-        grSetBlend(t->t->tex);
+		grSetBlend(t->t->tex);
 		grBlitRot(tu->p.x, tu->p.y, tu->r, 700.);
-        if (time - tu->lastdamage < 500.) {
+		if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd(t->t->shieldtex);
 			grBlit(tu->p.x, tu->p.y, t->t->shieldsize * M_SQRT1_2, 0.);
 		}

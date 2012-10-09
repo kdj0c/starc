@@ -11,7 +11,6 @@
 #include <libconfig.h>
 #include <math.h>
 
-
 #include "config.h"
 #include "ship.h"
 
@@ -31,15 +30,15 @@ void cfReadGraphic(grconf_t *c) {
 	c->heigh = 600;
 
 	config_init(&conf);
-	if (config_read_file(&conf,"config.cfg") == CONFIG_FALSE) {
-		printf("config.cfg:%d - %s\n",
-				config_error_line(&conf), config_error_text(&conf));
+	if (config_read_file(&conf, "config.cfg") == CONFIG_FALSE) {
+		printf("config.cfg:%d - %s\n", config_error_line(&conf),
+				config_error_text(&conf));
 		return;
 	}
 
-	config_lookup_int(&conf,"graphic.fullscreen", &c->fullscreen);
-	config_lookup_int(&conf,"graphic.width", &c->width);
-	config_lookup_int(&conf,"graphic.heigh", &c->heigh);
+	config_lookup_int(&conf, "graphic.fullscreen", &c->fullscreen);
+	config_lookup_int(&conf, "graphic.width", &c->width);
+	config_lookup_int(&conf, "graphic.heigh", &c->heigh);
 
 	config_destroy(&conf);
 }
@@ -81,7 +80,7 @@ void cfReadShipFloat(config_setting_t *cst, const char * name, float * dest) {
 int cfShipGetLaser(config_setting_t *cst, laser_t *las) {
 	config_setting_t *csl;
 	config_setting_t *csl2;
-	int j,nb;
+	int j, nb;
 
 	csl = config_setting_get_member(cst, "laser");
 	if (!csl)
@@ -158,8 +157,8 @@ int cfReadGameData(void) {
 
 	config_init(&conf);
 	if (config_read_file(&conf, "ship.cfg") == CONFIG_FALSE) {
-		printf("ship.cfg:%d - %s\n",
-				config_error_line(&conf), config_error_text(&conf));
+		printf("ship.cfg:%d - %s\n", config_error_line(&conf),
+				config_error_text(&conf));
 		return -1;
 	}
 
@@ -226,5 +225,4 @@ turrettype_t * cfGetTurret(const char * name) {
 	printf("Error cannot find turret type %s\n", name);
 	return NULL;
 }
-
 

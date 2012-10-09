@@ -29,15 +29,15 @@ ship_t * player = NULL;
 static float scale = 1.f;
 int g_net = 1;
 static int gpause = 0;
-shin_t pl_in = {0 ,};
+shin_t pl_in = { 0, };
 int kleft = 0;
-int kright  = 0;
+int kright = 0;
 
 #ifndef NETWORK
 int curid = 0;
 
 int ntGetId(void) {
-    return curid++;
+	return curid++;
 }
 #endif
 
@@ -67,7 +67,7 @@ void grDraw(void) {
 		fpstime = time;
 		frame = 0;
 		if (g_net)
-            ntSendPing();
+			ntSendPing();
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -89,132 +89,129 @@ void grDraw(void) {
 		grDrawHUD(player->health);
 		shDrawShipHUD(player);
 	}
-    SDL_GL_SwapBuffers();
+	SDL_GL_SwapBuffers();
 }
 
 static void sendkey(void) {
-    if (!player)
-        return;
+	if (!player)
+		return;
 
-    if(kleft && kright)
-        pl_in.direction = 0;
-    else if (kleft)
-        pl_in.direction = 1;
-    else if (kright)
-        pl_in.direction = -1;
-    else
-        pl_in.direction = 0;
+	if (kleft && kright)
+		pl_in.direction = 0;
+	else if (kleft)
+		pl_in.direction = 1;
+	else if (kright)
+		pl_in.direction = -1;
+	else
+		pl_in.direction = 0;
 
-    evPostTrajEv(&pl_in, player->netid);
+	evPostTrajEv(&pl_in, player->netid);
 }
 
 void keyup(int key) {
-	switch(key) {
+	switch (key) {
 	case SDLK_c:
 	case SDLK_UP:
 		pl_in.acceleration = 0;
 		break;
-    case SDLK_LEFT:
+	case SDLK_LEFT:
 	case SDLK_a:
-        kleft = 0;
-        break;
-    case SDLK_RIGHT:
+		kleft = 0;
+		break;
+	case SDLK_RIGHT:
 	case SDLK_n:
 		kright = 0;
 		break;
 	case SDLK_SPACE:
 		pl_in.fire1 = 0;
 		break;
-    default:
-        return;
+	default:
+		return;
 	}
 	sendkey();
 }
 
-void keydown(int key){
-    switch(key) {
+void keydown(int key) {
+	switch (key) {
 	case SDLK_c:
 	case SDLK_UP:
 		pl_in.acceleration = 1;
 		break;
-    case SDLK_LEFT:
+	case SDLK_LEFT:
 	case SDLK_a:
-        kleft = 1;
-        break;
-    case SDLK_RIGHT:
+		kleft = 1;
+		break;
+	case SDLK_RIGHT:
 	case SDLK_n:
 		kright = 1;
 		break;
 	case SDLK_SPACE:
 		pl_in.fire1 = 1;
 		break;
-    case SDLK_MINUS:
+	case SDLK_MINUS:
 		scale /= 1.3;
 		return;
 	case SDLK_PLUS:
 	case SDLK_EQUALS:
 		scale *= 1.3;
 		return;
-    case SDLK_ESCAPE:
-        exit(0);
-        return;
-    default:
-        return;
+	case SDLK_ESCAPE:
+		exit(0);
+		return;
+	default:
+		return;
 	}
 	sendkey();
 }
 
 void enterGameMode(void) {
-    SDL_ShowCursor(SDL_DISABLE);
+	SDL_ShowCursor(SDL_DISABLE);
 }
 
 void gmEngineLoop(void) {
-    float time;
+	float time;
 
-    if (g_net)
-        ntHandleMessage();
-    time = gtGetTime();
-    aiThink(time);
-    evConsumeEvent(time);
-    shUpdateLocal(time);
-    shUpdateShips(time);
-    shDetectCollision(time);
-    weUpdate(time);
-    evConsumeEvent(time);
+	if (g_net)
+		ntHandleMessage();
+	time = gtGetTime();
+	aiThink(time);
+	evConsumeEvent(time);
+	shUpdateLocal(time);
+	shUpdateShips(time);
+	shDetectCollision(time);
+	weUpdate(time);
+	evConsumeEvent(time);
 }
 
 void gmGetEvent(void) {
-     SDL_Event ev;
+	SDL_Event ev;
 
-    while (SDL_PollEvent(&ev)) {
-        if (ev.type == SDL_QUIT)
-            exit(0);
-        if (ev.type == SDL_KEYDOWN)
-            keydown(ev.key.keysym.sym);
-        if (ev.type == SDL_KEYUP)
-            keyup(ev.key.keysym.sym);
-    }
+	while (SDL_PollEvent(&ev)) {
+		if (ev.type == SDL_QUIT)
+			exit(0);
+		if (ev.type == SDL_KEYDOWN)
+			keydown(ev.key.keysym.sym);
+		if (ev.type == SDL_KEYUP)
+			keyup(ev.key.keysym.sym);
+	}
 }
 
 void gmLoop(void) {
-    int done = 0;
+	int done = 0;
 
-    while (!done) {
-        gmGetEvent();
-        gmEngineLoop();
-        grDraw();
-        SDL_Delay(1);
-    }
+	while (!done) {
+		gmGetEvent();
+		gmEngineLoop();
+		grDraw();
+		SDL_Delay(1);
+	}
 }
 
-
-
-
 void gmStartSingle(void) {
-    make_pos(player, 0., 0., 0.);
-    make_pos(mother, 0., 10000., 0.);
-    make_pos(ai1, 5000., 0.,  0.);
-    make_pos(ai2, 5000., 3000., 0.);
+	make_pos(player, 0., 0., 0.);
+	make_pos(mother, 0., 10000., 0.);
+	make_pos(ai1, 5000., 0., 0.);
+	make_pos(ai2, 5000., 3000., 0.);
 
 	g_net = 0;
 	gtInit();
@@ -231,11 +228,11 @@ void gmStartSingle(void) {
 	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
 	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
 
-    gmLoop();
+	gmLoop();
 }
 
 void gmStartMulti(void) {
-    make_pos(player, 0., 0., 0.);
+	make_pos(player, 0., 0., 0.);
 	g_net = 1;
 	enterGameMode();
 	gtInit();
@@ -246,9 +243,9 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-    evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
+	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
 
-    gmLoop();
+	gmLoop();
 }
 
 void gmReplay(void) {
@@ -264,6 +261,4 @@ void gmReplay(void) {
 	saReplay("replay1.rep");
 	gmLoop();
 }
-
-
 

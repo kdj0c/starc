@@ -55,13 +55,13 @@ void grSetColor(unsigned int color) {
 			color & 0xFF);
 }
 void grSetShadow(float c) {
-	glColor4f(1.,1.,1.,c);
+	glColor4f(1., 1., 1., c);
 }
 
 void grBlitLaser(float x, float y, float len, float r, float width) {
 	float ax, ay;
 
-	ax = - width * sin(r);
+	ax = -width * sin(r);
 	ay = width * cos(r);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0., 1.);
@@ -167,7 +167,7 @@ void grDrawHUD(float health) {
 	ih = (int) health;
 	if (ih < 0)
 		ih = 0;
-	sprintf(h,"+ %d", ih);
+	sprintf(h, "+ %d", ih);
 	ftglRenderFont(menufont, h, FTGL_RENDER_ALL);
 
 	/* new projection for radar */
@@ -179,7 +179,6 @@ void grDrawHUD(float health) {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-
 
 }
 

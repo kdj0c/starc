@@ -22,22 +22,11 @@ void meExit(void);
 
 #define NB_ENTRY 5
 
-static menuentry_t menu[] = {{
-		.name = "SinglePlayer",
-		.func = gmStartSingle,
-}, {
-		.name = "MultiPlayer",
-		.func =  gmStartMulti,
-}, {
-		.name = "Replay",
-		.func = gmReplay,
-}, {
-		.name = "Options",
-		.func = meOptions,
-}, {
-		.name = "Exit",
-		.func = meExit,
-}};
+static menuentry_t menu[] = {
+		{ .name = "SinglePlayer", .func = gmStartSingle, }, { .name =
+				"MultiPlayer", .func = gmStartMulti, }, { .name = "Replay",
+				.func = gmReplay, }, { .name = "Options", .func = meOptions, },
+		{ .name = "Exit", .func = meExit, } };
 
 FTGLfont * menufont;
 static int cursor = 0;
@@ -86,7 +75,7 @@ void meDisplayMenu(void) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	meDrawMenu();
-    SDL_GL_SwapBuffers();
+	SDL_GL_SwapBuffers();
 }
 
 void meKeyDown(int key) {
@@ -94,38 +83,38 @@ void meKeyDown(int key) {
 	case SDLK_ESCAPE:
 		exit(0);
 		break;
-    case SDLK_DOWN:
-        cursor++;
-        if (cursor >= NB_ENTRY)
-            cursor = NB_ENTRY - 1;
-        break;
-    case SDLK_UP:
-        cursor--;
-        if (cursor < 0)
-            cursor = 0;
-        break;
-    case SDLK_RETURN:
-        menu[cursor].func();
-        break;
+	case SDLK_DOWN:
+		cursor++;
+		if (cursor >= NB_ENTRY)
+			cursor = NB_ENTRY - 1;
+		break;
+	case SDLK_UP:
+		cursor--;
+		if (cursor < 0)
+			cursor = 0;
+		break;
+	case SDLK_RETURN:
+		menu[cursor].func();
+		break;
 	default:
 		break;
 	}
 }
 
 void meLoop(void) {
-    SDL_Event ev;
-    int done = 0;
+	SDL_Event ev;
+	int done = 0;
 
-    while (!done) {
-        if (SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_QUIT)
-                done = 1;
-            if (ev.type == SDL_KEYDOWN)
-                meKeyDown(ev.key.keysym.sym);
-        }
-        meDisplayMenu();
-        SDL_Delay(50);
-    }
+	while (!done) {
+		if (SDL_PollEvent(&ev)) {
+			if (ev.type == SDL_QUIT)
+				done = 1;
+			if (ev.type == SDL_KEYDOWN)
+				meKeyDown(ev.key.keysym.sym);
+		}
+		meDisplayMenu();
+		SDL_Delay(50);
+	}
 }
 
 void meInitMenu(void) {
