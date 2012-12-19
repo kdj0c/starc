@@ -16,8 +16,8 @@
 NETWORK?=1
 
 COMMON:=ship.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o save.o
-CFLAGS:=
-LDFLAGS:=-lm -lconfig -lrt
+CFLAGS:=`sdl-config --cflags`
+LDFLAGS:=`sdl-config --libs` -lm -lconfig -lrt -lSDL_image -lGL
 
 ifeq ($(NETWORK),1)
 COMMON+=network.o
@@ -26,7 +26,7 @@ LDFLAGS+=-lgrapple
 endif
 
 CL_DIR:=cl_obj
-CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o pnglite.o graphic.o star.o particle.o menu.o gamemain.o)
+CL_OBJS=$(addprefix $(CL_DIR)/,$(COMMON) main.o menu.o graphic.o star.o particle.o gamemain.o)
 CL:=starc
 SV_DIR:=sv_obj
 SV_OBJS=$(addprefix $(SV_DIR)/,$(COMMON))
@@ -44,7 +44,7 @@ endif
 # Tool invocations
 $(CL): $(CL_OBJS)
 	@echo 'LN: $(CL)'
-	@gcc -Wall -L. -o"$(CL)" $(CL_OBJS) -lglut -lGLU -lftgl $(LDFLAGS)
+	@gcc -Wall -L. -o"$(CL)" $(CL_OBJS) -lftgl $(LDFLAGS)
 
 $(SV): $(SV_OBJS)
 	@echo 'LN: $(SV)'

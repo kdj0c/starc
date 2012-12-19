@@ -12,5 +12,6 @@
 void meReshapeMenu(int width, int height);
 void meDisplayMenu(void);
 void meInitMenu(void);
+void meLoop(void);
 
 #endif /* MENU_H_ */

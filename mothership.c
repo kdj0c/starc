@@ -7,7 +7,6 @@
  */
 
 #include <math.h>
-#include <GL/glut.h>
 #include "ship.h"
 
 void msInitMotherShip() {

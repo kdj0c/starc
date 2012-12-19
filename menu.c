@@ -6,8 +6,9 @@
  * published by the Free Software Foundation.
  */
 
-#include <GL/glut.h>
 #include <FTGL/ftgl.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
 
 #include "gamemain.h"
 
@@ -18,6 +19,8 @@ typedef struct {
 
 void meOptions(void);
 void meExit(void);
+
+#define NB_ENTRY 5
 
 static menuentry_t menu[] = {{
 		.name = "SinglePlayer",
@@ -48,14 +51,13 @@ void meExit(void) {
 
 void meDrawMenu(void) {
 	int i;
-	int nbentry = 3;
 	float h = 600.0;
 	float dh;
 
-	dh = h / (nbentry + 4);
+	dh = h / (NB_ENTRY + 3);
 
 	glTranslatef(100., h - dh * 2, 0.);
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < NB_ENTRY; i++) {
 		if (i == cursor)
 			glColor3f(1.0, 1.0, 1.0);
 		else
@@ -84,49 +86,50 @@ void meDisplayMenu(void) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	meDrawMenu();
-	glutSwapBuffers();
+    SDL_GL_SwapBuffers();
 }
 
-void meKeyDown(unsigned char key, int x, int y) {
+void meKeyDown(int key) {
 	switch (key) {
-	case 13:
-	case ' ':
-		/* Launch game or option menu */
-		menu[cursor].func();
-		break;
-	case 27:
+	case SDLK_ESCAPE:
 		exit(0);
 		break;
+    case SDLK_DOWN:
+        cursor++;
+        if (cursor >= NB_ENTRY)
+            cursor = NB_ENTRY - 1;
+        break;
+    case SDLK_UP:
+        cursor--;
+        if (cursor < 0)
+            cursor = 0;
+        break;
+    case SDLK_RETURN:
+        menu[cursor].func();
+        break;
 	default:
 		break;
 	}
-
 }
 
-void meSpecialDown(int key, int x, int y) {
-	switch (key) {
-	case GLUT_KEY_UP:
-		cursor--;
-		if (cursor < 0)
-			cursor = 0;
-		break;
-	case GLUT_KEY_DOWN:
-		cursor++;
-		if (cursor > 3)
-			cursor = 3;
-		break;
-	default:
-		break;
-	}
-	glutPostRedisplay();
+void meLoop(void) {
+    SDL_Event ev;
+    int done = 0;
 
+    while (!done) {
+        if (SDL_PollEvent(&ev)) {
+            if (ev.type == SDL_QUIT)
+                done = 1;
+            if (ev.type == SDL_KEYDOWN)
+                meKeyDown(ev.key.keysym.sym);
+        }
+        meDisplayMenu();
+        SDL_Delay(50);
+    }
 }
+
 void meInitMenu(void) {
 	menufont = ftglCreateTextureFont("Digeria Normal.ttf");
 	ftglSetFontFaceSize(menufont, 30, 30);
-
-	glutKeyboardFunc(meKeyDown);
-	glutSpecialFunc(meSpecialDown);
-
 }
 

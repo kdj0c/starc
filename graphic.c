@@ -9,11 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <GL/glut.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+#include <SDL/SDL_image.h>
 #include <FTGL/ftgl.h>
 
 #include "graphic.h"
-#include "pnglite.h"
 
 int grWidth = 100;
 int grHeight = 100;
@@ -21,26 +22,18 @@ int grHeight = 100;
 extern FTGLfont * menufont;
 
 unsigned int grLoadTexture(char * filename) {
-	png_t tex;
-	unsigned char* data;
 	unsigned int textureHandle;
+	SDL_Surface *sdlsurf;
 
-	png_init(0, 0);
-	png_open_file_read(&tex, filename);
-
-	data = (unsigned char*) malloc(tex.width * tex.height * tex.bpp);
-	png_get_data(&tex, data);
+	sdlsurf = IMG_Load(filename);
 
 	glGenTextures(1, &textureHandle);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0, GL_RGBA,
-			GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sdlsurf->w, sdlsurf->h, 0, GL_RGBA,
+			GL_UNSIGNED_BYTE, sdlsurf->pixels);
 	glEnable(GL_TEXTURE_2D);
-
-	png_close_file(&tex);
-	free(data);
 	return textureHandle;
 }
 

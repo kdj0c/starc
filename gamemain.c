@@ -9,7 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <GL/glut.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
 
 #include "graphic.h"
 #include "ship.h"
@@ -44,13 +45,12 @@ void dummy() {
 
 }
 
-void grDraw(int value) {
+void grDraw(void) {
 	static int fpstime = 0;
 	static int frame = 0;
 	int time;
 	float fps;
 
-	glutTimerFunc(10, grDraw, 0);
 	frame++;
 	time = gtGetTime();
 	if (!player)
@@ -77,19 +77,6 @@ void grDraw(int value) {
 	else
 		stUpdate(0.0, 0.0);
 
-	if(g_net)
-		ntHandleMessage();
-	aiThink(time);
-
-    evConsumeEvent(time);
-    shUpdateLocal(time);
-
-	if(!g_net) {
-        shUpdateShips(time);
-		shDetectCollision(time);
-		weUpdate(time);
-        evConsumeEvent(time);
-	}
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
@@ -102,7 +89,7 @@ void grDraw(int value) {
 		grDrawHUD(player->health);
 		shDrawShipHUD(player);
 	}
-	glutSwapBuffers();
+    SDL_GL_SwapBuffers();
 }
 
 static void sendkey(void) {
@@ -121,18 +108,21 @@ static void sendkey(void) {
     evPostTrajEv(&pl_in, player->netid);
 }
 
-void keyup(unsigned char key, int x, int y) {
+void keyup(int key) {
 	switch(key) {
-	case 'c':
+	case SDLK_c:
+	case SDLK_UP:
 		pl_in.acceleration = 0;
 		break;
-	case 'h':
+    case SDLK_LEFT:
+	case SDLK_a:
         kleft = 0;
         break;
-	case 'n':
+    case SDLK_RIGHT:
+	case SDLK_n:
 		kright = 0;
 		break;
-	case ' ':
+	case SDLK_SPACE:
 		pl_in.fire1 = 0;
 		break;
     default:
@@ -141,80 +131,84 @@ void keyup(unsigned char key, int x, int y) {
 	sendkey();
 }
 
-void keydown(unsigned char key, int x, int y){
-	switch(key) {
-	case 27:
-		exit(0);
-	case 'c':
+void keydown(int key){
+    switch(key) {
+	case SDLK_c:
+	case SDLK_UP:
 		pl_in.acceleration = 1;
 		break;
-	case 'h':
-		kleft = 1;
+    case SDLK_LEFT:
+	case SDLK_a:
+        kleft = 1;
+        break;
+    case SDLK_RIGHT:
+	case SDLK_n:
+		kright = 1;
 		break;
-	case 'n':
-		kright = -1;
-		break;
-	case ' ':
+	case SDLK_SPACE:
 		pl_in.fire1 = 1;
 		break;
-	case '-':
+    case SDLK_MINUS:
 		scale /= 1.3;
-		break;
-	case '+':
+		return;
+	case SDLK_PLUS:
+	case SDLK_EQUALS:
 		scale *= 1.3;
-		break;
-	case 'p':
-		gpause ^= 1;
-		break;
+		return;
+    case SDLK_ESCAPE:
+        exit(0);
+        return;
     default:
         return;
 	}
 	sendkey();
 }
 
-void SpecialDown(int key, int x, int y) {
-	switch (key) {
-	case GLUT_KEY_UP:
-		pl_in.acceleration = 1;
-		break;
-	case GLUT_KEY_LEFT:
-		kleft = 1;
-		break;
-	case GLUT_KEY_RIGHT:
-		kright = 1;
-		break;
-	default:
-		return;
-	}
-    sendkey();
-}
-
-void SpecialUp(int key, int x, int y) {
-	switch (key) {
-	case GLUT_KEY_UP:
-		pl_in.acceleration = 0;
-		break;
-	case GLUT_KEY_LEFT:
-		kleft = 0;
-		break;
-	case GLUT_KEY_RIGHT:
-		kright = 0;
-		break;
-	default:
-		return;
-	}
-	sendkey();
-}
-
 void enterGameMode(void) {
-	glutIgnoreKeyRepeat(1);
-	glutKeyboardUpFunc(keyup);
-	glutKeyboardFunc(keydown);
-	glutSpecialFunc(SpecialDown);
-	glutSpecialUpFunc(SpecialUp);
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutDisplayFunc(dummy);
+    SDL_ShowCursor(SDL_DISABLE);
 }
+
+void gmEngineLoop(void) {
+    float time;
+
+    if (g_net)
+        ntHandleMessage();
+    time = gtGetTime();
+    aiThink(time);
+    evConsumeEvent(time);
+    shUpdateLocal(time);
+    shUpdateShips(time);
+    shDetectCollision(time);
+    weUpdate(time);
+    evConsumeEvent(time);
+}
+
+void gmGetEvent(void) {
+     SDL_Event ev;
+
+    while (SDL_PollEvent(&ev)) {
+        if (ev.type == SDL_QUIT)
+            exit(0);
+        if (ev.type == SDL_KEYDOWN)
+            keydown(ev.key.keysym.sym);
+        if (ev.type == SDL_KEYUP)
+            keyup(ev.key.keysym.sym);
+    }
+}
+
+void gmLoop(void) {
+    int done = 0;
+
+    while (!done) {
+        gmGetEvent();
+        gmEngineLoop();
+        grDraw();
+        SDL_Delay(1);
+    }
+}
+
+
+
 
 void gmStartSingle(void) {
     make_pos(player, 0., 0., 0.);
@@ -237,34 +231,7 @@ void gmStartSingle(void) {
 	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
 	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
 
-/*	player = shCreateShip("v2", 0, 0, 0, 0, 0);
-	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 1));
-
-	aiCreate(shCreateShip("mother1", 0, 20000, 0, 0, 0));
-	aiCreate(shCreateShip("v2", 0, -2000, 0, 0, 0));
-
-	aiCreate(shCreateShip("w1", 10000, 10000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 10000, 2000, -1, 1, 0));
-	aiCreate(shCreateShip("w1", 10000, -2000, 0, 1, 0));
-	aiCreate(shCreateShip("w1", 10000, -10000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 15000, 10000, -1, 1, 0));
-	aiCreate(shCreateShip("w1", 15000, -10000, 0, 1, 0));
-	aiCreate(shCreateShip("w1", 15000, 2000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 15000, -2000, -1, 1, 0));
-	aiCreate(shCreateShip("w1", 20000, 10000, 0, 1, 0));
-	aiCreate(shCreateShip("w1", 20000, -10000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 20000, 2000, -1, 1, 0));
-	aiCreate(shCreateShip("w1", 20000, -2000, 0, 1, 0));
-	aiCreate(shCreateShip("w1", 25000, -2000, -1, 1, 0));
-	aiCreate(shCreateShip("w2", 25000, 2000, -1, 1, 0));
-	aiCreate(shCreateShip("w1", 25000, 10000, 0, 1, 0));
-
-
-	aiCreate(shCreateShip("mother1", -15000, -1800, 0, 1, 0));
-	*/
-//	evPostEventNow(NULL, 0, ev_newship);
-//	evPostEventNow(NULL, 0, ev_newtraj);
-	glutTimerFunc(10, grDraw, 0);
+    gmLoop();
 }
 
 void gmStartMulti(void) {
@@ -280,7 +247,8 @@ void gmStartMulti(void) {
 	weInit();
 	ntHandleMessage();
     evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
-	glutTimerFunc(10, grDraw, 0);
+
+    gmLoop();
 }
 
 void gmReplay(void) {
@@ -294,7 +262,7 @@ void gmReplay(void) {
 	weInit();
 
 	saReplay("replay1.rep");
-	glutTimerFunc(10, grDraw, 0);
+	gmLoop();
 }
 
 
