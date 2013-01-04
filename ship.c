@@ -255,26 +255,28 @@ void shNewTraj(shin_t *in, int netid, float time) {
 
 	if (sh->in.acceleration != in->acceleration
 			|| sh->in.direction != in->direction) {
-		if (!in->acceleration)
+		if (in->acceleration == 0.f)
 			t->type = t_linear;
-		else if (!in->direction)
+		else if (in->direction < 0.001f && in->direction > -0.001f)
 			t->type = t_linear_acc;
 		else
 			t->type = t_circle;
 
 		t->base = newbase;
 		t->man = sh->t->maniability * in->direction;
-
-		if (!sh->in.acceleration) {
+/*		if (!sh->in.acceleration) {
 			sh->engtime += time - t->basetime;
 			if (sh->engtime > ENG_POWER)
 				sh->engtime = ENG_POWER;
 		}
-		t->basetime = time;
 		if (sh->engtime > 0.)
 			t->thrust = sh->t->thrust;
 		else
 			t->thrust = sh->t->thrust / 3.;
+		*/
+
+		t->basetime = time;
+		t->thrust = sh->t->thrust * in->acceleration;
 	}
 	memcpy(&sh->in, in, sizeof(*in));
 }
@@ -389,7 +391,7 @@ void shUpdateLocal(float time) {
 			continue;
 
 		if (sh->traj.type != t_none) {
-			if (sh->in.acceleration && sh->engtime > 0.) {
+/*			if (sh->in.acceleration && sh->engtime > 0.) {
 				float rem_power;
 
 				rem_power = sh->engtime - (time - sh->traj.basetime);
@@ -403,7 +405,7 @@ void shUpdateLocal(float time) {
 					sh->traj.thrust /= 3.;
 					sh->engtime = 0.;
 				}
-			}
+			} */
 			get_pos(time, &sh->traj, &sh->pos);
 		}
 #ifndef DEDICATED

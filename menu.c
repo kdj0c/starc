@@ -35,7 +35,7 @@ void meOptions(void) {
 
 }
 void meExit(void) {
-	exit(0);
+	exitCleanup();
 }
 
 void meDrawMenu(void) {

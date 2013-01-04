@@ -19,12 +19,34 @@
 #include "graphic.h"
 #include "config.h"
 
+SDL_Joystick *joy = NULL;
+
+void gamepad(void) {
+	int numjoy;
+
+	numjoy = SDL_NumJoysticks();
+	printf("sdl found %d joy\n", numjoy);
+	//for (j = 0; j < numjoy; j++) {
+	if (numjoy > 0)
+		joy = SDL_JoystickOpen(0);
+	printf("joystick #%d, %s opened\n", 0, SDL_JoystickName(0));
+	//}
+}
+
+void exitCleanup(void) {
+	printf("cleanup before exiting\n");
+	if (joy)
+		SDL_JoystickClose(joy);
+	SDL_Quit();
+	exit(0);
+}
+
 int main(int argc, char *argv[], char *envp[]) {
 	grconf_t c;
 	SDL_VideoInfo *info;
 	int flags;
 
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
 
 	cfReadGraphic(&c);
 
@@ -45,6 +67,8 @@ int main(int argc, char *argv[], char *envp[]) {
 	srand(1983);
 
 	meInitMenu();
+
+	gamepad();
 
 	meLoop();
 

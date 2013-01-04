@@ -82,9 +82,8 @@ typedef struct {
 } shiptype_t;
 
 typedef struct {
-	int direction;
-	char acceleration;
-	char strafe;
+	float direction;
+	float acceleration;
 	char fire1;
 	char fire2;
 } shin_t;

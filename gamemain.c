@@ -97,13 +97,13 @@ static void sendkey(void) {
 		return;
 
 	if (kleft && kright)
-		pl_in.direction = 0;
+		pl_in.direction = 0.;
 	else if (kleft)
-		pl_in.direction = 1;
+		pl_in.direction = 1.;
 	else if (kright)
-		pl_in.direction = -1;
+		pl_in.direction = -1.;
 	else
-		pl_in.direction = 0;
+		pl_in.direction = 0.;
 
 	evPostTrajEv(&pl_in, player->netid);
 }
@@ -156,12 +156,31 @@ void keydown(int key) {
 		scale *= 1.3;
 		return;
 	case SDLK_ESCAPE:
-		exit(0);
+		exitCleanup();
 		return;
 	default:
 		return;
 	}
 	sendkey();
+}
+
+void joyAxisMove(int axis, int value) {
+	if (axis == 0) {
+		pl_in.direction = - ((float) value) / 32768.f;
+	} else if (axis == 1) {
+		pl_in.acceleration = - ((float) value) / 32768.f;
+	}
+	evPostTrajEv(&pl_in, player->netid);
+}
+
+void joyButtonDown(int button) {
+	pl_in.fire1 = 1;
+	evPostTrajEv(&pl_in, player->netid);
+}
+
+void joyButtonUp(int button) {
+	pl_in.fire1 = 0;
+	evPostTrajEv(&pl_in, player->netid);
 }
 
 void enterGameMode(void) {
@@ -193,6 +212,12 @@ void gmGetEvent(void) {
 			keydown(ev.key.keysym.sym);
 		if (ev.type == SDL_KEYUP)
 			keyup(ev.key.keysym.sym);
+		if (ev.type == SDL_JOYAXISMOTION)
+			joyAxisMove(ev.jaxis.axis, ev.jaxis.value);
+		if (ev.type == SDL_JOYBUTTONDOWN)
+			joyButtonDown(ev.jbutton.button);
+		if (ev.type == SDL_JOYBUTTONUP)
+			joyButtonUp(ev.jbutton.button);
 	}
 }
 
