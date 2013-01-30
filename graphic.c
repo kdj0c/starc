@@ -15,6 +15,7 @@
 #include <FTGL/ftgl.h>
 
 #include "graphic.h"
+#include "vec.h"
 
 int grWidth = 100;
 int grHeight = 100;
@@ -75,20 +76,20 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	glEnd();
 }
 
-void grBlitSquare(float x, float y, float size) {
+void grBlitSquare(vec_t p, float size) {
 	glBegin(GL_QUADS);
 	glTexCoord2f(0., 0.);
-	glVertex2f(x - size, y);
+	glVertex2f(p.x - size, p.y);
 	glTexCoord2f(0., 1.);
-	glVertex2f(x, y + size);
+	glVertex2f(p.x, p.y + size);
 	glTexCoord2f(1., 1.);
-	glVertex2f(x + size, y);
+	glVertex2f(p.x + size, p.y);
 	glTexCoord2f(1., 0.);
-	glVertex2f(x, y - size);
+	glVertex2f(p.x, p.y - size);
 	glEnd();
 }
 
-void grBlitRot(float x, float y, float r, float size) {
+void grBlitRot(vec_t p, float r, float size) {
 	float nr;
 	float s;
 	float a;
@@ -97,19 +98,19 @@ void grBlitRot(float x, float y, float r, float size) {
 	s = size * M_SQRT1_2;
 	a = s * cos(nr);
 	b = s * sin(nr);
-	grBlit(x, y, a, b);
+	grBlit(p, a, b);
 }
 
-void grBlit(float x, float y, float a, float b) {
+void grBlit(vec_t p, float a, float b) {
 	glBegin(GL_QUADS);
 	glTexCoord2f(1.f, 0.f);
-	glVertex2f(x + a, y + b);
+	glVertex2f(p.x + a, p.y + b);
 	glTexCoord2f(1.f, 1.f);
-	glVertex2f(x + b, y - a);
+	glVertex2f(p.x + b, p.y - a);
 	glTexCoord2f(0., 1.);
-	glVertex2f(x - a, y - b);
+	glVertex2f(p.x - a, p.y - b);
 	glTexCoord2f(0., 0.);
-	glVertex2f(x - b, y + a);
+	glVertex2f(p.x - b, p.y + a);
 	glEnd();
 }
 void grDrawLine(float x1, float y1, float x2, float y2) {

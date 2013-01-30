@@ -44,7 +44,7 @@ void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float time) {
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-	evPostLaser(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(),
+	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(),
 			time);
 }
 
@@ -202,10 +202,10 @@ void tuDraw(ship_t * sh, float time) {
 //		p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
 		grSetBlend(t->t->tex);
-		grBlitRot(tu->p.x, tu->p.y, tu->r, 700.);
+		grBlitRot(tu->p, tu->r, 700.);
 		if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd(t->t->shieldtex);
-			grBlit(tu->p.x, tu->p.y, t->t->shieldsize * M_SQRT1_2, 0.);
+			grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0.);
 		}
 
 	}

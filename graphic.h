@@ -9,6 +9,8 @@
 #ifndef GRAPHIC_H_
 #define GRAPHIC_H_
 
+#include "vec.h"
+
 #define WIDTH_UNIT 20000
 
 #ifndef DEDICATED
@@ -17,9 +19,9 @@ void grSetBlendAdd(unsigned int text);
 void grSetBlend(unsigned int text);
 void grSetColor(unsigned int color);
 void grSetShadow(float c);
-void grBlitSquare(float x,float y, float size);
-void grBlitRot(float x, float y, float r, float size);
-void grBlit(float x,float y, float a, float b);
+void grBlitSquare(vec_t a, float size);
+void grBlitRot(vec_t p, float r, float size);
+void grBlit(vec_t p, float a, float b);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);

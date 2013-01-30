@@ -37,15 +37,15 @@ END_UNION
 
 typedef struct {
 	int type;
-    float time;
-    NEW_UNION(DATA, char data[4];)
-    NEW_UNION(NEWSHIP, ev_cr_t cr;)
-    NEW_UNION(NEWTRAJ, ev_tr_t tr;)
-    NEW_UNION(RESPAWN, ev_rp_t rp;)
-    NEW_UNION(DESTROY, ev_ds_t ds;)
-    NEW_UNION(LASER, ev_la_t la;)
-    NEW_UNION(TURRET, ev_tu_t tu;)
-    NEW_UNION(COLLIDE, ev_co_t co;)
+	float time;
+	NEW_UNION(DATA, char data[4];)
+	NEW_UNION(NEWSHIP, ev_cr_t cr;)
+	NEW_UNION(NEWTRAJ, ev_tr_t tr;)
+	NEW_UNION(RESPAWN, ev_rp_t rp;)
+	NEW_UNION(DESTROY, ev_ds_t ds;)
+	NEW_UNION(LASER, ev_fi_t la;)
+	NEW_UNION(TURRET, ev_tu_t tu;)
+	NEW_UNION(COLLIDE, ev_co_t co;)
 } ntmsg_t;
 
 #ifdef NETWORK

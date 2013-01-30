@@ -19,7 +19,7 @@ typedef enum {
 	ev_newtraj, //client->server
 	ev_respawn, //server->client
 	ev_destroyed, //server->client
-	ev_laser, //client->server
+	ev_fire, //client->server
 	ev_hit,
 	ev_turret, //client->server
 	ev_collide, //server->client
@@ -72,7 +72,7 @@ typedef struct {
     float lifetime;
     float len;
     float width;
-} ev_la_t;
+} ev_fi_t;
 
 typedef struct {
     int owner;
@@ -102,7 +102,7 @@ void evPostTrajEv(shin_t *in, int owner);
 void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control);
 void evPostRespawn(pos_t *newp, int netid, int msid, float time);
 void evPostDestroy(int netid, float time);
-void evPostLaser(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time);
+void evPostFire(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time);
 void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time);
 void evPostTurret(int owner, float *dir, float time);
 void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time);

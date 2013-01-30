@@ -156,7 +156,7 @@ void paDraw(float time) {
 			grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
 			grSetBlendAdd(texture);
 		} else {
-			grBlitSquare(p.p.x, p.p.y, parts[i].size);
+			grBlitSquare(p.p, parts[i].size);
 		}
 	}
 }

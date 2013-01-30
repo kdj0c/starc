@@ -108,14 +108,14 @@ void stUpdate(float x, float y) {
 
 void stBlit(void) {
 	int cx, cy;
-	float x, y;
+	vec_t p;
 	grSetBlend(tex);
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
-			x = (curx + cx + star[cx][cy].x) * SQSIZE;
-			y = (cury + cy + star[cx][cy].y) * SQSIZE;
+			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
+			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
 			grSetShadow(star[cx][cy].c);
-			grBlitSquare(x, y, star[cx][cy].size);
+			grBlitSquare(p, star[cx][cy].size);
 		}
 	}
 }

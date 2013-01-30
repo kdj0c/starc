@@ -118,7 +118,7 @@ int shPostAllShips(float time, void *data) {
 	return n;
 }
 
-void shLaser(int netid, pos_t *p, float len, float width, float lifetime,
+void shFire(int netid, pos_t *p, float len, float width, float lifetime,
 		unsigned int color, int id, float time) {
 	/*	float closer;
 	 ship_t *en;
@@ -237,7 +237,7 @@ void shFireLaser(ship_t *sh, pos_t *p, float time) {
 		pl.r = p->r + las->r;
 		pl.v = p->v;
 		weid = weGetFree();
-		evPostLaser(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., weid,
+		evPostFire(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., weid,
 				time);
 	}
 	sh->lastfire = time;
@@ -373,10 +373,8 @@ void shBurst(ship_t *sh, float time) {
 		p.v = sh->pos.v;
 		p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
 		size = sh->t->burst[i].size;
-		if (!sh->in.acceleration)
-			size /= 4.;
-		else
-			size *= sh->traj.thrust / sh->t->thrust;
+		/* minimum burst size = 1/4 burst size, engine is always running */
+		size *= (3 * sh->traj.thrust + sh->t->thrust) / (4. * sh->t->thrust);
 		paBurst(&p, size, sh->t->burst[i].color, time);
 	}
 }
@@ -548,10 +546,10 @@ void shDrawShips(float time) {
 			continue;
 		grSetBlend(sh->t->tex);
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot(sh->pos.p.x, sh->pos.p.y, sh->pos.r, sh->t->size);
+		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size);
 		if (time - sh->lastdamage < 500.) {
 			grSetBlendAdd(sh->t->shieldtex);
-			grBlit(sh->pos.p.x, sh->pos.p.y, sh->t->shieldsize * M_SQRT1_2, 0);
+			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0);
 		}
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
@@ -579,7 +577,7 @@ void shDrawShipHUD(ship_t * pl) {
 			grSetColor(0x0000FF80);
 		else
 			grSetColor(0xFF000080);
-		grBlitRot(v.x, v.y, r, 10);
+		grBlitRot(v, r, 10);
 	}
 }
 #endif

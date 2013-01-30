@@ -136,7 +136,7 @@ void shSetPlayer(ship_t *sh);
 void shLoadShipType(void);
 void shUpdateLocal(float time);
 void shUpdateShips(float time);
-void shLaser(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time);
+void shFire(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time);
 void shFireLaser(ship_t *sh, pos_t *p, float time);
 void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time);
 void shDetectCollision(float time);
