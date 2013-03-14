@@ -12,9 +12,9 @@
 #include "ship.h"
 
 typedef struct {
-	long fullscreen;
-	long width;
-	long heigh;
+	int fullscreen;
+	int width;
+	int heigh;
 } grconf_t;
 
 typedef struct {

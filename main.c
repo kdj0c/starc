@@ -27,9 +27,10 @@ void gamepad(void) {
 	numjoy = SDL_NumJoysticks();
 	printf("sdl found %d joy\n", numjoy);
 	//for (j = 0; j < numjoy; j++) {
-	if (numjoy > 0)
+	if (numjoy > 0) {
 		joy = SDL_JoystickOpen(0);
-	printf("joystick #%d, %s opened\n", 0, SDL_JoystickName(0));
+		printf("joystick #%d, %s opened\n", 0, SDL_JoystickName(0));
+	}
 	//}
 }
 
@@ -43,7 +44,7 @@ void exitCleanup(void) {
 
 int main(int argc, char *argv[], char *envp[]) {
 	grconf_t c;
-	SDL_VideoInfo *info;
+//	SDL_VideoInfo *info;
 	int flags;
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);

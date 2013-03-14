@@ -59,7 +59,7 @@ void cfReadNetwork(ntconf_t *c) {
 
 	config_lookup_string(&conf, "network.ip", &tmp);
 	strcpy(c->ip, tmp);
-	config_lookup_int(&conf, "network.port", (long *) &(c->port));
+	config_lookup_int(&conf, "network.port", &(c->port));
 	config_lookup_string(&conf, "network.name", &tmp);
 	strcpy(c->name, tmp);
 	config_destroy(&conf);
@@ -92,7 +92,7 @@ int cfShipGetLaser(config_setting_t *cst, laser_t *las) {
 		cfReadShipFloat(csl2, "y", &las[j].p.y);
 		cfReadShipFloat(csl2, "r", &las[j].r);
 		las[j].r *= M_PI / 180.;
-		config_setting_lookup_int(csl2, "color", (long *) &las[j].color);
+		config_setting_lookup_int(csl2, "color", (int *) &las[j].color);
 	}
 	return nb;
 }
@@ -112,7 +112,7 @@ void cfShipGetBurst(config_setting_t *cst, shiptype_t *st) {
 		cfReadShipFloat(csl2, "x", &st->burst[j].p.x);
 		cfReadShipFloat(csl2, "y", &st->burst[j].p.y);
 		cfReadShipFloat(csl2, "size", &st->burst[j].size);
-		config_setting_lookup_int(csl2, "color", (long *) &st->burst[j].color);
+		config_setting_lookup_int(csl2, "color", (int *) &st->burst[j].color);
 	}
 }
 
