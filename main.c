@@ -25,8 +25,8 @@
 #include "config.h"
 */
 
-int g_gl_width;
-int g_gl_height;
+int g_gl_width = 640;
+int g_gl_height = 480;
 SDL_Window* g_window;
 
 SDL_Joystick *joy = NULL;
@@ -66,7 +66,7 @@ void start_gl (void) {
 
   /* Initialise SDL - when using C/C++ it's common to have to
 	 initialise libraries by calling a function within them. */
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK)<0) {
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK | SDL_INIT_TIMER)<0) {
 		  fprintf(stderr, "Failed to initialise SDL: %s\n", SDL_GetError());
 		  exit(1);
 	}
@@ -259,16 +259,120 @@ GLuint create_programme_from_files (
 }
  /*******************/
 
+	GLuint vbo;
+	GLuint vao;
+void init_graph(void) {
+	GLfloat points[] = {
+		 0.0f,	0.5f,	0.0f,
+		 0.5f, -0.5f,	0.0f,
+		-0.5f, -0.5f,	0.0f
+	};
+	
+	GLfloat texcoords[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f
+	};
+	/* tell GL to only draw onto a pixel if the shape is closer to the viewer */
+	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
+	glDepthFunc (GL_LESS); /* depth-testing interprets a smaller value as "closer" */
+	
+	
+	glGenBuffers (1, &vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, vbo);
+	glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (GLfloat), points, GL_STATIC_DRAW);
+	
+	GLuint texcoords_vbo;
+	glGenBuffers (1, &texcoords_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
+	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
+
+	
+	glGenVertexArrays (1, &vao);
+	glBindVertexArray (vao);
+	
+	glBindBuffer (GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);	
+	
+	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
+	glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		
+	glEnableVertexAttribArray (0);
+	glEnableVertexAttribArray (1);
+
+
+}
+
+unsigned int tick(unsigned int interval, void *param) {
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.code = 0;
+	event.user.data1 = 0;
+	event.user.data2 = 0;
+	SDL_PushEvent(&event);
+	return interval;
+}
+
+
 
 int main(int argc, char *argv[], char *envp[]) {
 	GLuint shader_programme;
+	SDL_Event event;
+	GLint colour_loc;
 //	grconf_t c;
 //	SDL_VideoInfo *info;
 	
 	start_gl();
+	init_graph();
+	
 	shader_programme = create_programme_from_files (
 		"test_vs.glsl", "test_fs.glsl");
 	
+	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
+	glUseProgram (shader_programme);
+	glUniform4f (colour_loc, 1.0f, 1.0f, 0.0f, 1.0f);
+	
+	LoadTexture("img/v1.png");
+	
+//	glUniform4f (colour_loc, 1.0f, 0.0f, 0.0f, 1.0f);
+
+	/* Call the function "tick" every 1/60th second */
+	SDL_AddTimer(1000/60, tick, NULL);
+
+	/* The main event loop */
+	while (SDL_WaitEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			SDL_Quit();
+			break;
+		case SDL_USEREVENT:
+			/* wipe the drawing surface clear */
+			glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glViewport (0, 0, g_gl_width, g_gl_height);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glUseProgram (shader_programme);
+			glBindVertexArray (vao);
+			/* draw points 0-3 from the currently bound VAO with current in-use shader */
+			glDrawArrays (GL_TRIANGLES, 0, 3);
+
+			/* put the stuff we've been drawing onto the display */
+			SDL_GL_SwapWindow(g_window);
+			break;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+				case SDL_WINDOWEVENT_RESIZED:
+					sdl_window_size_callback(g_window, event.window.data1, event.window.data2);
+					break;
+				default:
+					break;
+			}
+		default:
+			break;
+		}
+	}
+
 
 
 	/*	info = SDL_GetVideoInfo();
