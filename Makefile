@@ -16,8 +16,8 @@
 NETWORK?=0
 
 COMMON:=ship.o ai.o config.o turret.o mothership.o event.o vec.o weapon.o gametime.o save.o
-CFLAGS:=`sdl-config --cflags`
-LDFLAGS:=`sdl-config --libs` -lm -lconfig -lrt -lSDL_image -lGL
+CFLAGS:=$(shell sdl2-config --cflags)
+LDFLAGS:=$(shell sdl2-config --libs) -lSDL2_image -lm -lrt -lGL
 
 ifeq ($(NETWORK),1)
 COMMON+=network.o
@@ -33,6 +33,19 @@ SV_OBJS=$(addprefix $(SV_DIR)/,$(COMMON))
 SV:=ded_starc
 
 DEP:=$(wildcard *.h)
+
+
+
+test: main.o
+	@gcc -Wall -L. -o"$@" $^ $(LDFLAGS)
+
+%.o : %.c $(DEP)
+	@echo 'CC: $<'
+	@gcc -O0 -Wall -g $(CFLAGS) -c -o"$@" "$<"
+
+
+
+
 
 # All Target
 all: $(CL)
