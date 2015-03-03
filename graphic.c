@@ -18,11 +18,71 @@
 
 #include "graphic.h"
 #include "vec.h"
+#include "shader.h"
 
 int grWidth = 100;
 int grHeight = 100;
 /* TODO remove this global variable */
 //extern FTGLfont * menufont;
+
+static GLint uniform_pos_off;
+static GLint uniform_pos_scal;
+
+static GLuint quad_vbo;
+static GLuint quad_vao;
+void init_quad(void) {
+	GLfloat points[] = {
+		 0.0f,	0.0f,	0.0f,
+		 0.5f,  0.0f,	0.0f,
+		 0.5f,  0.5f,	0.0f,
+		 0.0f,  0.5f,   0.0f
+	};
+
+	GLfloat texcoords[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f
+	};
+	glGenBuffers (1, &quad_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
+	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), points, GL_DYNAMIC_DRAW);
+
+	GLuint texcoords_vbo;
+	glGenBuffers (1, &texcoords_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
+	glBufferData (GL_ARRAY_BUFFER, 8 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
+
+
+	glGenVertexArrays (1, &quad_vao);
+	glBindVertexArray (quad_vao);
+
+	glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
+	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
+	glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	glEnableVertexAttribArray (0);
+	glEnableVertexAttribArray (1);
+}
+
+void init_basic_shader(void)
+{
+    GLuint basic_shader;
+	basic_shader = create_programme_from_files ("shaders/basic_tex_vs.glsl", "shaders/basic_tex_fs.glsl");
+
+	uniform_pos_off = glGetUniformLocation (basic_shader, "position_offset");
+	uniform_pos_scal = glGetUniformLocation (basic_shader, "position_scaling");
+
+	glUseProgram (basic_shader);
+    glUniform3f(uniform_pos_off, 0.0f, 0.0f, 0.0f);
+    glUniform3f(uniform_pos_scal, 0.002f, 0.002f, 0.0f);
+
+//	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
+
+}
+
 
 unsigned int grLoadTexture(char * filename) {
 	unsigned int textureHandle;
@@ -31,12 +91,12 @@ unsigned int grLoadTexture(char * filename) {
 	sdlsurf = IMG_Load(filename);
 
 	glGenTextures(1, &textureHandle);
+	glActiveTexture (GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sdlsurf->w, sdlsurf->h, 0, GL_RGBA,
 			GL_UNSIGNED_BYTE, sdlsurf->pixels);
-	glEnable(GL_TEXTURE_2D);
 	return textureHandle;
 }
 
@@ -62,33 +122,29 @@ void grSetShadow(float c) {
 }
 
 void grBlitLaser(float x, float y, float len, float r, float width) {
-	float ax, ay;
+	float ax, ay, bx, by;
 
 	ax = -width * sin(r);
 	ay = width * cos(r);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0., 1.);
-	glVertex2f(x + ax, y + ay);
-	glTexCoord2f(1., 1.);
-	glVertex2f(x + len * cos(r) + ax, y + len * sin(r) + ay);
-	glTexCoord2f(1., 0.);
-	glVertex2f(x + len * cos(r) - ax, y + len * sin(r) - ay);
-	glTexCoord2f(0., 0.);
-	glVertex2f(x - ax, y - ay);
-	glEnd();
+	bx = len * cos(r);
+	by = len * sin(r);
+
+    GLfloat points2[] = {
+		 x + ax, y + ay,	0.0f,
+		 x + ax + bx, y + ay + by,	0.0f,
+		 x - ax + bx, y - ay + by,	0.0f,
+		 x - ax, y - ay,   0.0f
+	};
+
+    glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, NULL, sizeof(points2), points2);
+    glBindVertexArray (quad_vao);
+    /* draw points 0-3 from the currently bound VAO with current in-use shader */
+	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 }
 
 void grBlitSquare(vec_t p, float size) {
-	glBegin(GL_QUADS);
-	glTexCoord2f(0., 0.);
-	glVertex2f(p.x - size, p.y);
-	glTexCoord2f(0., 1.);
-	glVertex2f(p.x, p.y + size);
-	glTexCoord2f(1., 1.);
-	glVertex2f(p.x + size, p.y);
-	glTexCoord2f(1., 0.);
-	glVertex2f(p.x, p.y - size);
-	glEnd();
+    grBlit(p, size, 0.f);
 }
 
 void grBlitRot(vec_t p, float r, float size) {
@@ -96,7 +152,7 @@ void grBlitRot(vec_t p, float r, float size) {
 	float s;
 	float a;
 	float b;
-	nr = r - M_PI_4;
+	nr = r + M_PI_4;
 	s = size * M_SQRT1_2;
 	a = s * cos(nr);
 	b = s * sin(nr);
@@ -104,6 +160,20 @@ void grBlitRot(vec_t p, float r, float size) {
 }
 
 void grBlit(vec_t p, float a, float b) {
+    GLfloat points2[] = {
+		 p.x + a, p.y + b,	0.0f,
+		 p.x + b, p.y - a,	0.0f,
+		 p.x - a, p.y - b,	0.0f,
+		 p.x - b, p.y + a,   0.0f
+	};
+
+    glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, NULL, sizeof(points2), points2);
+    glBindVertexArray (quad_vao);
+    /* draw points 0-3 from the currently bound VAO with current in-use shader */
+	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
+
+#if 0
 	glBegin(GL_QUADS);
 	glTexCoord2f(1.f, 0.f);
 	glVertex2f(p.x + a, p.y + b);
@@ -114,6 +184,7 @@ void grBlit(vec_t p, float a, float b) {
 	glTexCoord2f(0., 0.);
 	glVertex2f(p.x - b, p.y + a);
 	glEnd();
+#endif
 }
 void grDrawLine(float x1, float y1, float x2, float y2) {
 	glDisable(GL_BLEND);
@@ -133,22 +204,17 @@ void grChangeview(float x, float y, float r, float scale) {
 
 	xscr = wu / 2.f;
 	/* coordinate tricks : we want width to be 10000 unit */
-	yscr = (wu * grHeight) / (4.f * grWidth);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, grWidth, 0, grHeight, 0, 1);
-	glScalef(grWidth / (float) wu, grWidth / (float) wu, 1.f);
-	glTranslatef(xscr, yscr, 0);
-	glRotatef((-r * 180.f) / M_PI + 90.0, 0, 0, 1);
-	glTranslatef(-x, -y, 0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	yscr = (xscr * grHeight) / ((float)grWidth);
+
+    glUniform3f(uniform_pos_off, -x, -y, 0.0f);
+    glUniform3f(uniform_pos_scal, 1.0f/xscr, 1.0f/yscr, 0.0f);
 }
 
-void grReshape(int width, int height) {
+void grReshape(SDL_Window* window, int width, int height) {
 	grWidth = width;
 	grHeight = height;
 	glViewport(0, 0, width, height);
+	SDL_SetWindowSize(window, width, height);
 	printf("w,%d, h, %d\n", width, height);
 }
 

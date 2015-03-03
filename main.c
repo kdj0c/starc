@@ -76,7 +76,7 @@ void start_gl (void) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	/* Do double buffering in GL */
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	/* When we close a window quit the SDL application */
 	atexit(SDL_Quit);
@@ -137,9 +137,6 @@ unsigned int LoadTexture(char * filename) {
 	return textureHandle;
 }
 
-
-
-
 	GLuint vbo;
 	GLuint vao;
 void init_graph(void) {
@@ -157,8 +154,8 @@ void init_graph(void) {
 		0.0f, 1.0f
 	};
 	/* tell GL to only draw onto a pixel if the shape is closer to the viewer */
-	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
-	glDepthFunc (GL_LESS); /* depth-testing interprets a smaller value as "closer" */
+//	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
+//	glDepthFunc (GL_LESS); /* depth-testing interprets a smaller value as "closer" */
 
 
 	glGenBuffers (1, &vbo);
@@ -204,13 +201,18 @@ int main(int argc, char *argv[], char *envp[]) {
 //	SDL_VideoInfo *info;
 
 	start_gl();
+
+	gmStartSingle();
+
+    exit(0);
+
 	init_graph();
 
 	shader_programme = create_programme_from_files ("shaders/basic_tex_vs.glsl", "shaders/basic_tex_fs.glsl");
 
-	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
+//	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
 	glUseProgram (shader_programme);
-	glUniform4f (colour_loc, 1.0f, 1.0f, 0.0f, 1.0f);
+//	glUniform4f (colour_loc, 1.0f, 1.0f, 0.0f, 1.0f);
 
 	LoadTexture("img/v1.png");
 
@@ -227,7 +229,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			break;
 		case SDL_USEREVENT:
 			/* wipe the drawing surface clear */
-			glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear (GL_COLOR_BUFFER_BIT);
 			glViewport (0, 0, g_gl_width, g_gl_height);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

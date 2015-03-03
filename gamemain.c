@@ -28,6 +28,11 @@
 #include "gametime.h"
 #include "save.h"
 
+extern int g_gl_width;
+extern int g_gl_height;
+extern SDL_Window* g_window;
+
+
 ship_t * player = NULL;
 static float scale = 1.f;
 int g_net = 1;
@@ -73,26 +78,33 @@ void grDraw(void) {
 			ntSendPing();
 	}
 
-//	glClear(GL_COLOR_BUFFER_BIT);
+	glClear (GL_COLOR_BUFFER_BIT);
+//	glViewport(0,0,grWidth,grHeight);
+
 //	glColor4f(1.0, 1.0, 1.0, 1.0);
+#if 0
 	if (player)
 		stUpdate(player->pos.p.x, player->pos.p.y);
 	else
 		stUpdate(0.0, 0.0);
-
+#endif
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
 		grChangeview(0.0, 0.0, 0.0, scale);
 	stBlit();
+
 	shDrawShips(time);
+
 	weDraw(time);
 	paDraw(time);
+#if 0
 	if (player) {
 		grDrawHUD(player->health);
 		shDrawShipHUD(player);
 	}
-//	SDL_GL_SwapBuffers();
+#endif
+    SDL_GL_SwapWindow(g_window);
 }
 
 static void sendkey(void) {
@@ -221,6 +233,9 @@ void gmGetEvent(void) {
 			joyButtonDown(ev.jbutton.button);
 		if (ev.type == SDL_JOYBUTTONUP)
 			joyButtonUp(ev.jbutton.button);
+
+        if (ev.type == SDL_WINDOWEVENT && ev.window.event == SDL_WINDOWEVENT_RESIZED)
+			grReshape(g_window, ev.window.data1, ev.window.data2);
 	}
 }
 
@@ -255,6 +270,10 @@ void gmStartSingle(void) {
 
 	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
 	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
+
+	init_quad();
+	init_basic_shader();
+	grReshape(g_window, 640, 480);
 
 	gmLoop();
 }

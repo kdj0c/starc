@@ -9,11 +9,16 @@
 #ifndef GRAPHIC_H_
 #define GRAPHIC_H_
 
+
+#include <SDL2/SDL.h>
 #include "vec.h"
 
 #define WIDTH_UNIT 20000
 
 #ifndef DEDICATED
+void init_basic_shader(void);
+void init_quad(void);
+
 unsigned int grLoadTexture(char * filename);
 void grSetBlendAdd(unsigned int text);
 void grSetBlend(unsigned int text);
@@ -24,7 +29,7 @@ void grBlitRot(vec_t p, float r, float size);
 void grBlit(vec_t p, float a, float b);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
-void grReshape(int width, int height);
+void grReshape(SDL_Window* window, int width, int height);
 void grBlitLaser(float x, float y, float len, float r, float width);
 void grDrawHUD(float health);
 #else
