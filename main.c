@@ -263,15 +263,17 @@ GLuint create_programme_from_files (
 	GLuint vao;
 void init_graph(void) {
 	GLfloat points[] = {
-		 0.0f,	0.5f,	0.0f,
-		 0.5f, -0.5f,	0.0f,
-		-0.5f, -0.5f,	0.0f
+		 0.0f,	0.0f,	0.0f,
+		 0.5f,  0.0f,	0.0f,
+		 0.5f,  0.5f,	0.0f,
+		 0.0f,  0.5f,   0.0f
 	};
 	
 	GLfloat texcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
-		1.0f, 1.0f
+		1.0f, 1.0f,
+		0.0f, 1.0f
 	};
 	/* tell GL to only draw onto a pixel if the shape is closer to the viewer */
 	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
@@ -280,12 +282,12 @@ void init_graph(void) {
 	
 	glGenBuffers (1, &vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (GLfloat), points, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), points, GL_STATIC_DRAW);
 	
 	GLuint texcoords_vbo;
 	glGenBuffers (1, &texcoords_vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, 8 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
 
 	
 	glGenVertexArrays (1, &vao);
@@ -299,8 +301,6 @@ void init_graph(void) {
 		
 	glEnableVertexAttribArray (0);
 	glEnableVertexAttribArray (1);
-
-
 }
 
 unsigned int tick(unsigned int interval, void *param) {
@@ -355,7 +355,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			glUseProgram (shader_programme);
 			glBindVertexArray (vao);
 			/* draw points 0-3 from the currently bound VAO with current in-use shader */
-			glDrawArrays (GL_TRIANGLES, 0, 3);
+			glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 
 			/* put the stuff we've been drawing onto the display */
 			SDL_GL_SwapWindow(g_window);
