@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
-#include <SDL/SDL_image.h>
-#include <FTGL/ftgl.h>
+
+#define GL_GLEXT_PROTOTYPES
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_image.h>
+//#include <FTGL/ftgl.h>
 
 #include "graphic.h"
 #include "vec.h"
@@ -20,7 +22,7 @@
 int grWidth = 100;
 int grHeight = 100;
 /* TODO remove this global variable */
-extern FTGLfont * menufont;
+//extern FTGLfont * menufont;
 
 unsigned int grLoadTexture(char * filename) {
 	unsigned int textureHandle;
@@ -151,6 +153,7 @@ void grReshape(int width, int height) {
 }
 
 void grDrawHUD(float health) {
+#if 0
 	char h[16];
 	int ih;
 	glMatrixMode(GL_PROJECTION);
@@ -180,6 +183,7 @@ void grDrawHUD(float health) {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+	#endif
 
 }
 

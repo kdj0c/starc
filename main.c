@@ -11,12 +11,14 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
-//#define GL3_PROTOTYPES 1
-//#include <GL3/gl3.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
+
+#include "shader.h"
+#include "gamemain.h"
+
 
 /*
 #include "menu.h"
@@ -30,10 +32,6 @@ int g_gl_height = 480;
 SDL_Window* g_window;
 
 SDL_Joystick *joy = NULL;
-
-typedef int bool;
-#define true 1
-#define false 0
 
 void gamepad(void) {
 	int numjoy;
@@ -106,11 +104,6 @@ void start_gl (void) {
     version = glGetString (GL_VERSION); /* version as a string */
     printf ("Renderer: %s\n", renderer);
     printf ("OpenGL version supported %s\n", version);
-    // ("renderer: %s\nversion: %s\n", renderer, version);
-
-	/* tell GL to only draw onto a pixel if the shape is closer to the viewer */
-	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
-	glDepthFunc (GL_LESS);/*depth-testing interprets a smaller value as "closer"*/
 }
 
 void sdl_error_callback (int error, const char* description) {
@@ -145,119 +138,7 @@ unsigned int LoadTexture(char * filename) {
 }
 
 
-/*-----------------------------------SHADERS----------------------------------*/
-bool parse_file_into_str (
-	const char* file_name, char* shader_str, int max_len
-) {
-	shader_str[0] = '\0'; // reset string
-	FILE* file = fopen (file_name , "r");
-	if (!file) {
-		return false;
-	}
-	int current_len = 0;
-	char line[2048];
-	strcpy (line, ""); // remember to clean up before using for first time!
-	while (!feof (file)) {
-		if (NULL != fgets (line, 2048, file)) {
-			current_len += strlen (line); // +1 for \n at end
-			if (current_len >= max_len) {
-			}
-			strcat (shader_str, line);
-		}
-	}
-	if (EOF == fclose (file)) { // probably unnecesssary validation
-		return false;
-	}
-	return true;
-}
 
-void print_shader_info_log (GLuint shader_index) {
-	int max_length = 2048;
-	int actual_length = 0;
-	char log[2048];
-	glGetShaderInfoLog (shader_index, max_length, &actual_length, log);
-	printf ("shader info log for GL index %i:\n%s\n", shader_index, log);
-}
-
-bool create_shader (const char* file_name, GLuint* shader, GLenum type) {
-	printf("creating shader from %s...\n", file_name);
-	char shader_string[2048];
-	 parse_file_into_str (file_name, shader_string, 2048);
-	*shader = glCreateShader (type);
-	const GLchar* p = (const GLchar*)shader_string;
-	glShaderSource (*shader, 1, &p, NULL);
-	glCompileShader (*shader);
-	// check for compile errors
-	int params = -1;
-	glGetShaderiv (*shader, GL_COMPILE_STATUS, &params);
-	if (GL_TRUE != params) {
-		printf ("ERROR: GL shader index %i did not compile\n", *shader);
-		print_shader_info_log (*shader);
-		return false; // or exit or something
-	}
-	printf ("shader compiled. index %i\n", *shader);
-	return true;
-}
-
-void print_programme_info_log (GLuint sp) {
-	int max_length = 2048;
-	int actual_length = 0;
-	char log[2048];
-	glGetProgramInfoLog (sp, max_length, &actual_length, log);
-	printf ("program info log for GL index %u:\n%s", sp, log);
-}
-
-bool is_programme_valid (GLuint sp) {
-	glValidateProgram (sp);
-	GLint params = -1;
-	glGetProgramiv (sp, GL_VALIDATE_STATUS, &params);
-	if (GL_TRUE != params) {
-		printf ("program %i GL_VALIDATE_STATUS = GL_FALSE\n", sp);
-		print_programme_info_log (sp);
-		return false;
-	}
-	printf ("program %i GL_VALIDATE_STATUS = GL_TRUE\n", sp);
-	return true;
-}
-
-bool create_programme (GLuint vert, GLuint frag, GLuint* programme) {
-	*programme = glCreateProgram ();
-	printf (
-		"created programme %u. attaching shaders %u and %u...\n",
-		*programme,
-		vert,
-		frag
-	);
-	glAttachShader (*programme, vert);
-	glAttachShader (*programme, frag);
-	// link the shader programme. if binding input attributes do that before link
-	glLinkProgram (*programme);
-	GLint params = -1;
-	glGetProgramiv (*programme, GL_LINK_STATUS, &params);
-	if (GL_TRUE != params) {
-		printf (
-			"ERROR: could not link shader programme GL index %u\n",
-			*programme
-		);
-		print_programme_info_log (*programme);
-		return false;
-	}
-	// delete shaders here to free memory
-	glDeleteShader (vert);
-	glDeleteShader (frag);
-	return true;
-}
-
-GLuint create_programme_from_files (
-	const char* vert_file_name, const char* frag_file_name
-) {
-	GLuint vert, frag, programme;
-	create_shader (vert_file_name, &vert, GL_VERTEX_SHADER);
-	create_shader (frag_file_name, &frag, GL_FRAGMENT_SHADER);
-	create_programme (vert, frag, &programme);
-	return programme;
-}
- /*******************/
 
 	GLuint vbo;
 	GLuint vao;
@@ -268,7 +149,7 @@ void init_graph(void) {
 		 0.5f,  0.5f,	0.0f,
 		 0.0f,  0.5f,   0.0f
 	};
-	
+
 	GLfloat texcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
@@ -278,27 +159,27 @@ void init_graph(void) {
 	/* tell GL to only draw onto a pixel if the shape is closer to the viewer */
 	glEnable (GL_DEPTH_TEST); /* enable depth-testing */
 	glDepthFunc (GL_LESS); /* depth-testing interprets a smaller value as "closer" */
-	
-	
+
+
 	glGenBuffers (1, &vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
 	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), points, GL_STATIC_DRAW);
-	
+
 	GLuint texcoords_vbo;
 	glGenBuffers (1, &texcoords_vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
 	glBufferData (GL_ARRAY_BUFFER, 8 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
 
-	
+
 	glGenVertexArrays (1, &vao);
 	glBindVertexArray (vao);
-	
+
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);	
-	
+	glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
 	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
 	glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		
+
 	glEnableVertexAttribArray (0);
 	glEnableVertexAttribArray (1);
 }
@@ -321,19 +202,18 @@ int main(int argc, char *argv[], char *envp[]) {
 	GLint colour_loc;
 //	grconf_t c;
 //	SDL_VideoInfo *info;
-	
+
 	start_gl();
 	init_graph();
-	
-	shader_programme = create_programme_from_files (
-		"test_vs.glsl", "test_fs.glsl");
-	
+
+	shader_programme = create_programme_from_files ("shaders/basic_tex_vs.glsl", "shaders/basic_tex_fs.glsl");
+
 	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
 	glUseProgram (shader_programme);
 	glUniform4f (colour_loc, 1.0f, 1.0f, 0.0f, 1.0f);
-	
+
 	LoadTexture("img/v1.png");
-	
+
 //	glUniform4f (colour_loc, 1.0f, 0.0f, 0.0f, 1.0f);
 
 	/* Call the function "tick" every 1/60th second */

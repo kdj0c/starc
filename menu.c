@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  */
 
-#include <FTGL/ftgl.h>
+//#include <FTGL/ftgl.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 

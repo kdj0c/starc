@@ -9,8 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+
+#define GL_GLEXT_PROTOTYPES
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_image.h>
 
 #include "graphic.h"
 #include "ship.h"
@@ -70,8 +73,8 @@ void grDraw(void) {
 			ntSendPing();
 	}
 
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
+//	glClear(GL_COLOR_BUFFER_BIT);
+//	glColor4f(1.0, 1.0, 1.0, 1.0);
 	if (player)
 		stUpdate(player->pos.p.x, player->pos.p.y);
 	else
@@ -89,7 +92,7 @@ void grDraw(void) {
 		grDrawHUD(player->health);
 		shDrawShipHUD(player);
 	}
-	SDL_GL_SwapBuffers();
+//	SDL_GL_SwapBuffers();
 }
 
 static void sendkey(void) {

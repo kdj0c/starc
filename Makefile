@@ -36,7 +36,7 @@ DEP:=$(wildcard *.h)
 
 
 
-test: main.o
+test: main.o shader.o
 	@gcc -Wall -L. -o"$@" $^ $(LDFLAGS)
 
 %.o : %.c $(DEP)
