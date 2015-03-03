@@ -561,7 +561,7 @@ void shDrawShipHUD(ship_t * pl) {
 	ship_t * sh;
 	float r;
 	vec_t d, v;
-	vec_t mid = { .x = 800 / 2., .y = 600 / 4. };
+	vec_t mid = { pl->pos.p.x, pl->pos.p.y};
 
 	grSetBlend(hudarrowtex);
 	list_for_each_entry(sh, &ship_head, list)

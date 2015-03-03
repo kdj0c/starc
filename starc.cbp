@@ -13,7 +13,15 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="/usr/include/SDL2" />
 				</Compiler>
+				<Linker>
+					<Add library="SDL2" />
+					<Add library="SDL2_image" />
+					<Add library="m" />
+					<Add library="config" />
+					<Add library="GL" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/starc" prefix_auto="1" extension_auto="1" />
@@ -31,9 +39,72 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="ai.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ai.h" />
+		<Unit filename="config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="config.h" />
+		<Unit filename="event.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="event.h" />
+		<Unit filename="gamemain.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gamemain.h" />
+		<Unit filename="gametime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gametime.h" />
+		<Unit filename="graphic.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graphic.h" />
+		<Unit filename="list.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="menu.h" />
+		<Unit filename="mothership.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mothership.h" />
+		<Unit filename="network.h" />
+		<Unit filename="particle.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="particle.h" />
+		<Unit filename="save.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="save.h" />
+		<Unit filename="shader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="shader.h" />
+		<Unit filename="ship.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ship.h" />
+		<Unit filename="star.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="star.h" />
+		<Unit filename="turret.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="turret.h" />
+		<Unit filename="vec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="vec.h" />
+		<Unit filename="weapon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="weapon.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

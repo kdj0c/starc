@@ -16,8 +16,10 @@
 #define WIDTH_UNIT 20000
 
 #ifndef DEDICATED
-void init_basic_shader(void);
-void init_quad(void);
+
+void grInit(void);
+void grInitShader(void);
+void grInitQuad(void);
 
 unsigned int grLoadTexture(char * filename);
 void grSetBlendAdd(unsigned int text);
@@ -29,9 +31,10 @@ void grBlitRot(vec_t p, float r, float size);
 void grBlit(vec_t p, float a, float b);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
-void grReshape(SDL_Window* window, int width, int height);
+void grReshape(int width, int height);
 void grBlitLaser(float x, float y, float len, float r, float width);
 void grDrawHUD(float health);
+void grSwap(void);
 #else
 #define grLoadTexture(f)
 #define grSetColor(color)

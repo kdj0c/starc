@@ -28,11 +28,6 @@
 #include "gametime.h"
 #include "save.h"
 
-extern int g_gl_width;
-extern int g_gl_height;
-extern SDL_Window* g_window;
-
-
 ship_t * player = NULL;
 static float scale = 1.f;
 int g_net = 1;
@@ -79,15 +74,12 @@ void grDraw(void) {
 	}
 
 	glClear (GL_COLOR_BUFFER_BIT);
-//	glViewport(0,0,grWidth,grHeight);
 
-//	glColor4f(1.0, 1.0, 1.0, 1.0);
-#if 0
 	if (player)
 		stUpdate(player->pos.p.x, player->pos.p.y);
 	else
 		stUpdate(0.0, 0.0);
-#endif
+
 	if (player)
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
@@ -98,13 +90,12 @@ void grDraw(void) {
 
 	weDraw(time);
 	paDraw(time);
-#if 0
+
 	if (player) {
-		grDrawHUD(player->health);
-		shDrawShipHUD(player);
+		//grDrawHUD(player->health);
+		//shDrawShipHUD(player);
 	}
-#endif
-    SDL_GL_SwapWindow(g_window);
+    grSwap();
 }
 
 static void sendkey(void) {
@@ -171,7 +162,7 @@ void keydown(int key) {
 		scale *= 1.3;
 		return;
 	case SDLK_ESCAPE:
-		exitCleanup();
+		exit(0);
 		return;
 	default:
 		return;
@@ -235,7 +226,7 @@ void gmGetEvent(void) {
 			joyButtonUp(ev.jbutton.button);
 
         if (ev.type == SDL_WINDOWEVENT && ev.window.event == SDL_WINDOWEVENT_RESIZED)
-			grReshape(g_window, ev.window.data1, ev.window.data2);
+			grReshape(ev.window.data1, ev.window.data2);
 	}
 }
 
@@ -271,10 +262,8 @@ void gmStartSingle(void) {
 	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
 	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
 
-	init_quad();
-	init_basic_shader();
-	grReshape(g_window, 640, 480);
-
+	grInitQuad();
+	grInitShader();
 	gmLoop();
 }
 

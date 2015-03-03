@@ -14,23 +14,68 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
-//#include <FTGL/ftgl.h>
 
 #include "graphic.h"
 #include "vec.h"
 #include "shader.h"
 
-int grWidth = 100;
-int grHeight = 100;
+static int grWidth = 100;
+static int grHeight = 100;
+static SDL_Window* grwindow;
+
 /* TODO remove this global variable */
 //extern FTGLfont * menufont;
 
 static GLint uniform_pos_off;
 static GLint uniform_pos_scal;
+static GLint uniform_colour;
+
+void grInit (void) {
+	SDL_GLContext glContext;
+    const GLubyte* renderer;
+    const GLubyte* version;
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG, GL_TRUE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	/* Do double buffering in GL */
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	/* Create a new window with an OpenGL surface */
+	grwindow = SDL_CreateWindow("starc",
+	                            SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED,
+                                0, 0,
+                                SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
+	/*
+							  , SDL_WINDOWPOS_CENTERED
+							  , SDL_WINDOWPOS_CENTERED
+							  , g_gl_width
+							  , g_gl_height
+							  , SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);*/
+	if (!grwindow) {
+		fprintf(stderr, "Failed to create SDL window: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+	glContext = SDL_GL_CreateContext(grwindow);
+	if (!glContext) {
+		fprintf(stderr, "Failed to create OpenGL context: %s\n", SDL_GetError());
+		exit(1);
+	}
+
+    /* get version info */
+    renderer = glGetString (GL_RENDERER); /* get renderer string */
+    version = glGetString (GL_VERSION); /* version as a string */
+    printf ("Renderer: %s\n", renderer);
+    printf ("OpenGL version supported %s\n", version);
+}
+
 
 static GLuint quad_vbo;
 static GLuint quad_vao;
-void init_quad(void) {
+void grInitQuad(void) {
 	GLfloat points[] = {
 		 0.0f,	0.0f,	0.0f,
 		 0.5f,  0.0f,	0.0f,
@@ -67,20 +112,19 @@ void init_quad(void) {
 	glEnableVertexAttribArray (1);
 }
 
-void init_basic_shader(void)
+void grInitShader(void)
 {
     GLuint basic_shader;
 	basic_shader = create_programme_from_files ("shaders/basic_tex_vs.glsl", "shaders/basic_tex_fs.glsl");
 
 	uniform_pos_off = glGetUniformLocation (basic_shader, "position_offset");
 	uniform_pos_scal = glGetUniformLocation (basic_shader, "position_scaling");
+	uniform_colour = glGetUniformLocation (basic_shader, "add_colour");
 
 	glUseProgram (basic_shader);
     glUniform3f(uniform_pos_off, 0.0f, 0.0f, 0.0f);
     glUniform3f(uniform_pos_scal, 0.002f, 0.002f, 0.0f);
-
-//	colour_loc = glGetUniformLocation (shader_programme, "inputColour");
-
+    glUniform4f(uniform_colour, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 
@@ -110,15 +154,23 @@ void grSetBlend(unsigned int text) {
 	glBindTexture(GL_TEXTURE_2D, text);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, 1.0);
 }
 
+#define u8_to_float(c) (((float) (c)) / 255.0f)
+
 void grSetColor(unsigned int color) {
-	glColor4ub((color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
-			color & 0xFF);
+    float r,g,b,a;
+
+    r = u8_to_float((color >> 24) & 0xFF);
+    g = u8_to_float((color >> 16) & 0xFF);
+    b = u8_to_float((color >> 8) & 0xFF);
+    a = u8_to_float(color & 0xFF);
+
+    glUniform4f(uniform_colour, r, g, b, a);
 }
 void grSetShadow(float c) {
-	glColor4f(1., 1., 1., c);
+    glUniform4f(uniform_colour, 1.0, 1.0, 1.0, c);
 }
 
 void grBlitLaser(float x, float y, float len, float r, float width) {
@@ -137,7 +189,7 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	};
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, NULL, sizeof(points2), points2);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
     glBindVertexArray (quad_vao);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
@@ -168,31 +220,10 @@ void grBlit(vec_t p, float a, float b) {
 	};
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, NULL, sizeof(points2), points2);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
     glBindVertexArray (quad_vao);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
-
-#if 0
-	glBegin(GL_QUADS);
-	glTexCoord2f(1.f, 0.f);
-	glVertex2f(p.x + a, p.y + b);
-	glTexCoord2f(1.f, 1.f);
-	glVertex2f(p.x + b, p.y - a);
-	glTexCoord2f(0., 1.);
-	glVertex2f(p.x - a, p.y - b);
-	glTexCoord2f(0., 0.);
-	glVertex2f(p.x - b, p.y + a);
-	glEnd();
-#endif
-}
-void grDrawLine(float x1, float y1, float x2, float y2) {
-	glDisable(GL_BLEND);
-	glLineWidth(1.f);
-	glBegin(GL_LINES);
-	glVertex2f(x1, y1);
-	glVertex2f(x2, y2);
-	glEnd();
 }
 
 void grChangeview(float x, float y, float r, float scale) {
@@ -210,12 +241,16 @@ void grChangeview(float x, float y, float r, float scale) {
     glUniform3f(uniform_pos_scal, 1.0f/xscr, 1.0f/yscr, 0.0f);
 }
 
-void grReshape(SDL_Window* window, int width, int height) {
+void grReshape(int width, int height) {
 	grWidth = width;
 	grHeight = height;
 	glViewport(0, 0, width, height);
-	SDL_SetWindowSize(window, width, height);
-	printf("w,%d, h, %d\n", width, height);
+	SDL_SetWindowSize(grwindow, width, height);
+	printf("Reshape w,%d, h, %d\n", width, height);
+}
+
+void grSwap(void) {
+    SDL_GL_SwapWindow(grwindow);
 }
 
 void grDrawHUD(float health) {
