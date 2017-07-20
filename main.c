@@ -6,6 +6,11 @@
  * published by the Free Software Foundation.
  */
 
+
+#ifdef _WIN32
+#include <windows.h>
+#endif // _WIN32
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -48,8 +53,14 @@ void exitCleanup(void) {
 	exit(0);
 }
 
-int main(int argc, char *argv[], char *envp[]) {
-
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE hInstance,
+                   HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine,
+                   int nCmdShow ) {
+#else
+int main(int argc, char *argv[]) {
+#endif // _WIN32
 //	grconf_t c;
 
   /* Initialise SDL - when using C/C++ it's common to have to
@@ -60,6 +71,10 @@ int main(int argc, char *argv[], char *envp[]) {
 	}
 
 	atexit(exitCleanup);
+
+#ifdef _WIN32
+    return 0;
+#endif // _WIN32
 
 	grInit();
 
