@@ -8,13 +8,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <libconfig.h>
+
 #include <math.h>
 
 #include "config.h"
+#include "parse.h"
 #include "ship.h"
-
-config_t conf;
 
 int nbship = 0;
 shiptype_t * stype = NULL;
@@ -25,25 +24,30 @@ turrettype_t * ttype = NULL;
 #define cfShipFloat(cst, f, st)   cfReadShipFloat(cst, #f, &st[i].f)
 
 void cfReadGraphic(grconf_t *c) {
+    struct ps_node *conf;
+    struct ps_node *grconf;
+
+
 	c->fullscreen = 0;
 	c->width = 800;
 	c->heigh = 600;
 
-	config_init(&conf);
-	if (config_read_file(&conf, "config.cfg") == CONFIG_FALSE) {
-		printf("config.cfg:%d - %s\n", config_error_line(&conf),
-				config_error_text(&conf));
+	conf = psParseFile("config.cfg");
+
+	if (!conf) {
+		printf("Error when reading configuration file config.cfg\n");
 		return;
 	}
+	grconf = psGetObject("graphic", conf);
+	c->fullscreen = psGetInt("fullscreen", grconf);
+	c->width = psGetInt("width", grconf);
+    c->heigh = psGetInt("heigh", grconf);
 
-	config_lookup_int(&conf, "graphic.fullscreen", &c->fullscreen);
-	config_lookup_int(&conf, "graphic.width", &c->width);
-	config_lookup_int(&conf, "graphic.heigh", &c->heigh);
-
-	config_destroy(&conf);
+	psFreeNodes(conf);
 }
 
 void cfReadNetwork(ntconf_t *c) {
+    #if 0
 	const char *tmp;
 
 	strcpy(c->ip, "127.0.0.1");
@@ -63,8 +67,9 @@ void cfReadNetwork(ntconf_t *c) {
 	config_lookup_string(&conf, "network.name", &tmp);
 	strcpy(c->name, tmp);
 	config_destroy(&conf);
+	#endif
 }
-
+#if 0
 void cfReadShipString(config_setting_t *cst, const char * name, char * dest) {
 	const char *tmp;
 	config_setting_lookup_string(cst, name, &tmp);
@@ -225,4 +230,4 @@ turrettype_t * cfGetTurret(const char * name) {
 	printf("Error cannot find turret type %s\n", name);
 	return NULL;
 }
-
+#endif

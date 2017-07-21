@@ -72,7 +72,7 @@ void grInit (void) {
     printf ("OpenGL version supported %s\n", version);
 }
 
-
+#if 0
 static GLuint quad_vbo;
 static GLuint quad_vao;
 void grInitQuad(void) {
@@ -288,3 +288,4 @@ void grDrawHUD(float health) {
 
 }
 
+#endif

@@ -13,11 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="../SDL2-2.0.5/i686-w64-mingw32/include" />
 				</Compiler>
-				<Linker>
-					<Add library="../SDL2-2.0.5/i686-w64-mingw32/lib/libSDL2.dll.a" />
-				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/winstarc" prefix_auto="1" extension_auto="1" />
@@ -34,15 +30,49 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="../SDL2-2.0.5/i686-w64-mingw32/include" />
 		</Compiler>
+		<Linker>
+			<Add library="../SDL2-2.0.5/i686-w64-mingw32/lib/libSDL2.dll.a" />
+			<Add library="../SDL2_image-2.0.1/i686-w64-mingw32/lib/libSDL2_image.dll.a" />
+			<Add library="opengl32" />
+		</Linker>
+		<Unit filename="config.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="config.cfg" />
+		<Unit filename="config.h" />
+		<Unit filename="gamemain.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="gamemain.h" />
+		<Unit filename="graphic.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graphic.h" />
+		<Unit filename="list.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="parse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="parse.h" />
+		<Unit filename="ship.cfg" />
+		<Unit filename="vec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="vec.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
-			<lib_finder disable_auto="1" />
+			<lib_finder disable_auto="1">
+				<lib name="-lopengl32 -lglu32" />
+				<lib name="-lopengl32 -lglu32 -lgdi" />
+			</lib_finder>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

@@ -6,8 +6,8 @@
  * published by the Free Software Foundation.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef __CONFIG_H_
+#define __CONFIG_H_
 
 #include "ship.h"
 
