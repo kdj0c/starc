@@ -10,7 +10,7 @@
 #define GAMETIME_H_
 
 void gtInit(void);
-float gtGetTime(void);
+int gtGetTime(void);
 void gtSetOffset(float offset);
 
 #endif /* GAMETIME_H_ */

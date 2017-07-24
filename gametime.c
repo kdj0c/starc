@@ -6,6 +6,26 @@
  * published by the Free Software Foundation.
  */
 
+
+
+
+#ifdef _WIN32
+#include "SDL2/SDL.h"
+
+
+void gtInit(void) {}
+
+
+
+int gtGetTime(void){
+    return SDL_GetTicks();
+}
+
+
+void gtSetOffset(float offset) {}
+
+
+#else
 #include <stdio.h>
 #include <time.h>
 
@@ -36,7 +56,7 @@ float gtGetTime(void) {
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	ts = tssub(ts, off);
 	t = (float) ts.tv_sec * 1000. + ((float) ts.tv_nsec / 1000000.f);
-	return t;
+	return (int) t;
 }
 
 void gtSetOffset(float offset) {
@@ -67,3 +87,5 @@ void gtSetOffset(float offset) {
 		off = tssub(off, o);
 	}
 }
+
+#endif // _WIN32

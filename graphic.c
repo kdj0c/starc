@@ -11,6 +11,7 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
+#include <epoxy/gl.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
@@ -72,7 +73,6 @@ void grInit (void) {
     printf ("OpenGL version supported %s\n", version);
 }
 
-#if 0
 static GLuint quad_vbo;
 static GLuint quad_vao;
 void grInitQuad(void) {
@@ -288,4 +288,3 @@ void grDrawHUD(float health) {
 
 }
 
-#endif

@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <math.h>
 
@@ -20,8 +21,7 @@ shiptype_t * stype = NULL;
 int nbturret = 0;
 turrettype_t * ttype = NULL;
 
-#define cfShipString(cst, f, st)  cfReadShipString(cst, #f, st[i].f)
-#define cfShipFloat(cst, f, st)   cfReadShipFloat(cst, #f, &st[i].f)
+#define cfShipString(cf, f, st)  strcpy(st[i].f, psGetStr(#f, cf))
 
 void cfReadGraphic(grconf_t *c) {
     struct ps_node *conf;
@@ -69,144 +69,128 @@ void cfReadNetwork(ntconf_t *c) {
 	config_destroy(&conf);
 	#endif
 }
-#if 0
-void cfReadShipString(config_setting_t *cst, const char * name, char * dest) {
-	const char *tmp;
-	config_setting_lookup_string(cst, name, &tmp);
-	strcpy(dest, tmp);
-}
 
-void cfReadShipFloat(config_setting_t *cst, const char * name, float * dest) {
-	double tmp = 0;
-	config_setting_lookup_float(cst, name, &tmp);
-	*dest = (float) tmp;
-}
 
-int cfShipGetLaser(config_setting_t *cst, laser_t *las) {
-	config_setting_t *csl;
-	config_setting_t *csl2;
-	int j, nb;
-
-	csl = config_setting_get_member(cst, "laser");
-	if (!csl)
-		return 0;
-	nb = config_setting_length(csl);
-	for (j = 0; j < nb; j++) {
-		csl2 = config_setting_get_elem(csl, j);
-		cfReadShipFloat(csl2, "x", &las[j].p.x);
-		cfReadShipFloat(csl2, "y", &las[j].p.y);
-		cfReadShipFloat(csl2, "r", &las[j].r);
-		las[j].r *= M_PI / 180.;
-		config_setting_lookup_int(csl2, "color", (int *) &las[j].color);
-	}
-	return nb;
-}
-
-void cfShipGetBurst(config_setting_t *cst, shiptype_t *st) {
-	config_setting_t *csl;
-	config_setting_t *csl2;
+int cfShipGetLaser(struct ps_node *cfg, laser_t *las) {
+    struct ps_node *lcfg;
 	int j;
 
-	csl = config_setting_get_member(cst, "burst");
-	if (!csl)
-		return;
+	lcfg = psGetObject("laser", cfg);
+	j = 0;
 
-	st->numburst = config_setting_length(csl);
-	for (j = 0; j < st->numburst; j++) {
-		csl2 = config_setting_get_elem(csl, j);
-		cfReadShipFloat(csl2, "x", &st->burst[j].p.x);
-		cfReadShipFloat(csl2, "y", &st->burst[j].p.y);
-		cfReadShipFloat(csl2, "size", &st->burst[j].size);
-		config_setting_lookup_int(csl2, "color", (int *) &st->burst[j].color);
+	for (lcfg = lcfg->child; lcfg; lcfg = lcfg->next) {
+        las[j].p.x = psGetFloat("x", lcfg);
+        las[j].p.y = psGetFloat("y", lcfg);
+        las[j].r = psGetFloat("r", lcfg) * M_PI / 180.;
+        las[j].color = (unsigned int) psGetInt("color", lcfg);
+        j++;
 	}
+	return j;
 }
 
-void cfShipGetTurret(config_setting_t *cst, shiptype_t *st) {
-	config_setting_t *csl;
-	config_setting_t *csl2;
+void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
+    struct ps_node *lcfg;
 	int j;
-	const char *tmp;
 
-	csl = config_setting_get_member(cst, "turret");
-	if (!csl)
-		return;
+	lcfg = psGetObject("burst", cfg);
+	j = 0;
 
-	st->numturret = config_setting_length(csl);
-	for (j = 0; j < st->numturret; j++) {
-		csl2 = config_setting_get_elem(csl, j);
-		config_setting_lookup_string(csl2, "type", &tmp);
-		st->turret[j].t = cfGetTurret(tmp);
-		cfReadShipFloat(csl2, "x", &st->turret[j].p.x);
-		cfReadShipFloat(csl2, "y", &st->turret[j].p.y);
+	for (lcfg = lcfg->child; lcfg; lcfg = lcfg->next) {
+        st->burst[j].p.x = psGetFloat("x", lcfg);
+        st->burst[j].p.y = psGetFloat("y", lcfg);
+        st->burst[j].size = psGetFloat("size", lcfg);
+        st->burst[j].color = (unsigned int) psGetInt("color", lcfg);
+        j++;
 	}
+	st->numburst = j;
 }
 
-void cfShipGetHangar(config_setting_t *cst, shiptype_t *st) {
-	config_setting_t *csl;
+void cfShipGetTurret(struct ps_node *cfg, shiptype_t *st) {
+    struct ps_node *tcfg;
+	int j;
 
-	csl = config_setting_get_member(cst, "hangar");
-	if (!csl)
-		return;
+	tcfg = psGetObject("turret", cfg);
+	if (!tcfg)
+        return;
+
+	j = 0;
+	for (tcfg = tcfg->child; tcfg; tcfg = tcfg->next) {
+        st->turret[j].t = cfGetTurret(psGetStr("type", tcfg));
+        st->turret[j].p.x = psGetFloat("x", tcfg);
+        st->turret[j].p.y = psGetFloat("y", tcfg);
+        j++;
+	}
+	st->numturret = j;
+}
+
+void cfShipGetHangar(struct ps_node *cfg, shiptype_t *st) {
+    struct ps_node *hcfg;
+
+    hcfg = psGetObject("hangar", cfg);
+    if (!hcfg)
+        return;
 
 	st->flag |= SH_MOTHERSHIP;
-	cfReadShipFloat(csl, "x", &st->hangar.p.x);
-	cfReadShipFloat(csl, "y", &st->hangar.p.y);
-	cfReadShipFloat(csl, "r", &st->hangar.r);
-	st->hangar.r *= M_PI / 180.;
+	st->hangar.p.x = psGetFloat("x", hcfg);
+	st->hangar.p.y = psGetFloat("y", hcfg);
+	st->hangar.r = psGetFloat("r", hcfg) * M_PI / 180.;
 }
 
 int cfReadGameData(void) {
-	config_setting_t *cs;
-	config_setting_t *cst;
-	int i;
+    struct ps_node *conf;
+    struct ps_node *tcfg;
+    struct ps_node *scfg;
+    int i;
 
-	config_init(&conf);
-	if (config_read_file(&conf, "ship.cfg") == CONFIG_FALSE) {
-		printf("ship.cfg:%d - %s\n", config_error_line(&conf),
-				config_error_text(&conf));
+    conf = psParseFile("ship.cfg");
+
+	if (!conf) {
+		printf("Error when reading configuration file ship.cfg\n");
 		return -1;
 	}
 
-	cs = config_lookup(&conf, "turrettypes");
-	nbturret = config_setting_length(cs);
+	tcfg = psGetObject("turrettypes", conf);
+	nbturret = tcfg->len;
 	ttype = malloc(sizeof(*ttype) * nbturret);
 	memset(ttype, 0, sizeof(*ttype) * nbturret);
+    tcfg = tcfg->child;
 
-	for (i = 0; i < nbturret; i++) {
-		cst = config_setting_get_elem(cs, i);
-		cfShipString(cst, name, ttype);
-		cfShipString(cst, imgfile, ttype);
-		cfShipFloat(cst, size, ttype);
-		cfShipString(cst, shieldfile, ttype);
-		cfShipFloat(cst, shieldsize, ttype);
-		cfShipFloat(cst, maxhealth, ttype);
-		cfShipFloat(cst, maniability, ttype);
-		ttype[i].numlaser = cfShipGetLaser(cst, ttype[i].laser);
-	}
+    for (i = 0; i < nbturret && tcfg; i++) {
+        cfShipString(tcfg, name, ttype);
+        cfShipString(tcfg, imgfile, ttype);
+        ttype[i].size = psGetFloat("size", tcfg);
+        cfShipString(tcfg, shieldfile, ttype);
+        ttype[i].shieldsize = psGetFloat("shieldsize", tcfg);
+        ttype[i].maxhealth = psGetFloat("maxhealth", tcfg);
+        ttype[i].maniability = psGetFloat("maniability", tcfg);
+        ttype[i].numlaser = cfShipGetLaser(tcfg, ttype[i].laser);
+        tcfg = tcfg->next;
+    }
 
-	cs = config_lookup(&conf, "shiptypes");
-	nbship = config_setting_length(cs);
+    scfg = psGetObject("shiptypes", conf);
+	nbship = scfg->len;
 	stype = malloc(sizeof(*stype) * nbship);
 	memset(stype, 0, sizeof(*stype) * nbship);
+    scfg = scfg->child;
 
 	for (i = 0; i < nbship; i++) {
-		cst = config_setting_get_elem(cs, i);
-		cfShipString(cst, name, stype);
-		cfShipString(cst, imgfile, stype);
-		cfShipFloat(cst, size, stype);
-		cfShipString(cst, shieldfile, stype);
-		cfShipFloat(cst, shieldsize, stype);
-		cfShipFloat(cst, maxhealth, stype);
-		cfShipFloat(cst, maniability, stype);
-		cfShipFloat(cst, thrust, stype);
+        cfShipString(scfg, name, stype);
+        cfShipString(scfg, imgfile, stype);
+        stype[i].size = psGetFloat("size", scfg);
+        cfShipString(scfg, shieldfile, stype);
+        stype[i].shieldsize = psGetFloat("shieldsize", scfg);
+        stype[i].maxhealth = psGetFloat("maxhealth", scfg);
+        stype[i].maniability = psGetFloat("maniability", scfg);
+        stype[i].thrust = psGetFloat("thrust", scfg);
 
-		stype[i].numlaser = cfShipGetLaser(cst, stype[i].laser);
-		cfShipGetBurst(cst, &stype[i]);
-		cfShipGetTurret(cst, &stype[i]);
-		cfShipGetHangar(cst, &stype[i]);
+        stype[i].numlaser = cfShipGetLaser(scfg, stype[i].laser);
+
+		cfShipGetBurst(scfg, &stype[i]);
+		cfShipGetTurret(scfg, &stype[i]);
+		cfShipGetHangar(scfg, &stype[i]);
 	}
 
-	config_destroy(&conf);
+    psFreeNodes(conf);
 	return 0;
 }
 
@@ -230,4 +214,4 @@ turrettype_t * cfGetTurret(const char * name) {
 	printf("Error cannot find turret type %s\n", name);
 	return NULL;
 }
-#endif
+

@@ -25,13 +25,6 @@
 //testing only
 #include "parse.h"
 
-
-/*
-#include "menu.h"
-#include "gamemain.h"
-#include "graphic.h"
-*/
-
 #include "config.h"
 
 SDL_Joystick *joy = NULL;
@@ -69,23 +62,22 @@ int main(int argc, char *argv[]) {
 
   /* Initialise SDL - when using C/C++ it's common to have to
 	 initialise libraries by calling a function within them. */
-/*	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK | SDL_INIT_TIMER)<0) {
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK | SDL_INIT_TIMER)<0) {
 		  fprintf(stderr, "Failed to initialise SDL: %s\n", SDL_GetError());
 		  exit(1);
 	}
 
 	atexit(exitCleanup);
-*/
 
-	//grInit();
+
+	grInit();
 	cfReadGraphic(&c);
-
+	gmStartSingle();
 
 #ifdef _WIN32
     return 0;
 #endif // _WIN32
 
 
-	gmStartSingle();
 	return 0;
 }

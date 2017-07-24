@@ -36,4 +36,6 @@ char *psReadfile(const char *filename);
 void psFreeNodes(struct ps_node *nd);
 struct ps_node *psGetObject(const char *name, struct ps_node* nd);
 int psGetInt(const char *name, struct ps_node* nd);
+const char *psGetStr(const char *name, struct ps_node* nd);
+float psGetFloat(const char *name, struct ps_node* nd);
 #endif /* CONFIG_H_ */

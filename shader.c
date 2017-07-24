@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <epoxy/gl.h>
+
 #include "shader.h"
 
 static char *read_file(const char *file)
@@ -15,10 +17,10 @@ static char *read_file(const char *file)
 	size_t size = 4096;
 	size_t len;
 	char *buf;
-	
+
 	fd = open(file, O_RDONLY);
 	assert(fd >= 0);
-	
+
 	buf = malloc(size);
 	assert(buf);
 	len = read(fd, buf, size);
@@ -40,7 +42,7 @@ static GLuint create_shader (const char* file_name, GLenum type) {
 	printf("creating shader from %s...\n", file_name);
 	const GLchar* shader_str;
 	GLuint shader;
-	
+
 	shader_str = read_file(file_name);
 
 	shader = glCreateShader (type);
@@ -94,7 +96,7 @@ GLuint create_programme (GLuint vert, GLuint frag)
 	glAttachShader (programme, frag);
 	// link the shader programme. if binding input attributes do that before link
 	glLinkProgram (programme);
-	
+
 	assert(is_programme_valid(programme) == GL_TRUE);
 
 	// delete shaders here to free memory

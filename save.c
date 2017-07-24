@@ -21,6 +21,10 @@ void saExit(void) {
 	close(savefd);
 }
 
+#ifdef _WIN32
+#define O_NONBLOCK 0
+#endif // _WIN32
+
 void saInit(char *file) {
 	savefd = open(file, O_WRONLY | O_CREAT | O_NONBLOCK | O_TRUNC, 0660);
 	if (savefd < 0) {

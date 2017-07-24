@@ -16,6 +16,8 @@
 
 #include "parse.h"
 
+static char *cfgbuf = NULL;
+
 enum {
     PS_COMMENT,
     PS_SEEK_KEY,
@@ -82,12 +84,13 @@ void psFreeNodes(struct ps_node *nd) {
         free(cur);
         cur = next;
     }
+    free(cfgbuf);
+    cfgbuf = NULL;
 }
 
 char *psReadfile(const char *filename) {
     int fd;
     struct stat st;
-    char *buf;
     int count;
 
     if (stat(filename, &st) < 0) {
@@ -99,17 +102,17 @@ char *psReadfile(const char *filename) {
         return NULL;
     }
 
-    buf = malloc(st.st_size + 1);
-    if (!buf)
+    cfgbuf = malloc(st.st_size + 1);
+    if (!cfgbuf)
         return NULL;
-    count = read(fd, buf, st.st_size);
+    count = read(fd, cfgbuf, st.st_size);
     if (count != st.st_size) {
-        fprintf(stderr, "Failed to read config file : %d/%d\n", count, st.st_size);
+        fprintf(stderr, "Failed to read config file : %d/%ld\n", count, st.st_size);
         return NULL;
     }
     close(fd);
-    buf[st.st_size] = 0;
-    return buf;
+    cfgbuf[st.st_size] = 0;
+    return cfgbuf;
 }
 
 struct ps_node *psParseFile(const char *filename) {
@@ -198,7 +201,7 @@ struct ps_node *psParseFile(const char *filename) {
                 t = PS_FLOAT;
         }
     }
-    printNodes(root, 0);
+    // printNodes(root, 0);
     return root;
 }
 
@@ -222,10 +225,41 @@ int psGetInt(const char *name, struct ps_node* nd) {
             if (cur->type == PS_INTEGER)
                 return cur->value_i;
             else
-                sprintf(stderr, "Error, Node %s is not integer\n", name);
+                fprintf(stderr, "Error, Node %s is not integer\n", name);
         }
     }
-    sprintf(stderr, "Error, Node %s not found\n", name);
+    fprintf(stderr, "Error, Node %s not found\n", name);
     return 0;
 }
 
+const char *psGetStr(const char *name, struct ps_node* nd) {
+    struct ps_node *cur;
+    if (!nd)
+        return 0;
+    for (cur = nd->child; cur; cur = cur->next) {
+        if (!strcmp(name, cur->key)) {
+            if (cur->type == PS_STRING)
+                return cur->value_s;
+            else
+                fprintf(stderr, "Error, Node %s is not a string\n", name);
+        }
+    }
+    fprintf(stderr, "Error, Node %s not found\n", name);
+    return NULL;
+}
+
+float psGetFloat(const char *name, struct ps_node* nd) {
+    struct ps_node *cur;
+    if (!nd)
+        return 0;
+    for (cur = nd->child; cur; cur = cur->next) {
+        if (!strcmp(name, cur->key)) {
+            if (cur->type == PS_FLOAT)
+                return cur->value_f;
+            else
+                fprintf(stderr, "Error, Node %s is not a float\n", name);
+        }
+    }
+    fprintf(stderr, "Error, Node %s not found\n", name);
+    return 0;
+}
