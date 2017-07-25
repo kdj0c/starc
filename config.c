@@ -188,6 +188,7 @@ int cfReadGameData(void) {
 		cfShipGetBurst(scfg, &stype[i]);
 		cfShipGetTurret(scfg, &stype[i]);
 		cfShipGetHangar(scfg, &stype[i]);
+		scfg = scfg->next;
 	}
 
     psFreeNodes(conf);

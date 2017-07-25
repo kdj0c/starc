@@ -7,7 +7,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <epoxy/gl.h>
+
+#define GL_GLEXT_PROTOTYPES
+#define GLEW_STATIC
+#include <GL/glew.h>
 
 #include "shader.h"
 

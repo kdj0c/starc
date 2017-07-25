@@ -11,9 +11,10 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
-#include <epoxy/gl.h>
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
 
 #include "graphic.h"
@@ -47,8 +48,9 @@ void grInit (void) {
 	grwindow = SDL_CreateWindow("starc",
 	                            SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
-                                0, 0,
-                                SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
+                                800, 600,
+                                SDL_WINDOW_OPENGL);
+//                                SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
 	/*
 							  , SDL_WINDOWPOS_CENTERED
 							  , SDL_WINDOWPOS_CENTERED
@@ -65,6 +67,12 @@ void grInit (void) {
 		fprintf(stderr, "Failed to create OpenGL context: %s\n", SDL_GetError());
 		exit(1);
 	}
+
+    GLenum err = glewInit();
+    if (GLEW_OK != err) {
+        printf("Glew Iinit Error: %s\n", glewGetErrorString(err));
+        exit(1);
+    }
 
     /* get version info */
     renderer = glGetString (GL_RENDERER); /* get renderer string */

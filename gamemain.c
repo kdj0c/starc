@@ -11,7 +11,8 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
-#include <epoxy/gl.h>
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
@@ -257,11 +258,11 @@ void gmStartSingle(void) {
 	weInit();
 
 	saInit("replay1.rep");
-	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
-	evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
+	evPostCreateShip("v1", &pos_player, 0, ntGetId(), pl_local);
+//	evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
 
-	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
-	evPostCreateShip("w2", &pos_ai2, 1, ntGetId(), pl_ai);
+//	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai2, 1, ntGetId(), pl_ai);
 
 	grInitQuad();
 	grInitShader();

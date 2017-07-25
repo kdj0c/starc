@@ -12,9 +12,6 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-Weffc++" />
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -34,23 +31,38 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add directory="../SDL2-2.0.5/i686-w64-mingw32/include" />
+			<Add directory="../glew-2.0.0/include" />
 		</Compiler>
 		<Linker>
-			<Add library="../SDL2-2.0.5/i686-w64-mingw32/lib/libSDL2.dll.a" />
-			<Add library="../SDL2_image-2.0.1/i686-w64-mingw32/lib/libSDL2_image.dll.a" />
+			<Add library="glew32s" />
+			<Add library="SDL2" />
+			<Add library="SDL2_image" />
 			<Add library="opengl32" />
+			<Add directory="../SDL2-2.0.5/i686-w64-mingw32/lib" />
+			<Add directory="../SDL2_image-2.0.1/i686-w64-mingw32/lib" />
+			<Add directory="../glew-2.0.0/lib/Release/Win32" />
 		</Linker>
+		<Unit filename="ai.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ai.h" />
 		<Unit filename="config.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="config.cfg" />
 		<Unit filename="config.h" />
+		<Unit filename="event.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="event.h" />
 		<Unit filename="gamemain.c">
 			<Option compilerVar="CC" />
-			<Option compile="0" />
-			<Option link="0" />
 		</Unit>
 		<Unit filename="gamemain.h" />
+		<Unit filename="gametime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gametime.h" />
 		<Unit filename="graphic.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -59,15 +71,55 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="menu.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="menu.h" />
+		<Unit filename="mothership.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mothership.h" />
 		<Unit filename="parse.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="parse.h" />
+		<Unit filename="particle.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="particle.h" />
+		<Unit filename="save.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="save.h" />
+		<Unit filename="shader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="shader.h" />
+		<Unit filename="shaders/basic_tex_fs.glsl" />
+		<Unit filename="shaders/basic_tex_vs.glsl" />
+		<Unit filename="ship.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="ship.cfg" />
+		<Unit filename="ship.h" />
+		<Unit filename="star.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="star.h" />
+		<Unit filename="turret.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="turret.h" />
 		<Unit filename="vec.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="vec.h" />
+		<Unit filename="weapon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="weapon.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
