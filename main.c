@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
 
 	atexit(exitCleanup);
 
-
-	grInit();
 	cfReadGraphic(&c);
+	grInit(&c);
+
 	gmStartSingle();
 	return 0;
 }

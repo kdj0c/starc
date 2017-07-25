@@ -10,12 +10,7 @@
 #define __CONFIG_H_
 
 #include "ship.h"
-
-typedef struct {
-	int fullscreen;
-	int width;
-	int heigh;
-} grconf_t;
+#include "graphic.h"
 
 typedef struct {
 	char ip[32];

@@ -32,7 +32,7 @@ static GLint uniform_pos_off;
 static GLint uniform_pos_scal;
 static GLint uniform_colour;
 
-void grInit (void) {
+void grInit (grconf_t *c) {
 	SDL_GLContext glContext;
     const GLubyte* renderer;
     const GLubyte* version;
@@ -48,15 +48,9 @@ void grInit (void) {
 	grwindow = SDL_CreateWindow("starc",
 	                            SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
-                                800, 600,
-                                SDL_WINDOW_OPENGL);
-//                                SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
-	/*
-							  , SDL_WINDOWPOS_CENTERED
-							  , SDL_WINDOWPOS_CENTERED
-							  , g_gl_width
-							  , g_gl_height
-							  , SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);*/
+                                c->width, c->heigh,
+                                SDL_WINDOW_OPENGL | (c->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+
 	if (!grwindow) {
 		fprintf(stderr, "Failed to create SDL window: %s\n", SDL_GetError());
 		exit(1);

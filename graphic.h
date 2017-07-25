@@ -15,9 +15,15 @@
 
 #define WIDTH_UNIT 20000
 
+typedef struct {
+	int fullscreen;
+	int width;
+	int heigh;
+} grconf_t;
+
 #ifndef DEDICATED
 
-void grInit(void);
+void grInit(grconf_t *c);
 void grInitShader(void);
 void grInitQuad(void);
 
