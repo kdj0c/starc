@@ -59,9 +59,9 @@ void shLoadShip(void) {
 	list_for_each_entry(sh, &ship_head, list)
 	{
 		if (!sh->t->tex)
-			sh->t->tex = grLoadTexture(sh->t->imgfile);
+			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 1, 1);
 		if (!sh->t->shieldtex)
-			sh->t->shieldtex = grLoadTexture(sh->t->shieldfile);
+			sh->t->shieldtex = grLoadTextureArray(sh->t->shieldfile, 1, 1);
 		for (i = 0; i < sh->t->numturret; i++) {
 			if (!sh->t->turret[i].t->tex) {
 				sh->t->turret[i].t->tex = grLoadTexture(

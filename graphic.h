@@ -28,6 +28,7 @@ void grInitShader(void);
 void grInitQuad(void);
 
 unsigned int grLoadTexture(char * filename);
+unsigned int grLoadTextureArray(char * filename, int rows, int colomns);
 void grSetBlendAdd(unsigned int text);
 void grSetBlend(unsigned int text);
 void grSetColor(unsigned int color);

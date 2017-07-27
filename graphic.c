@@ -131,6 +131,10 @@ void grInitShader(void)
 
 
 unsigned int grLoadTexture(char * filename) {
+    return grLoadTextureArray(filename, 1, 1);
+
+
+
 	unsigned int textureHandle;
 	SDL_Surface *sdlsurf;
 
@@ -146,14 +150,66 @@ unsigned int grLoadTexture(char * filename) {
 	return textureHandle;
 }
 
+
+unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
+	unsigned int textureHandle;
+	SDL_Surface *sdlsurf;
+	int i;
+	int j;
+	int sizex;
+	int sizey;
+	GLenum err;
+
+	sdlsurf = IMG_Load(filename);
+
+	sizex = sdlsurf->w / colomns;
+	sizey = sdlsurf->h / rows;
+
+	glGenTextures(1, &textureHandle);
+	glActiveTexture (GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureHandle);
+    glTexStorage3D( GL_TEXTURE_2D_ARRAY,
+                  1,                    // mipmap level
+                  GL_BGRA,              //Internal format
+                  sizex, sizey,             //width,height
+                  rows * colomns          //Number of layers
+                );
+
+    for( i = 0; i < rows; i++)
+    {
+        for (j = 0; j < colomns; j++) {
+            printf("i %d, j %d, sizex %d, sizey %d, index %d\n",i, j, sizex, sizey, i * colomns + j);
+            glTexSubImage3D( GL_TEXTURE_2D_ARRAY,
+                     0,                     //Mipmap number
+                     j * sizex, i * sizey, i * colomns + j,                 //xoffset, yoffset, zoffset
+                     //0,0, i * colomns + j,
+                     sizex,sizey, 1,                 //width, height, depth
+                     GL_RGBA,                //format
+                     GL_UNSIGNED_BYTE,      //type
+                     sdlsurf->pixels);                //pointer to data
+
+
+            err = glGetError();
+            if (err)
+                printf("GL error %d\n", err);
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+	return textureHandle;
+}
+
 void grSetBlendAdd(unsigned int text) {
-	glBindTexture(GL_TEXTURE_2D, text);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 void grSetBlend(unsigned int text) {
-	glBindTexture(GL_TEXTURE_2D, text);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, 1.0);
@@ -218,12 +274,13 @@ void grBlit(vec_t p, float a, float b) {
 		 p.x + a, p.y + b,	0.0f,
 		 p.x + b, p.y - a,	0.0f,
 		 p.x - a, p.y - b,	0.0f,
-		 p.x - b, p.y + a,   0.0f
+		 p.x - b, p.y + a,  0.0f
 	};
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
     glBindVertexArray (quad_vao);
+    //glUniform1i(1, 0);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 }

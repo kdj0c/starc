@@ -32,8 +32,8 @@ static int freePart = 0;
 void paInit(void) {
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
-	texture = grLoadTexture("img/particle.png");
-	lastex = grLoadTexture("img/laser.png");
+	lastex = grLoadTextureArray("img/particle.png", 1, 1);
+	texture = grLoadTextureArray("img/ex1.png", 8, 8);
 }
 
 void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
