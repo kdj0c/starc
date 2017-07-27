@@ -59,7 +59,7 @@ void shLoadShip(void) {
 	list_for_each_entry(sh, &ship_head, list)
 	{
 		if (!sh->t->tex)
-			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 1, 1);
+			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 2, 1);
 		if (!sh->t->shieldtex)
 			sh->t->shieldtex = grLoadTextureArray(sh->t->shieldfile, 1, 1);
 		for (i = 0; i < sh->t->numturret; i++) {
@@ -306,7 +306,7 @@ void shDestroy(int netid, float time) {
 	ship_t *sh;
 
 	sh = shGetByID(netid);
-	paExplosion(sh->pos.p, sh->pos.v, 3.f, 2000, sh->t->burst[0].color, time);
+	paExplosion(sh->pos.p, sh->pos.v, sh->t->size * 2., 2000, sh->t->burst[0].color, time);
 	if (sh->health > 0)
 		sh->health = 0;
 }
@@ -537,19 +537,24 @@ ship_t *shGetByID(int id) {
 	return NULL ;
 }
 
+static int toto = 0;
 #ifndef DEDICATED
 void shDrawShips(float time) {
 	ship_t * sh;
+
+	toto++;
+	if (toto > 4)
+        toto = 0;
 	list_for_each_entry(sh, &ship_head, list)
 	{
 		if (sh->health <= 0)
 			continue;
 		grSetBlend(sh->t->tex);
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size);
+		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size, 0);
 		if (time - sh->lastdamage < 500.) {
 			grSetBlendAdd(sh->t->shieldtex);
-			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0);
+			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0);
 		}
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
@@ -577,7 +582,7 @@ void shDrawShipHUD(ship_t * pl) {
 			grSetColor(0x0000FF80);
 		else
 			grSetColor(0xFF000080);
-		grBlitRot(v, r, 10);
+		grBlitRot(v, r, 10, 0);
 	}
 }
 #endif

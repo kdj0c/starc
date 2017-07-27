@@ -15,6 +15,7 @@
 /* For testing only */
 #define NBPART 100000
 #define PA_LASER 0x1
+#define PA_EXP 0x2
 
 typedef struct {
 	float size;
@@ -27,40 +28,33 @@ typedef struct {
 static particle_t * parts;
 static unsigned int texture;
 static unsigned int lastex;
+static unsigned int exptex;
 static int freePart = 0;
 
 void paInit(void) {
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
-	lastex = grLoadTextureArray("img/particle.png", 1, 1);
-	texture = grLoadTextureArray("img/ex1.png", 8, 8);
+	texture = grLoadTextureArray("img/particle.png", 1, 1);
+	exptex = grLoadTextureArray("img/ex1.png", 8, 8);
 }
 
 void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
 		float time) {
 	int i;
 
-	if (freePart + number >= NBPART)
+    i = freePart;
+
+    parts[i].traj.base.p = p;
+    parts[i].traj.base.v = v;
+    parts[i].traj.basetime = time;
+    parts[i].traj.type = t_linear;
+	parts[i].maxlife = 2000;
+	parts[i].size = s;
+	parts[i].flag = PA_EXP;
+
+	freePart++;
+	if (freePart >= NBPART)
 		freePart = 0;
-
-	for (i = freePart; i < freePart + number; i++) {
-		float len, angle;
-		vec_t v1;
-		len = (float) ((rand() % 1000) - 500) / 500.f;
-		angle = (float) (rand() % 1000) * M_PI / 500.f;
-
-		v1 = vangle(len, angle);
-		parts[i].traj.base.p = vadd(p, vmul(v1, 50.0));
-		parts[i].traj.base.v = vadd(v, vmul(v1, s));
-		parts[i].traj.basetime = time;
-		parts[i].traj.type = t_linear;
-
-		parts[i].maxlife = rand() % 1000 + 500;
-		parts[i].color = color;
-		parts[i].size = rand() % 200 + 50;
-		parts[i].flag = 0;
-	}
-	freePart += number;
 }
 
 void paBurst(pos_t *p, float size, unsigned int color, float time) {
@@ -155,8 +149,13 @@ void paDraw(float time) {
 			grSetBlendAdd(lastex);
 			grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
 			grSetBlendAdd(texture);
+		} else if (parts[i].flag == PA_EXP) {
+		    printf("explosion %d\n", (int) ((1. - c) * 64));
+		    grSetBlend(exptex);
+		    grBlitSquare(p.p, parts[i].size, 5);
+            grSetBlendAdd(texture);
 		} else {
-			grBlitSquare(p.p, parts[i].size);
+			grBlitSquare(p.p, parts[i].size, 0);
 		}
 	}
 }

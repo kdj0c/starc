@@ -155,10 +155,9 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	unsigned int textureHandle;
 	SDL_Surface *sdlsurf;
 	int i;
-	int j;
+	int j = 0;
 	int sizex;
 	int sizey;
-	GLenum err;
 
 	sdlsurf = IMG_Load(filename);
 
@@ -175,24 +174,19 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
                   rows * colomns          //Number of layers
                 );
 
-    for( i = 0; i < rows; i++)
+    for( i = 0; i < colomns; i++)
     {
-        for (j = 0; j < colomns; j++) {
+   //     for (j = 0; j < rows; j++) {
             printf("i %d, j %d, sizex %d, sizey %d, index %d\n",i, j, sizex, sizey, i * colomns + j);
             glTexSubImage3D( GL_TEXTURE_2D_ARRAY,
                      0,                     //Mipmap number
-                     j * sizex, i * sizey, i * colomns + j,                 //xoffset, yoffset, zoffset
-                     //0,0, i * colomns + j,
-                     sizex,sizey, 1,                 //width, height, depth
+                     //j * sizex, i * sizey, i * colomns + j,                 //xoffset, yoffset, zoffset
+                     0, 0, i * colomns + j,
+                     sdlsurf->w, sizey, 1,                 //width, height, depth
                      GL_RGBA,                //format
                      GL_UNSIGNED_BYTE,      //type
                      sdlsurf->pixels);                //pointer to data
-
-
-            err = glGetError();
-            if (err)
-                printf("GL error %d\n", err);
-        }
+     //   }
     }
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -253,11 +247,11 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 }
 
-void grBlitSquare(vec_t p, float size) {
-    grBlit(p, size, 0.f);
+void grBlitSquare(vec_t p, float size, int i) {
+    grBlit(p, size, 0.f, i);
 }
 
-void grBlitRot(vec_t p, float r, float size) {
+void grBlitRot(vec_t p, float r, float size, int i) {
 	float nr;
 	float s;
 	float a;
@@ -266,10 +260,10 @@ void grBlitRot(vec_t p, float r, float size) {
 	s = size * M_SQRT1_2;
 	a = s * cos(nr);
 	b = s * sin(nr);
-	grBlit(p, a, b);
+	grBlit(p, a, b, i);
 }
 
-void grBlit(vec_t p, float a, float b) {
+void grBlit(vec_t p, float a, float b, int i) {
     GLfloat points2[] = {
 		 p.x + a, p.y + b,	0.0f,
 		 p.x + b, p.y - a,	0.0f,
@@ -280,7 +274,7 @@ void grBlit(vec_t p, float a, float b) {
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
     glBindVertexArray (quad_vao);
-    //glUniform1i(1, 0);
+    glUniform1i(1, i);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 }

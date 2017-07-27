@@ -91,7 +91,7 @@ void weDraw(float time) {
 
 		get_pos(time, &bul[i].traj, &p);
 		grSetColor(bul[i].color);
-		grBlitSquare(p.p, 150.);
+		grBlitSquare(p.p, 150., 0);
 	}
 }
 #endif
