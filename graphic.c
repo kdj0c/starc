@@ -77,6 +77,8 @@ void grInit (grconf_t *c) {
 
 static GLuint quad_vbo;
 static GLuint quad_vao;
+static GLuint texcoords_vbo;
+
 void grInitQuad(void) {
 	GLfloat points[] = {
 		 0.0f,	0.0f,	0.0f,
@@ -95,10 +97,10 @@ void grInitQuad(void) {
 	glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
 	glBufferData (GL_ARRAY_BUFFER, 12 * sizeof (GLfloat), points, GL_DYNAMIC_DRAW);
 
-	GLuint texcoords_vbo;
+
 	glGenBuffers (1, &texcoords_vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferData (GL_ARRAY_BUFFER, 8 * sizeof (GLfloat), texcoords, GL_STATIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, 8 * sizeof (GLfloat), texcoords, GL_DYNAMIC_DRAW);
 
 
 	glGenVertexArrays (1, &quad_vao);
@@ -253,6 +255,11 @@ void grBlitSquare(vec_t p, float size, int i) {
     grBlit(p, size, 0.f, i);
 }
 
+void grBlitSquare2(vec_t p, float size, int i) {
+    grBlit(p, size, 0.f, i);
+}
+
+
 void grBlitRot(vec_t p, float r, float size, int i) {
 	float nr;
 	float s;
@@ -272,9 +279,17 @@ void grBlit(vec_t p, float a, float b, int i) {
 		 p.x - a, p.y - b,	0.0f,
 		 p.x - b, p.y + a,  0.0f
 	};
+    GLfloat texcoords2[] = {
+		0.25f, 0.25f,
+		0.5f, 0.25f,
+		0.5f, 0.5f,
+		0.25f, 0.5f
+	};
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
+    glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(texcoords2), texcoords2);
     glBindVertexArray (quad_vao);
     glUniform1i(1, i);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */

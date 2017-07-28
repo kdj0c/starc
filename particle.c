@@ -35,7 +35,7 @@ void paInit(void) {
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
 	texture = grLoadTextureArray("img/particle.png", 1, 1);
-	exptex = grLoadTextureArray("img/merge1_alpha.png", 64, 1);
+	exptex = grLoadTextureArray("img/exp1.png", 1, 1);
 }
 
 void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
@@ -152,7 +152,7 @@ void paDraw(float time) {
 		} else if (parts[i].flag == PA_EXP) {
 		    printf("explosion %d\n", (int) ((1. - c) * 64));
 		    grSetBlend(exptex);
-		    grBlitSquare(p.p, parts[i].size, (int) ((1. - c) * 64));
+		    grBlitSquare2(p.p, parts[i].size, (int) ((1. - c) * 64));
             grSetBlendAdd(texture);
 		} else {
 			grBlitSquare(p.p, parts[i].size, 0);
