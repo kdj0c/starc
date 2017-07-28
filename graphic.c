@@ -155,9 +155,9 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	unsigned int textureHandle;
 	SDL_Surface *sdlsurf;
 	int i;
-	int j = 0;
 	int sizex;
 	int sizey;
+	GLuint err;
 
 	sdlsurf = IMG_Load(filename);
 
@@ -165,28 +165,30 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	sizey = sdlsurf->h / rows;
 
 	glGenTextures(1, &textureHandle);
-	glActiveTexture (GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureHandle);
-    glTexStorage3D( GL_TEXTURE_2D_ARRAY,
+    glTexStorage3D(GL_TEXTURE_2D_ARRAY,
                   1,                    // mipmap level
                   GL_BGRA,              //Internal format
                   sizex, sizey,             //width,height
-                  rows * colomns          //Number of layers
+                  rows          //Number of layers
                 );
 
-    for( i = 0; i < colomns; i++)
+    for( i = 0; i < rows; i++)
     {
-   //     for (j = 0; j < rows; j++) {
-            printf("i %d, j %d, sizex %d, sizey %d, index %d\n",i, j, sizex, sizey, i * colomns + j);
-            glTexSubImage3D( GL_TEXTURE_2D_ARRAY,
-                     0,                     //Mipmap number
-                     //j * sizex, i * sizey, i * colomns + j,                 //xoffset, yoffset, zoffset
-                     0, 0, i * colomns + j,
-                     sdlsurf->w, sizey, 1,                 //width, height, depth
-                     GL_RGBA,                //format
-                     GL_UNSIGNED_BYTE,      //type
-                     sdlsurf->pixels);                //pointer to data
-     //   }
+        printf("i %d, sizex %d, sizey %d\n",i, sizex, sizey);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+                 0,                     //Mipmap number
+                 0, 0, i,
+                 sizex, sizey, 1,                 //width, height, depth
+                 GL_RGBA,                //format
+                 GL_UNSIGNED_BYTE,      //type
+                 sdlsurf->pixels + 4 * i * sizex * sizey);                //pointer to data
+
+
+     err = glGetError();
+     if (err)
+        printf("Error %d\n", err);
     }
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);

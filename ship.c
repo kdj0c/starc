@@ -59,7 +59,7 @@ void shLoadShip(void) {
 	list_for_each_entry(sh, &ship_head, list)
 	{
 		if (!sh->t->tex)
-			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 2, 1);
+			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 1, 1);
 		if (!sh->t->shieldtex)
 			sh->t->shieldtex = grLoadTextureArray(sh->t->shieldfile, 1, 1);
 		for (i = 0; i < sh->t->numturret; i++) {
@@ -306,7 +306,7 @@ void shDestroy(int netid, float time) {
 	ship_t *sh;
 
 	sh = shGetByID(netid);
-	paExplosion(sh->pos.p, sh->pos.v, sh->t->size * 2., 2000, sh->t->burst[0].color, time);
+	paExplosion(sh->pos.p, sh->pos.v, sh->t->size * 3.5, 2000, sh->t->burst[0].color, time);
 	if (sh->health > 0)
 		sh->health = 0;
 }
