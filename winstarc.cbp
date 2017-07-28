@@ -67,6 +67,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="graphic.h" />
+		<Unit filename="img/atlas1.cfg" />
+		<Unit filename="img/atlas2.atlas" />
+		<Unit filename="img/atlas2.cfg" />
 		<Unit filename="list.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
