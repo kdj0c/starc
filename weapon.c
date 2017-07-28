@@ -15,6 +15,7 @@
 #include "graphic.h"
 #include "particle.h"
 #include "event.h"
+#include "config.h"
 /* For testing only */
 #define NBPROJ 1000
 
@@ -28,14 +29,14 @@ typedef struct {
 static bullet_t *bul;
 static int freeBul = 0;
 #ifndef DEDICATED
-static unsigned int wetex;
+static texc_t weTex;
 #endif
 
 void weInit(void) {
 	bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
 #ifndef DEDICATED
-	wetex = grLoadTexture("img/particle.png");
+	cfGetTexture("particle", &weTex);
 #endif
 }
 
@@ -84,14 +85,14 @@ void weDraw(float time) {
 	int i;
 	pos_t p;
 
-	grSetBlendAdd(wetex);
+	grSetBlendAdd(0);
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
 		grSetColor(bul[i].color);
-		grBlitSquare(p.p, 150., 0);
+		grBlitSquare(p.p, 150., 0, weTex.texc);
 	}
 }
 #endif

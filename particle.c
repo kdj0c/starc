@@ -12,6 +12,7 @@
 
 #include "vec.h"
 #include "graphic.h"
+#include "config.h"
 /* For testing only */
 #define NBPART 100000
 #define PA_LASER 0x1
@@ -26,16 +27,30 @@ typedef struct {
 } particle_t;
 
 static particle_t * parts;
-static unsigned int texture;
+static texc_t paTex;
 static unsigned int lastex;
-static unsigned int exptex;
+static texc_t exTex[64];
 static int freePart = 0;
 
 void paInit(void) {
+    int i, j;
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
-	texture = grLoadTextureArray("img/particle.png", 1, 1);
-	exptex = grLoadTextureArray("img/exp1.png", 1, 1);
+	cfGetTexture("particle", &paTex);
+	for (i =0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            texc_t *t = &exTex[i + j * 8];
+            t->index = 1;
+            t->texc[0] = 1./8. * i;
+            t->texc[1] = 1./8. * j;
+            t->texc[2] = 1./8. * (i + 1);
+            t->texc[3] = 1./8. * j;
+            t->texc[4] = 1./8. * (i + 1);
+            t->texc[5] = 1./8. * (j + 1);
+            t->texc[6] = 1./8. * i;
+            t->texc[7] = 1./8. * (j + 1);
+        }
+	}
 }
 
 void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
@@ -135,7 +150,15 @@ void paDraw(float time) {
 	int i;
 	float c;
 	pos_t p;
-	grSetBlendAdd(texture);
+
+    float texcoords[] = {
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f
+	};
+
+	grSetBlendAdd(0);
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
@@ -146,16 +169,18 @@ void paDraw(float time) {
 
 		get_pos(time, &parts[i].traj, &p);
 		if (parts[i].flag == PA_LASER) {
-			grSetBlendAdd(lastex);
-			grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
-			grSetBlendAdd(texture);
+			//grSetBlendAdd(lastex);
+			//grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
+			//grSetBlendAdd(texture);
 		} else if (parts[i].flag == PA_EXP) {
+		    int index;
+		    index = (int) ((1. - c) * 64);
 		    printf("explosion %d\n", (int) ((1. - c) * 64));
-		    grSetBlend(exptex);
-		    grBlitSquare2(p.p, parts[i].size, (int) ((1. - c) * 64));
-            grSetBlendAdd(texture);
+		    grSetBlend(0);
+		    grBlitSquare(p.p, parts[i].size, 1, exTex[index].texc);
+            grSetBlendAdd(0);
 		} else {
-			grBlitSquare(p.p, parts[i].size, 0);
+			grBlitSquare(p.p, parts[i].size, 0, paTex.texc);
 		}
 	}
 }

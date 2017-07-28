@@ -12,6 +12,7 @@
 
 #include "list.h"
 #include "vec.h"
+#include "graphic.h"
 
 #define LASER_RANGE 15000
 
@@ -62,11 +63,10 @@ typedef struct {
 
 typedef struct {
 	char name[16];
-	char imgfile[128];
-	unsigned int tex;
+	texc_t texture;
 	float size;
 	char shieldfile[32];
-	unsigned int shieldtex;
+	texc_t shieldtexture;
 	float shieldsize;
 	float maxhealth;
 	float maniability;

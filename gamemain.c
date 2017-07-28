@@ -252,6 +252,7 @@ void gmStartSingle(void) {
 	g_net = 0;
 	gtInit();
 	enterGameMode();
+	cfReadAtlasData();
 	cfReadGameData();
 	shLoadShip();
 	paInit();

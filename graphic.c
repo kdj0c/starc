@@ -31,6 +31,7 @@ static SDL_Window* grwindow;
 static GLint uniform_pos_off;
 static GLint uniform_pos_scal;
 static GLint uniform_colour;
+static GLuint atlasTexture;
 
 void grInit (grconf_t *c) {
 	SDL_GLContext glContext;
@@ -114,6 +115,9 @@ void grInitQuad(void) {
 
 	glEnableVertexAttribArray (0);
 	glEnableVertexAttribArray (1);
+
+	atlasTexture = grLoadTextureArray("img/atlas2.png", 1, 1);
+	glEnable(GL_BLEND);
 }
 
 void grInitShader(void)
@@ -152,7 +156,6 @@ unsigned int grLoadTexture(char * filename) {
 	return textureHandle;
 }
 
-
 unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	unsigned int textureHandle;
 	SDL_Surface *sdlsurf;
@@ -161,37 +164,41 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	int sizey;
 	GLuint err;
 
-	sdlsurf = IMG_Load(filename);
-
-	sizex = sdlsurf->w / colomns;
-	sizey = sdlsurf->h / rows;
-
 	glGenTextures(1, &textureHandle);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureHandle);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY,
                   1,                    // mipmap level
                   GL_BGRA,              //Internal format
-                  sizex, sizey,             //width,height
-                  rows          //Number of layers
+                  4096, 4096,             //width,height
+                  5          //Number of layers
                 );
 
-    for( i = 0; i < rows; i++)
-    {
-        printf("i %d, sizex %d, sizey %d\n",i, sizex, sizey);
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+
+	sdlsurf = IMG_Load("img/atlas2.png");
+
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
                  0,                     //Mipmap number
-                 0, 0, i,
-                 sizex, sizey, 1,                 //width, height, depth
+                 0, 0, 0,
+                 sdlsurf->w, sdlsurf->h, 1,                 //width, height, depth
                  GL_RGBA,                //format
                  GL_UNSIGNED_BYTE,      //type
-                 sdlsurf->pixels + 4 * i * sizex * sizey);                //pointer to data
+                 sdlsurf->pixels);                //pointer to data
+
+	sdlsurf = IMG_Load("img/ex1.png");
+
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+                 0,                     //Mipmap number
+                 0, 0, 1,
+                 sdlsurf->w, sdlsurf->h, 1,                 //width, height, depth
+                 GL_RGBA,                //format
+                 GL_UNSIGNED_BYTE,      //type
+                 sdlsurf->pixels);                //pointer to data
 
 
      err = glGetError();
      if (err)
         printf("Error %d\n", err);
-    }
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -201,14 +208,14 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 }
 
 void grSetBlendAdd(unsigned int text) {
-	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
-	glEnable(GL_BLEND);
+//	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
+//	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 void grSetBlend(unsigned int text) {
-	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
-	glEnable(GL_BLEND);
+//	glBindTexture(GL_TEXTURE_2D_ARRAY, text);
+//	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, 1.0);
 }
@@ -251,16 +258,16 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
 }
 
-void grBlitSquare(vec_t p, float size, int i) {
-    grBlit(p, size, 0.f, i);
+void grBlitSquare(vec_t p, float size, int i, float *texc) {
+    grBlit(p, size, 0.f, i, texc);
 }
 
 void grBlitSquare2(vec_t p, float size, int i) {
-    grBlit(p, size, 0.f, i);
+   // grBlit(p, size, 0.f, i);
 }
 
 
-void grBlitRot(vec_t p, float r, float size, int i) {
+void grBlitRot(vec_t p, float r, float size, int i, float *texc) {
 	float nr;
 	float s;
 	float a;
@@ -269,27 +276,21 @@ void grBlitRot(vec_t p, float r, float size, int i) {
 	s = size * M_SQRT1_2;
 	a = s * cos(nr);
 	b = s * sin(nr);
-	grBlit(p, a, b, i);
+	grBlit(p, a, b, i, texc);
 }
 
-void grBlit(vec_t p, float a, float b, int i) {
+void grBlit(vec_t p, float a, float b, int i, float *texc) {
     GLfloat points2[] = {
 		 p.x + a, p.y + b,	0.0f,
 		 p.x + b, p.y - a,	0.0f,
 		 p.x - a, p.y - b,	0.0f,
 		 p.x - b, p.y + a,  0.0f
 	};
-    GLfloat texcoords2[] = {
-		0.25f, 0.25f,
-		0.5f, 0.25f,
-		0.5f, 0.5f,
-		0.25f, 0.5f
-	};
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
     glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(texcoords2), texcoords2);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), texc);
     glBindVertexArray (quad_vao);
     glUniform1i(1, i);
     /* draw points 0-3 from the currently bound VAO with current in-use shader */

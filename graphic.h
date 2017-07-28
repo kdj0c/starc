@@ -21,6 +21,11 @@ typedef struct {
 	int heigh;
 } grconf_t;
 
+typedef struct {
+    int index;
+    float texc[8];
+} texc_t;
+
 #ifndef DEDICATED
 
 void grInit(grconf_t *c);
@@ -33,9 +38,9 @@ void grSetBlendAdd(unsigned int text);
 void grSetBlend(unsigned int text);
 void grSetColor(unsigned int color);
 void grSetShadow(float c);
-void grBlitSquare(vec_t a, float size, int i);
-void grBlitRot(vec_t p, float r, float size, int i);
-void grBlit(vec_t p, float a, float b, int i);
+void grBlitSquare(vec_t p, float size, int i, float *texc);
+void grBlitRot(vec_t p, float r, float size, int i, float *texc);
+void grBlit(vec_t p, float a, float b, int i, float *texc);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);

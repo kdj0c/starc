@@ -53,7 +53,7 @@ void shSetPlayer(ship_t *sh) {
 
 #ifndef DEDICATED
 void shLoadShip(void) {
-	ship_t * sh;
+/*	ship_t * sh;
 	int i;
 
 	list_for_each_entry(sh, &ship_head, list)
@@ -71,7 +71,7 @@ void shLoadShip(void) {
 			}
 		}
 	}
-	hudarrowtex = grLoadTexture("img/arrow.png");
+	hudarrowtex = grLoadTexture("img/arrow.png");*/
 }
 #endif
 
@@ -537,24 +537,20 @@ ship_t *shGetByID(int id) {
 	return NULL ;
 }
 
-static int toto = 0;
 #ifndef DEDICATED
 void shDrawShips(float time) {
 	ship_t * sh;
 
-	toto++;
-	if (toto > 4)
-        toto = 0;
 	list_for_each_entry(sh, &ship_head, list)
 	{
 		if (sh->health <= 0)
 			continue;
-		grSetBlend(sh->t->tex);
+		grSetBlend(0);
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size, 0);
+		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size, 0, sh->t->texture.texc);
 		if (time - sh->lastdamage < 500.) {
-			grSetBlendAdd(sh->t->shieldtex);
-			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0);
+			//grSetBlendAdd(0);
+			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0, sh->t->shieldtexture.texc);
 		}
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
@@ -582,7 +578,7 @@ void shDrawShipHUD(ship_t * pl) {
 			grSetColor(0x0000FF80);
 		else
 			grSetColor(0xFF000080);
-		grBlitRot(v, r, 10, 0);
+//		grBlitRot(v, r, 10, 0);
 	}
 }
 #endif

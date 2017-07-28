@@ -26,7 +26,7 @@ typedef struct {
 static star_t star[MAXST][MAXST];
 static int curx = 0;
 static int cury = 0;
-static unsigned int tex = 0;
+static texc_t tex[3];
 
 static void newrandstar(int cx, int cy) {
 	star[cx][cy].x = random1;
@@ -47,7 +47,9 @@ void stUpdate(float x, float y) {
 				newrandstar(cx, cy);
 			}
 		}
-		tex = grLoadTexture("img/star.png");
+		cfGetTexture("star", &tex[0]);
+		cfGetTexture("star1", &tex[1]);
+		cfGetTexture("star", &tex[2]);
 		initdone = 1;
 		return;
 	}
@@ -108,14 +110,16 @@ void stUpdate(float x, float y) {
 
 void stBlit(void) {
 	int cx, cy;
+	int img;
 	vec_t p;
-	grSetBlend(tex);
+	grSetBlend(0);
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
 			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
 			grSetShadow(star[cx][cy].c);
-			grBlitSquare(p, star[cx][cy].size, 0);
+			img = ((int)p.x) % 3;
+			grBlitSquare(p, star[cx][cy].size, 0, tex[img].texc);
 		}
 	}
 }

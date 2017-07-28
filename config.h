@@ -22,8 +22,10 @@ void cfReadGraphic(grconf_t * c);
 void cfReadNetwork(ntconf_t *c);
 
 int cfReadGameData(void);
+void cfGetTexture(const char *name, texc_t *tex);
 
 shiptype_t * cfGetShip(const char * name);
 turrettype_t * cfGetTurret(const char * name);
+
 
 #endif /* CONFIG_H_ */
