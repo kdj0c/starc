@@ -9,7 +9,7 @@
 
 
 
-#ifdef _WIN32
+#if 1
 #include "SDL2/SDL.h"
 
 

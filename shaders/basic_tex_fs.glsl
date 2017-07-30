@@ -1,4 +1,5 @@
-#version 430
+#version 420
+#extension GL_ARB_explicit_uniform_location : require
 
 in vec2 uv;
 uniform sampler2DArray basic_texture;

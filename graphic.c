@@ -11,10 +11,14 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
+
+#ifdef _WIN32
 #define GLEW_STATIC
 #include <GL/glew.h>
+#endif
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
 
 #include "graphic.h"
@@ -63,12 +67,13 @@ void grInit (grconf_t *c) {
 		exit(1);
 	}
 
+#ifdef _WIN32
     GLenum err = glewInit();
     if (GLEW_OK != err) {
         printf("Glew Iinit Error: %s\n", glewGetErrorString(err));
         exit(1);
     }
-
+#endif
     /* get version info */
     renderer = glGetString (GL_RENDERER); /* get renderer string */
     version = glGetString (GL_VERSION); /* version as a string */

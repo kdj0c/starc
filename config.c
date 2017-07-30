@@ -128,7 +128,7 @@ void cfGetTexture(const char *name, texc_t *tex) {
     a = getTexture(name);
     tex->index = 0;
 
-    printf("%d %d %d %d\n", a->x, a->y, a->w, a->h);
+    //printf("%s %d %d %d %d\n", name, a->x, a->y, a->w, a->h);
     texc[0] = a->x;        texc[1] = a->y;
     texc[2] = a->x + a->w; texc[3] = a->y;
     texc[4] = a->x + a->w; texc[5] = a->y + a->h;

@@ -11,8 +11,10 @@
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
+#ifdef _WIN32
 #define GLEW_STATIC
 #include <GL/glew.h>
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>

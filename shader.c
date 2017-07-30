@@ -7,10 +7,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
+#ifdef _WIN32
 #define GL_GLEXT_PROTOTYPES
 #define GLEW_STATIC
 #include <GL/glew.h>
+#endif
 
 #include "shader.h"
 
