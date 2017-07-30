@@ -367,6 +367,9 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 void shBurst(ship_t *sh, float time) {
 	int i;
 	float size;
+
+	if (!sh->traj.thrust)
+        return;
 	for (i = 0; i < sh->t->numburst; i++) {
 		pos_t p;
 		p.r = sh->pos.r;

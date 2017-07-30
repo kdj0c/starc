@@ -63,7 +63,7 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
     parts[i].traj.base.v = v;
     parts[i].traj.basetime = time;
     parts[i].traj.type = t_linear;
-	parts[i].maxlife = 2500;
+	parts[i].maxlife = 1500;
 	parts[i].size = s;
 	parts[i].flag = PA_EXP;
 
@@ -85,8 +85,6 @@ void paBurst(pos_t *p, float size, unsigned int color, float time) {
 	parts[i].traj.base.v = vadd(vsub(p->v, vangle(size * 0.8f, p->r)), t);
 	parts[i].traj.basetime = time;
 	parts[i].traj.type = t_linear;
-
-	i = freePart;
 	parts[i].maxlife = rand() % 1000 + 1000 / size;
 	parts[i].size = (rand() % 100 + 50) * size;
 	parts[i].color = color;
@@ -175,7 +173,6 @@ void paDraw(float time) {
 		} else if (parts[i].flag == PA_EXP) {
 		    int index;
 		    index = (int) ((1. - c) * 64);
-		    printf("explosion %d\n", (int) ((1. - c) * 64));
 		    grSetBlend(0);
 		    grBlitSquare(p.p, parts[i].size, 1, exTex[index].texc);
             grSetBlendAdd(0);
