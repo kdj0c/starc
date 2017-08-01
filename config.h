@@ -21,6 +21,7 @@ typedef struct {
 void cfReadGraphic(grconf_t * c);
 void cfReadNetwork(ntconf_t *c);
 
+void cfReadAtlasData(void);
 int cfReadGameData(void);
 void cfGetTexture(const char *name, texc_t *tex);
 void cfGetSize(const char *name, float *width, float *height);

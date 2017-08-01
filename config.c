@@ -81,7 +81,7 @@ typedef struct {
 static atlas_t *atlas;
 static int nbAtlas;
 
-int cfReadAtlasData(void) {
+void cfReadAtlasData(void) {
     struct ps_node *conf;
     struct ps_node *scfg;
     int i;
@@ -90,7 +90,7 @@ int cfReadAtlasData(void) {
 
 	if (!conf) {
 		printf("Error when reading configuration file atlas2.cfg\n");
-		return -1;
+		return;
 	}
 	scfg = psGetObject("images", conf);
 
@@ -274,7 +274,7 @@ int cfReadGameData(void) {
 	}
 
     psFreeNodes(conf);
-	return 0;
+    return 0;
 }
 
 shiptype_t * cfGetShip(const char * name) {

@@ -247,9 +247,13 @@ void gmLoop(void) {
 
 void gmStartSingle(void) {
 	make_pos(player, 0., 0., 0.);
-	make_pos(mother, 0., 10000., 0.);
 	make_pos(ai1, 5000., 0., 0.);
 	make_pos(ai2, 5000., 3000., 0.);
+	make_pos(ai3, 0., 5000., 0.);
+	make_pos(ai4, 0., 3000., 0.);
+	make_pos(ai5, 10000., 0., 0.);
+	make_pos(ai6, 8000., 3000., 0.);
+	make_pos(ai7, 3000., 8000., 0.);
 
 	g_net = 0;
 	gtInit();
@@ -262,10 +266,13 @@ void gmStartSingle(void) {
 
 	saInit("replay1.rep");
 	evPostCreateShip("v1", &pos_player, 0, ntGetId(), pl_local);
-//	evPostCreateShip("mother1", &pos_mother, 0, ntGetId(), pl_ai);
-
-//	evPostCreateShip("w1", &pos_ai1, 1, ntGetId(), pl_ai);
-	evPostCreateShip("v2", &pos_ai2, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v1", &pos_ai1, 0, ntGetId(), pl_ai);
+	evPostCreateShip("v1", &pos_ai2, 0, ntGetId(), pl_ai);
+	evPostCreateShip("v1", &pos_ai3, 0, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai4, 1, ntGetId(), pl_ai);
+    evPostCreateShip("v2", &pos_ai5, 1, ntGetId(), pl_ai);
+    evPostCreateShip("v2", &pos_ai6, 1, ntGetId(), pl_ai);
+    evPostCreateShip("v2", &pos_ai7, 1, ntGetId(), pl_ai);
 
 	grInitQuad();
 	grInitShader();
