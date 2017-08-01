@@ -15,13 +15,6 @@
 					<Add option="-g" />
 					<Add directory="/usr/include/SDL2" />
 				</Compiler>
-				<Linker>
-					<Add library="SDL2" />
-					<Add library="SDL2_image" />
-					<Add library="m" />
-					<Add library="config" />
-					<Add library="GL" />
-				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/starc" prefix_auto="1" extension_auto="1" />
@@ -39,6 +32,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add library="SDL2" />
+			<Add library="SDL2_image" />
+			<Add library="m" />
+			<Add library="GL" />
+		</Linker>
 		<Unit filename="ai.c">
 			<Option compilerVar="CC" />
 		</Unit>
