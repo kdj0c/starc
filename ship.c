@@ -330,7 +330,7 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
  * ships are considered round (it bounce on shield)
  * and the shock is elastic Formula :
  *         ->    ->  ->
- * k = 2 * AB . (Va -Vb) * m1 * m2 / (ABÂ² * (m1 + m2))
+ * k = 2 * AB . (Va -Vb) * m1 * m2 / (AB² * (m1 + m2))
  * ->    ->       ->     ->    ->       ->
  * Va' = Va - k * AB and Vb' = Vb + k * AB
  */
@@ -385,9 +385,6 @@ void shUpdateLocal(float time) {
 
 	list_for_each_entry(sh, &ship_head, list)
 	{
-		if (sh->health <= 0)
-			continue;
-
 		if (sh->traj.type != t_none) {
 /*			if (sh->in.acceleration && sh->engtime > 0.) {
 				float rem_power;
@@ -407,6 +404,8 @@ void shUpdateLocal(float time) {
 			get_pos(time, &sh->traj, &sh->pos);
 		}
 #ifndef DEDICATED
+		if (sh->health <= 0)
+			continue;
 		shBurst(sh, time);
 #endif
 	}
@@ -547,9 +546,9 @@ void shDrawShips(float time) {
 			continue;
 		grSetBlend(0);
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot(sh->pos.p, sh->pos.r, sh->t->size, 0, sh->t->texture.texc);
+		grBlitRot2(sh->pos.p, sh->pos.r, sh->t->w, sh->t->h, 0, sh->t->texture.texc);
 		if (time - sh->lastdamage < 500.) {
-			//grSetBlendAdd(0);
+			grSetBlendAdd(0);
 			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0, sh->t->shieldtexture.texc);
 		}
 		if (sh->t->numturret) {

@@ -23,6 +23,7 @@ void cfReadNetwork(ntconf_t *c);
 
 int cfReadGameData(void);
 void cfGetTexture(const char *name, texc_t *tex);
+void cfGetSize(const char *name, float *width, float *height);
 
 shiptype_t * cfGetShip(const char * name);
 turrettype_t * cfGetTurret(const char * name);

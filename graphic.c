@@ -169,7 +169,7 @@ unsigned int grLoadTextureArray(char * filename, int rows, int colomns) {
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureHandle);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY,
                   1,                    // mipmap level
-                  GL_BGRA,              //Internal format
+                  GL_RGBA8,              //Internal format
                   4096, 4096,             //width,height
                   5          //Number of layers
                 );
@@ -266,6 +266,29 @@ void grBlitSquare2(vec_t p, float size, int i) {
    // grBlit(p, size, 0.f, i);
 }
 
+void grBlitRot2(vec_t p, float r, float w, float h, int i, float *texc) {
+	vec_t h2;
+	vec_t w2;
+
+	h2 = vangle(h, r);
+	w2 = vangle(w, r);
+
+	GLfloat points[] = {
+		 p.x + h2.x - w2.y, p.y + h2.y + w2.x,	0.0f,
+		 p.x + h2.x + w2.y, p.y + h2.y - w2.x,	0.0f,
+		 p.x - h2.x + w2.y, p.y - h2.y - w2.x,	0.0f,
+		 p.x - h2.x - w2.y, p.y - h2.y + w2.x,	0.0f,
+	};
+
+    glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), points);
+    glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), texc);
+    glBindVertexArray (quad_vao);
+    glUniform1i(1, i);
+    /* draw points 0-3 from the currently bound VAO with current in-use shader */
+	glDrawArrays (GL_TRIANGLE_FAN, 0, 4);
+}
 
 void grBlitRot(vec_t p, float r, float size, int i, float *texc) {
 	float nr;

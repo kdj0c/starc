@@ -20,23 +20,29 @@
 #define NBPROJ 1000
 
 typedef struct {
+	float width;
+	float height;
+	texc_t tex;
+} wetype_t;
+
+typedef struct {
 	traj_t traj;
 	float maxlife;
 	unsigned int color;
 	int netid;
+	wetype_t *type;
 } bullet_t;
 
 static bullet_t *bul;
 static int freeBul = 0;
-#ifndef DEDICATED
-static texc_t weTex;
-#endif
+static wetype_t laserBlue;
 
 void weInit(void) {
 	bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
 #ifndef DEDICATED
-	cfGetTexture("particle", &weTex);
+	cfGetTexture("laserBlue16", &laserBlue.tex);
+    cfGetSize("laserBlue16", &laserBlue.width, &laserBlue.height);
 #endif
 }
 
@@ -60,6 +66,7 @@ void weMissile(int netid, int id, pos_t *p, unsigned int color, float time) {
 	bul[i].traj.type = t_linear;
 	bul[i].color = color | 0xFF;
 	bul[i].netid = netid;
+	bul[i].type = &laserBlue;
 }
 
 void weUpdate(float time) {
@@ -85,14 +92,15 @@ void weDraw(float time) {
 	int i;
 	pos_t p;
 
-	grSetBlendAdd(0);
+	grSetBlend(0);
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
-		grSetColor(bul[i].color);
-		grBlitSquare(p.p, 150., 0, weTex.texc);
+		//grSetColor(bul[i].color);
+		grBlitRot2(p.p, p.r, bul[i].type->width * 2., bul[i].type->height * 2., 0, bul[i].type->tex.texc);
+		//grBlitSquare(p.p, 150., 0, weTex.texc);
 	}
 }
 #endif

@@ -138,6 +138,16 @@ void cfGetTexture(const char *name, texc_t *tex) {
         tex->texc[i] = texc[i] / 4096.;
 }
 
+void cfGetSize(const char *name, float *width, float *height) {
+    atlas_t *a;
+
+    a = getTexture(name);
+
+    *width = (float) a->w;
+    *height = (float) a->h;
+}
+
+
 
 int cfShipGetLaser(struct ps_node *cfg, laser_t *las) {
     struct ps_node *lcfg;
@@ -224,7 +234,6 @@ int cfReadGameData(void) {
     tcfg = tcfg->child;
 
     for (i = 0; i < nbturret && tcfg; i++) {
-        atlas_t tex;
         cfShipString(tcfg, name, ttype);
         ttype[i].size = psGetFloat("size", tcfg);
         cfShipString(tcfg, shieldfile, ttype);
@@ -242,11 +251,16 @@ int cfReadGameData(void) {
     scfg = scfg->child;
 
 	for (i = 0; i < nbship; i++) {
+		float w,h;
 	    cfShipString(scfg, name, stype);
         cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
-        stype[i].size = psGetFloat("size", scfg);
+		cfGetSize(psGetStr("imgfile", scfg), &w, &h);
+		// double the size of the sprite
+        stype[i].size = 2 * sqrt(w*w + h*h);
+        stype[i].h = h;
+        stype[i].w = w;
         cfGetTexture(psGetStr("shieldfile", scfg), &stype[i].shieldtexture);
-        stype[i].shieldsize = psGetFloat("shieldsize", scfg);
+        stype[i].shieldsize = stype[i].size * 1.3f;
         stype[i].maxhealth = psGetFloat("maxhealth", scfg);
         stype[i].maniability = psGetFloat("maniability", scfg);
         stype[i].thrust = psGetFloat("thrust", scfg);

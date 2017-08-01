@@ -40,6 +40,7 @@ void grSetColor(unsigned int color);
 void grSetShadow(float c);
 void grBlitSquare(vec_t p, float size, int i, float *texc);
 void grBlitRot(vec_t p, float r, float size, int i, float *texc);
+void grBlitRot2(vec_t p, float r, float w, float h, int i, float *texc);
 void grBlit(vec_t p, float a, float b, int i, float *texc);
 void grDrawLine(float x1, float y1, float x2, float y2);
 void grChangeview(float x, float y, float r, float scale);
