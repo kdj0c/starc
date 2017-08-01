@@ -61,6 +61,9 @@ void grInit (grconf_t *c) {
 		exit(1);
 	}
 
+	grWidth = c->width;
+	grHeight = c->heigh;
+
 	glContext = SDL_GL_CreateContext(grwindow);
 	if (!glContext) {
 		fprintf(stderr, "Failed to create OpenGL context: %s\n", SDL_GetError());
