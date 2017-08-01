@@ -251,8 +251,8 @@ int cfReadGameData(void) {
 		cfGetTexture(psGetStr("shieldfile", scfg), &stype[i].shieldtexture);
 		stype[i].shieldsize = stype[i].size * 1.3f;
 		stype[i].maxhealth = psGetFloat("maxhealth", scfg);
-		stype[i].maniability = psGetFloat("maniability", scfg);
-		stype[i].thrust = psGetFloat("thrust", scfg);
+		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;
+		stype[i].thrust = psGetFloat("thrust", scfg) / 10000.;
 
 		stype[i].numlaser = cfShipGetLaser(scfg, stype[i].laser);
 
