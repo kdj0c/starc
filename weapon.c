@@ -42,7 +42,7 @@ void weInit(void) {
 	memset(bul, 0, NBPROJ * sizeof(*bul));
 #ifndef DEDICATED
 	cfGetTexture("laserBlue16", &laserBlue.tex);
-    cfGetSize("laserBlue16", &laserBlue.width, &laserBlue.height);
+	cfGetSize("laserBlue16", &laserBlue.width, &laserBlue.height);
 #endif
 }
 

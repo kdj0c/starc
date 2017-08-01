@@ -57,8 +57,7 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
 }
 
-void evPostFire(int owner, pos_t *p, unsigned int color, float lifetime,
-		float len, float width, int id, float time) {
+void evPostFire(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time) {
 	ev_fi_t ev;
 
 	ev.owner = owner;
@@ -121,8 +120,7 @@ void evPostEventLocal(float time, void *data, int size, event_e type) {
 		list_add(&new->list, &act_event);
 		return;
 	}
-	list_for_each_entry(prec, &act_event, list)
-	{
+	list_for_each_entry(prec, &act_event, list) {
 		if (prec->time > time)
 			break;
 	}
@@ -142,8 +140,7 @@ void evDoEvent(ev_t *ev) {
 		ev_cr_t *cr;
 		ship_t *sh;
 		cr = (ev_cr_t *) ev->data;
-		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner,
-				ev->time);
+		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner, ev->time);
 		shLoadShip();
 		if (cr->control == pl_ai)
 			aiCreate(sh);
@@ -178,8 +175,7 @@ void evDoEvent(ev_t *ev) {
 	{
 		ev_fi_t *fi;
 		fi = (ev_fi_t *) ev->data;
-		shFire(fi->owner, &fi->p, fi->len, fi->width, fi->lifetime, fi->color,
-				fi->id, ev->time);
+		shFire(fi->owner, &fi->p, fi->len, fi->width, fi->lifetime, fi->color, fi->id, ev->time);
 	}
 		break;
 	case ev_hit:

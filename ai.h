@@ -13,13 +13,13 @@
 
 typedef struct ai_s {
 	struct list_head list;
-	struct ai_s * next;
-	ship_t * ship;
-	ship_t * target;
+	struct ai_s *next;
+	ship_t *ship;
+	ship_t *target;
 	int state;
 } ai_t;
 
-ai_t * aiCreate(ship_t * sh);
+ai_t *aiCreate(ship_t *sh);
 void aiThink(float time);
 
 #endif /* AI_H_ */

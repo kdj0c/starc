@@ -90,18 +90,12 @@ void get_pos(float time, traj_t *traj, pos_t *pos) {
 	case t_circle:
 		pos->dr = traj->man;
 		pos->r = traj->base.r + dt * traj->man;
-		pos->v = vadd(traj->base.v,
-				vangle(traj->thrust / traj->man, traj->base.r + M_PI / 2.0));
-		pos->v = vadd(pos->v,
-				vangle(traj->thrust / traj->man,
-						traj->base.r - M_PI / 2.0 + traj->man * dt));
+		pos->v = vadd(traj->base.v, vangle(traj->thrust / traj->man, traj->base.r + M_PI / 2.0));
+		pos->v = vadd(pos->v, vangle(traj->thrust / traj->man, traj->base.r - M_PI / 2.0 + traj->man * dt));
 		pos->p = vadd(traj->base.p, vmul(traj->base.v, dt));
-		pos->p = vadd(pos->p,
-				vangle(dt * traj->thrust / traj->man,
-						traj->base.r + M_PI / 2.0));
+		pos->p = vadd(pos->p, vangle(dt * traj->thrust / traj->man, traj->base.r + M_PI / 2.0));
 		tmp1 = vsub(vangle(1., traj->base.r), vangle(1., pos->r));
-		pos->p = vadd(pos->p,
-				vmul(tmp1, traj->thrust / (traj->man * traj->man)));
+		pos->p = vadd(pos->p, vmul(tmp1, traj->thrust / (traj->man * traj->man)));
 		break;
 	default:
 		return;

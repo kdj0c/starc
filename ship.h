@@ -6,7 +6,6 @@
  * published by the Free Software Foundation.
  */
 
-
 #ifndef SHIP_H_
 #define SHIP_H_
 
@@ -23,15 +22,14 @@
 #define MAX_LASER 5
 #define MAX_ENGINE 5
 
-
 typedef struct {
-    vec_t p;
+	vec_t p;
 	float r;
 	unsigned int color;
 } laser_t;
 
 typedef struct {
-    vec_t p;
+	vec_t p;
 	float size;
 	unsigned int color;
 } burst_t;
@@ -52,8 +50,8 @@ typedef struct {
 } turrettype_t;
 
 typedef struct {
-    vec_t p;
-	turrettype_t * t;
+	vec_t p;
+	turrettype_t *t;
 } turretpos_t;
 
 typedef struct {
@@ -98,8 +96,8 @@ struct tur;
  */
 typedef struct ship_s {
 	struct list_head list;
-	shiptype_t * t;
-	struct tur * turret;
+	shiptype_t *t;
+	struct tur *turret;
 	float respawn_time;
 	float health;
 	float lastdamage;
@@ -113,7 +111,7 @@ typedef struct ship_s {
 } ship_t;
 
 struct tur {
-    vec_t p;
+	vec_t p;
 	float r;
 	float basetime;
 	float baseaim;
@@ -130,7 +128,7 @@ typedef struct tur turret_t;
 #ifndef DEDICATED
 void shDrawShips(float time);
 void shLoadShip(void);
-void shDrawShipHUD(ship_t * pl);
+void shDrawShipHUD(ship_t *pl);
 #else
 #define shLoadShip()
 #endif
@@ -148,10 +146,10 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time);
 void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
 void shDestroy(int netid, float time);
-ship_t * shCreateShip(char *name, pos_t *pos, int team, int netid, float time);
-ship_t * shFindMotherShip(int team);
-ship_t * shFindNearestEnemy(ship_t * self);
-void shNewTraj(shin_t *in, int netid,  float time);
+ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time);
+ship_t *shFindMotherShip(int team);
+ship_t *shFindNearestEnemy(ship_t *self);
+void shNewTraj(shin_t *in, int netid, float time);
 void shDisconnect(int clid);
 int shPostAllShips(float time, void *data);
 void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time);

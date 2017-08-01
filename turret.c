@@ -16,7 +16,7 @@
 #include "event.h"
 #include "weapon.h"
 
-void tuAddTurret(ship_t * sh) {
+void tuAddTurret(ship_t *sh) {
 	turret_t *new;
 	turretpos_t *t;
 	int i;
@@ -38,14 +38,13 @@ void tuDamage(turret_t *tu, float dg, float time) {
 	tu->lastdamage = time;
 }
 
-void tufirelaser(ship_t * sh, turret_t * tu, laser_t * las, float time) {
+void tufirelaser(ship_t *sh, turret_t *tu, laser_t *las, float time) {
 	pos_t p;
 
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(),
-			time);
+	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time);
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {
@@ -167,8 +166,7 @@ void tuUpdate(ship_t *sh, float time) {
 			d1 = vmatrix1(d, tu->r);
 			a = -atan2f(d1.y, d1.x);
 
-			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE
-					&& time - tu->lastfire > 200.) {
+			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE && time - tu->lastfire > 200.) {
 				for (l = 0; l < t->t->numlaser; l++) {
 					tufirelaser(sh, tu, &t->t->laser[l], time);
 				}
@@ -188,24 +186,25 @@ void tuUpdate(ship_t *sh, float time) {
 	}
 	evPostTurret(sh->netid, dir, time);
 }
+
 #ifndef DEDICATED
-void tuDraw(ship_t * sh, float time) {
+void tuDraw(ship_t *sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
 	int i;
-//	vec_t p;
+//  vec_t p;
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
-//		p = vadd(tu->p, vangle(200., tu->r));
+//      p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
 		grSetBlend(t->t->tex);
-//		grBlitRot(tu->p, tu->r, 700., 0);
+//      grBlitRot(tu->p, tu->r, 700., 0);
 		if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd(t->t->shieldtex);
-//			grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0);
+//          grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0);
 		}
 
 	}

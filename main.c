@@ -6,7 +6,6 @@
  * published by the Free Software Foundation.
  */
 
-
 #ifdef _WIN32
 #include <windows.h>
 #endif // _WIN32
@@ -51,18 +50,15 @@ void exitCleanup(void) {
 }
 
 #ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hInstance,
-                   HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine,
-                   int nCmdShow ) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 #else
 int main(int argc, char *argv[]) {
 #endif // _WIN32
 	grconf_t c;
 
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK | SDL_INIT_TIMER)<0) {
-		  fprintf(stderr, "Failed to initialise SDL: %s\n", SDL_GetError());
-		  exit(1);
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER) < 0) {
+		fprintf(stderr, "Failed to initialise SDL: %s\n", SDL_GetError());
+		exit(1);
 	}
 
 	atexit(exitCleanup);

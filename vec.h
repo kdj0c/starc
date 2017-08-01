@@ -15,10 +15,10 @@ typedef struct {
 } vec_t;
 
 typedef struct {
-	vec_t p; //position
-	vec_t v; //speed
-	float r; //angle
-	float dr; //angle speed
+	vec_t p;	//position
+	vec_t v;	//speed
+	float r;	//angle
+	float dr;	//angle speed
 } pos_t;
 
 vec_t vadd(vec_t a, vec_t b);
@@ -31,8 +31,9 @@ float sqnorm(vec_t a);
 
 //#float sqdist(vec_t a, vec_t b);
 static inline float sqdist(vec_t a, vec_t b) {
-    return ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+	return ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
+
 float norm(vec_t a);
 float scal(vec_t a, vec_t b);
 
@@ -49,18 +50,18 @@ static inline vec_t vec(float x, float y) {
 /* Trajectory lib */
 
 typedef enum {
-    t_none,
-    t_linear,
-    t_linear_acc,
-    t_circle,
+	t_none,
+	t_linear,
+	t_linear_acc,
+	t_circle,
 } traj_e;
 
 typedef struct {
-    traj_e type;
-    float basetime;
-    pos_t base;
-    float thrust;
-    float man;
+	traj_e type;
+	float basetime;
+	pos_t base;
+	float thrust;
+	float man;
 } traj_t;
 
 void get_pos(float time, traj_t *traj, pos_t *pos);

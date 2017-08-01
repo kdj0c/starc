@@ -9,21 +9,20 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
-
 #include "list.h"
 #include "vec.h"
 #include "ship.h"
 
 typedef enum {
-	ev_newship, //???
-	ev_newtraj, //client->server
-	ev_respawn, //server->client
-	ev_destroyed, //server->client
-	ev_fire, //client->server
+	ev_newship,	//???
+	ev_newtraj,	//client->server
+	ev_respawn,	//server->client
+	ev_destroyed,	//server->client
+	ev_fire,	//client->server
 	ev_hit,
-	ev_turret, //client->server
-	ev_collide, //server->client
-	ev_ping // network only
+	ev_turret,	//client->server
+	ev_collide,	//server->client
+	ev_ping	// network only
 } event_e;
 
 enum {
@@ -55,43 +54,43 @@ typedef struct {
 } ev_tr_t;
 
 typedef struct {
-    int owner;
-    int ms;
-    pos_t newpos;
+	int owner;
+	int ms;
+	pos_t newpos;
 } ev_rp_t;
 
 typedef struct {
-    int owner;
+	int owner;
 } ev_ds_t;
 
 typedef struct {
-    int owner;
-    pos_t p;
-    unsigned int color;
-    int id;
-    float lifetime;
-    float len;
-    float width;
+	int owner;
+	pos_t p;
+	unsigned int color;
+	int id;
+	float lifetime;
+	float len;
+	float width;
 } ev_fi_t;
 
 typedef struct {
-    int owner;
-    int target;
-    int turret;
-    pos_t p;
-    int id;
+	int owner;
+	int target;
+	int turret;
+	pos_t p;
+	int id;
 } ev_hi_t;
 
 typedef struct {
-    int owner;
-    float direction[MAX_TURRET];
+	int owner;
+	float direction[MAX_TURRET];
 } ev_tu_t;
 
 typedef struct {
-    int owner1;
-    int owner2;
-    pos_t p1;
-    pos_t p2;
+	int owner1;
+	int owner2;
+	pos_t p1;
+	pos_t p2;
 } ev_co_t;
 
 void evConsumeEvent(float time);

@@ -26,43 +26,42 @@ typedef struct {
 	unsigned int flag;
 } particle_t;
 
-static particle_t * parts;
+static particle_t *parts;
 static texc_t paTex;
 static unsigned int lastex;
 static texc_t exTex[64];
 static int freePart = 0;
 
 void paInit(void) {
-    int i, j;
+	int i, j;
 	parts = malloc(NBPART * sizeof(*parts));
 	memset(parts, 0, NBPART * sizeof(*parts));
 	cfGetTexture("particle", &paTex);
-	for (i =0; i < 8; i++) {
-        for (j = 0; j < 8; j++) {
-            texc_t *t = &exTex[i + j * 8];
-            t->index = 1;
-            t->texc[0] = 1./8. * i;
-            t->texc[1] = 1./8. * j;
-            t->texc[2] = 1./8. * (i + 1);
-            t->texc[3] = 1./8. * j;
-            t->texc[4] = 1./8. * (i + 1);
-            t->texc[5] = 1./8. * (j + 1);
-            t->texc[6] = 1./8. * i;
-            t->texc[7] = 1./8. * (j + 1);
-        }
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 8; j++) {
+			texc_t *t = &exTex[i + j * 8];
+			t->index = 1;
+			t->texc[0] = 1. / 8. * i;
+			t->texc[1] = 1. / 8. * j;
+			t->texc[2] = 1. / 8. * (i + 1);
+			t->texc[3] = 1. / 8. * j;
+			t->texc[4] = 1. / 8. * (i + 1);
+			t->texc[5] = 1. / 8. * (j + 1);
+			t->texc[6] = 1. / 8. * i;
+			t->texc[7] = 1. / 8. * (j + 1);
+		}
 	}
 }
 
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color,
-		float time) {
+void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time) {
 	int i;
 
-    i = freePart;
+	i = freePart;
 
-    parts[i].traj.base.p = p;
-    parts[i].traj.base.v = v;
-    parts[i].traj.basetime = time;
-    parts[i].traj.type = t_linear;
+	parts[i].traj.base.p = p;
+	parts[i].traj.base.v = v;
+	parts[i].traj.basetime = time;
+	parts[i].traj.type = t_linear;
 	parts[i].maxlife = 1500;
 	parts[i].size = s;
 	parts[i].flag = PA_EXP;
@@ -115,9 +114,9 @@ void paLas(pos_t p, float len, unsigned int color) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 50 + 150;
-//	parts[i].p = p;
+//  parts[i].p = p;
 	parts[i].size = len;
-//	parts[i].life = parts[i].maxlife;
+//  parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
 	parts[i].flag = PA_LASER;
 	freePart++;
@@ -125,8 +124,7 @@ void paLas(pos_t p, float len, unsigned int color) {
 		freePart = 0;
 }
 
-void paLas2(pos_t *p, float len, float width, float lifetime,
-		unsigned int color, float time) {
+void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = time + lifetime;
@@ -134,9 +132,9 @@ void paLas2(pos_t *p, float len, float width, float lifetime,
 	parts[i].size = len;
 
 	parts[i].maxlife = rand() % 30 + 30;
-//	parts[i].p = *p;
+//  parts[i].p = *p;
 	parts[i].size = len;
-//	parts[i].life = parts[i].maxlife;
+//  parts[i].life = parts[i].maxlife;
 	parts[i].color = color;
 	parts[i].flag = PA_LASER;
 	freePart++;
@@ -149,7 +147,7 @@ void paDraw(float time) {
 	float c;
 	pos_t p;
 
-    float texcoords[] = {
+	float texcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
 		1.0f, 1.0f,
@@ -171,11 +169,11 @@ void paDraw(float time) {
 			//grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
 			//grSetBlendAdd(texture);
 		} else if (parts[i].flag == PA_EXP) {
-		    int index;
-		    index = (int) ((1. - c) * 64);
-		    grSetBlend(0);
-		    grBlitSquare(p.p, parts[i].size, 1, exTex[index].texc);
-            grSetBlendAdd(0);
+			int index;
+			index = (int) ((1. - c) * 64);
+			grSetBlend(0);
+			grBlitSquare(p.p, parts[i].size, 1, exTex[index].texc);
+			grSetBlendAdd(0);
 		} else {
 			grBlitSquare(p.p, parts[i].size, 0, paTex.texc);
 		}

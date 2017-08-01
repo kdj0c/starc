@@ -11,7 +11,6 @@
 
 #include "event.h"
 
-
 #if !defined __GNUC__ || (__GNUC__ > 2)
 #define BEG_UNION	union {
 #define END_UNION   };
@@ -55,9 +54,13 @@ int ntGetId(void);
 void ntHandleMessage(void);
 void ntSendEvent(float time, void *data, int size, event_e type);
 #else
-static inline void ntInit(void) {};
-static inline void ntSendPing(void) {};
-static inline void ntHandleMessage(void) {};
-static inline void ntSendEvent(float time, void *data, int size, event_e type) {};
+static inline void ntInit(void) {
+};
+static inline void ntSendPing(void) {
+};
+static inline void ntHandleMessage(void) {
+};
+static inline void ntSendEvent(float time, void *data, int size, event_e type) {
+};
 #endif
 #endif /* NETWORK_H_ */

@@ -9,7 +9,6 @@
 #ifndef GRAPHIC_H_
 #define GRAPHIC_H_
 
-
 #include <SDL2/SDL.h>
 #include "vec.h"
 
@@ -22,8 +21,8 @@ typedef struct {
 } grconf_t;
 
 typedef struct {
-    int index;
-    float texc[8];
+	int index;
+	float texc[8];
 } texc_t;
 
 #ifndef DEDICATED
@@ -32,8 +31,8 @@ void grInit(grconf_t *c);
 void grInitShader(void);
 void grInitQuad(void);
 
-unsigned int grLoadTexture(char * filename);
-unsigned int grLoadTextureArray(char * filename, int rows, int colomns);
+unsigned int grLoadTexture(char *filename);
+unsigned int grLoadTextureArray(char *filename, int rows, int colomns);
 void grSetBlendAdd(unsigned int text);
 void grSetBlend(unsigned int text);
 void grSetColor(unsigned int color);

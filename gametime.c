@@ -6,24 +6,18 @@
  * published by the Free Software Foundation.
  */
 
-
-
-
 #if 1
 #include "SDL2/SDL.h"
 
-
-void gtInit(void) {}
-
-
-
-int gtGetTime(void){
-    return SDL_GetTicks();
+void gtInit(void) {
 }
 
+int gtGetTime(void) {
+	return SDL_GetTicks();
+}
 
-void gtSetOffset(float offset) {}
-
+void gtSetOffset(float offset) {
+}
 
 #else
 #include <stdio.h>

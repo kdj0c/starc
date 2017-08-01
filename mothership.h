@@ -10,6 +10,6 @@
 #define MOTHERSHIP_H_
 
 void msInitMotherShip();
-void msRespawn(ship_t * sh, ship_t *ms, float time);
+void msRespawn(ship_t *sh, ship_t *ms, float time);
 
 #endif /* MOTHERSHIP_H_ */

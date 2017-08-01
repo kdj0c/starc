@@ -32,11 +32,12 @@
 #include "gametime.h"
 #include "save.h"
 
-ship_t * player = NULL;
+ship_t *player = NULL;
 static float scale = 1.f;
 int g_net = 1;
 static int gpause = 0;
 shin_t pl_in = { 0, };
+
 int kleft = 0;
 int kright = 0;
 
@@ -77,7 +78,7 @@ void grDraw(void) {
 			ntSendPing();
 	}
 
-	glClear (GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	if (player)
 		stUpdate(player->pos.p.x, player->pos.p.y);
@@ -99,7 +100,7 @@ void grDraw(void) {
 		//grDrawHUD(player->health);
 		//shDrawShipHUD(player);
 	}
-    grSwap();
+	grSwap();
 }
 
 static void sendkey(void) {
@@ -176,9 +177,9 @@ void keydown(int key) {
 
 void joyAxisMove(int axis, int value) {
 	if (axis == 0) {
-		pl_in.direction = - ((float) value) / 32768.f;
+		pl_in.direction = -((float) value) / 32768.f;
 	} else if (axis == 1) {
-		pl_in.acceleration = - ((float) value) / 32768.f;
+		pl_in.acceleration = -((float) value) / 32768.f;
 	}
 	evPostTrajEv(&pl_in, player->netid);
 }
@@ -229,7 +230,7 @@ void gmGetEvent(void) {
 		if (ev.type == SDL_JOYBUTTONUP)
 			joyButtonUp(ev.jbutton.button);
 
-        if (ev.type == SDL_WINDOWEVENT && ev.window.event == SDL_WINDOWEVENT_RESIZED)
+		if (ev.type == SDL_WINDOWEVENT && ev.window.event == SDL_WINDOWEVENT_RESIZED)
 			grReshape(ev.window.data1, ev.window.data2);
 	}
 }
@@ -270,9 +271,9 @@ void gmStartSingle(void) {
 	evPostCreateShip("v1", &pos_ai2, 0, ntGetId(), pl_ai);
 	evPostCreateShip("v1", &pos_ai3, 0, ntGetId(), pl_ai);
 	evPostCreateShip("v2", &pos_ai4, 1, ntGetId(), pl_ai);
-    evPostCreateShip("v2", &pos_ai5, 1, ntGetId(), pl_ai);
-    evPostCreateShip("v2", &pos_ai6, 1, ntGetId(), pl_ai);
-    evPostCreateShip("v2", &pos_ai7, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai5, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai6, 1, ntGetId(), pl_ai);
+	evPostCreateShip("v2", &pos_ai7, 1, ntGetId(), pl_ai);
 
 	grInitQuad();
 	grInitShader();
@@ -309,4 +310,3 @@ void gmReplay(void) {
 	saReplay("replay1.rep");
 	gmLoop();
 }
-

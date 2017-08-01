@@ -11,7 +11,7 @@
 
 #include "ship.h"
 
-void tuAddTurret(ship_t * sh);
+void tuAddTurret(ship_t *sh);
 void tuUpdate(ship_t *sh, float dt);
 void tuSetMove(int netid, float *dir, float time);
 turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min);
@@ -19,7 +19,7 @@ int tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len);
 void tuDamage(turret_t *tu, float dg, float time);
 
 #ifndef DEDICATED
-void tuDraw(ship_t * sh, float time);
+void tuDraw(ship_t *sh, float time);
 #else
 #define tuDraw
 #endif

@@ -6,7 +6,6 @@
  * published by the Free Software Foundation.
  */
 
-
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
@@ -14,7 +13,7 @@
 
 typedef struct {
 	char name[64];
-	void (*func)(void);
+	void (*func) (void);
 } menuentry_t;
 
 void meOptions(void);
@@ -23,12 +22,14 @@ void meExit(void);
 #define NB_ENTRY 5
 
 static menuentry_t menu[] = {
-		{ .name = "SinglePlayer", .func = gmStartSingle, }, { .name =
-				"MultiPlayer", .func = gmStartMulti, }, { .name = "Replay",
-				.func = gmReplay, }, { .name = "Options", .func = meOptions, },
-		{ .name = "Exit", .func = meExit, } };
+	{.name = "SinglePlayer",.func = gmStartSingle,}, {.name = "MultiPlayer",.func = gmStartMulti,}, {.name = "Replay",
+																									 .func = gmReplay,}, {.name =
+																														  "Options",.func =
+																														  meOptions,},
+	{.name = "Exit",.func = meExit,}
+};
 
-FTGLfont * menufont;
+FTGLfont *menufont;
 static int cursor = 0;
 
 void meOptions(void) {
@@ -121,4 +122,3 @@ void meInitMenu(void) {
 	menufont = ftglCreateTextureFont("Digeria Normal.ttf");
 	ftglSetFontFaceSize(menufont, 30, 30);
 }
-
