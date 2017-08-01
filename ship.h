@@ -64,9 +64,6 @@ typedef struct {
 	texc_t texture;
 	/* diameter */
 	float size;
-	/* h/2 and w/2 */
-	float h;
-	float w;
 	char shieldfile[32];
 	texc_t shieldtexture;
 	float shieldsize;

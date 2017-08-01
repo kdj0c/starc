@@ -21,10 +21,6 @@
 #include "event.h"
 #include "weapon.h"
 
-#ifndef DEDICATED
-static int hudarrowtex = 0;
-#endif
-
 #define RELOAD 200.
 #define ENG_POWER 1000.
 #define DEAD -12345.f
@@ -533,11 +529,11 @@ void shDrawShips(float time) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
-		grSetBlend(0);
+		grSetBlend();
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot2(sh->pos.p, sh->pos.r, sh->t->w, sh->t->h, 0, sh->t->texture.texc);
+		grBlitRot2(sh->pos.p, sh->pos.r, &sh->t->texture);
 		if (time - sh->lastdamage < 500.) {
-			grSetBlendAdd(0);
+			grSetBlendAdd();
 			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0, sh->t->shieldtexture.texc);
 		}
 		if (sh->t->numturret) {
@@ -547,6 +543,7 @@ void shDrawShips(float time) {
 }
 
 void shDrawShipHUD(ship_t *pl) {
+#if 0
 	ship_t *sh;
 	float r;
 	vec_t d, v;
@@ -567,5 +564,6 @@ void shDrawShipHUD(ship_t *pl) {
 			grSetColor(0xFF000080);
 //      grBlitRot(v, r, 10, 0);
 	}
+#endif
 }
 #endif

@@ -84,10 +84,10 @@ void cfReadAtlasData(void) {
 	struct ps_node *scfg;
 	int i;
 
-	conf = psParseFile("img/atlas2.cfg");
+	conf = psParseFile("img/atlas.cfg");
 
 	if (!conf) {
-		printf("Error when reading configuration file atlas2.cfg\n");
+		printf("Error when reading configuration file atlas.cfg\n");
 		return;
 	}
 	scfg = psGetObject("images", conf);
@@ -125,6 +125,8 @@ void cfGetTexture(const char *name, texc_t *tex) {
 
 	a = getTexture(name);
 	tex->index = 0;
+	tex->w = (float) a->w;
+	tex->h = (float) a->h;
 
 	//printf("%s %d %d %d %d\n", name, a->x, a->y, a->w, a->h);
 	texc[0] = a->x;
@@ -138,15 +140,6 @@ void cfGetTexture(const char *name, texc_t *tex) {
 
 	for (i = 0; i < 8; i++)
 		tex->texc[i] = texc[i] / 4096.;
-}
-
-void cfGetSize(const char *name, float *width, float *height) {
-	atlas_t *a;
-
-	a = getTexture(name);
-
-	*width = (float) a->w;
-	*height = (float) a->h;
 }
 
 int cfShipGetLaser(struct ps_node *cfg, laser_t *las) {
@@ -251,14 +244,10 @@ int cfReadGameData(void) {
 	scfg = scfg->child;
 
 	for (i = 0; i < nbship; i++) {
-		float w, h;
 		cfShipString(scfg, name, stype);
 		cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
-		cfGetSize(psGetStr("imgfile", scfg), &w, &h);
 		// double the size of the sprite
-		stype[i].size = 2 * sqrt(w * w + h * h);
-		stype[i].h = h;
-		stype[i].w = w;
+		stype[i].size = 2 * sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
 		cfGetTexture(psGetStr("shieldfile", scfg), &stype[i].shieldtexture);
 		stype[i].shieldsize = stype[i].size * 1.3f;
 		stype[i].maxhealth = psGetFloat("maxhealth", scfg);

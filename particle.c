@@ -28,7 +28,6 @@ typedef struct {
 
 static particle_t *parts;
 static texc_t paTex;
-static unsigned int lastex;
 static texc_t exTex[64];
 static int freePart = 0;
 
@@ -41,6 +40,8 @@ void paInit(void) {
 		for (j = 0; j < 8; j++) {
 			texc_t *t = &exTex[i + j * 8];
 			t->index = 1;
+			t->w = 4096. / 4.;
+			t->h = 4096. / 4.;
 			t->texc[0] = 1. / 8. * i;
 			t->texc[1] = 1. / 8. * j;
 			t->texc[2] = 1. / 8. * (i + 1);
@@ -59,6 +60,7 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, floa
 	i = freePart;
 
 	parts[i].traj.base.p = p;
+	parts[i].traj.base.r = ((rand() % 1000) - 500.) * M_PI / 500.;
 	parts[i].traj.base.v = v;
 	parts[i].traj.basetime = time;
 	parts[i].traj.type = t_linear;
@@ -147,14 +149,7 @@ void paDraw(float time) {
 	float c;
 	pos_t p;
 
-	float texcoords[] = {
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
-
-	grSetBlendAdd(0);
+	grSetBlendAdd();
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
@@ -171,9 +166,9 @@ void paDraw(float time) {
 		} else if (parts[i].flag == PA_EXP) {
 			int index;
 			index = (int) ((1. - c) * 64);
-			grSetBlend(0);
-			grBlitSquare(p.p, parts[i].size, 1, exTex[index].texc);
-			grSetBlendAdd(0);
+			grSetBlend();
+			grBlitRot2(p.p, p.r, &exTex[index].texc);
+			grSetBlendAdd();
 		} else {
 			grBlitSquare(p.p, parts[i].size, 0, paTex.texc);
 		}

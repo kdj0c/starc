@@ -20,8 +20,6 @@
 #define NBPROJ 1000
 
 typedef struct {
-	float width;
-	float height;
 	texc_t tex;
 } wetype_t;
 
@@ -40,10 +38,7 @@ static wetype_t laserBlue;
 void weInit(void) {
 	bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
-#ifndef DEDICATED
 	cfGetTexture("laserBlue16", &laserBlue.tex);
-	cfGetSize("laserBlue16", &laserBlue.width, &laserBlue.height);
-#endif
 }
 
 int weGetFree(void) {
@@ -92,15 +87,13 @@ void weDraw(float time) {
 	int i;
 	pos_t p;
 
-	grSetBlend(0);
+	grSetBlend();
 	for (i = 0; i < NBPROJ; i++) {
 		if (time >= bul[i].maxlife)
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
-		//grSetColor(bul[i].color);
-		grBlitRot2(p.p, p.r, bul[i].type->width * 2., bul[i].type->height * 2., 0, bul[i].type->tex.texc);
-		//grBlitSquare(p.p, 150., 0, weTex.texc);
+		grBlitRot2(p.p, p.r, &bul[i].type->tex);
 	}
 }
 #endif

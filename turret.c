@@ -200,10 +200,10 @@ void tuDraw(ship_t *sh, float time) {
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
 //      p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
-		grSetBlend(t->t->tex);
+		grSetBlend();
 //      grBlitRot(tu->p, tu->r, 700., 0);
 		if (time - tu->lastdamage < 500.) {
-			grSetBlendAdd(t->t->shieldtex);
+			grSetBlendAdd();
 //          grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0);
 		}
 

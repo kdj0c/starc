@@ -120,7 +120,7 @@ void grInitQuad(void) {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	atlasTexture = grLoadTextureArray("img/atlas2.png", 1, 1);
+	atlasTexture = grLoadTextureArray();
 	glEnable(GL_BLEND);
 }
 
@@ -138,30 +138,28 @@ void grInitShader(void) {
 	glUniform4f(uniform_colour, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-unsigned int grLoadTexture(char *filename) {
-	return grLoadTextureArray(filename, 1, 1);
-
-	unsigned int textureHandle;
+void grLoadTexture(const char *filename, int i) {
 	SDL_Surface *sdlsurf;
+	GLuint err;
 
 	sdlsurf = IMG_Load(filename);
+	if (!sdlsurf) {
+		printf("cannot load texture %s\n", filename);
+		return;
+	}
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,	//Mipmap number
+					0, 0, i, sdlsurf->w, sdlsurf->h, 1,	//width, height, depth
+					GL_RGBA,	//format
+					GL_UNSIGNED_BYTE,	//type
+					sdlsurf->pixels);	//pointer to data
 
-	glGenTextures(1, &textureHandle);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureHandle);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sdlsurf->w, sdlsurf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, sdlsurf->pixels);
-	return textureHandle;
+	err = glGetError();
+	if (err)
+		printf("GL Error %d when loading texture\n", err);
 }
 
-unsigned int grLoadTextureArray(char *filename, int rows, int colomns) {
+unsigned int grLoadTextureArray(void) {
 	unsigned int textureHandle;
-	SDL_Surface *sdlsurf;
-	int i;
-	int sizex;
-	int sizey;
-	GLuint err;
 
 	glGenTextures(1, &textureHandle);
 	glActiveTexture(GL_TEXTURE0);
@@ -169,28 +167,10 @@ unsigned int grLoadTextureArray(char *filename, int rows, int colomns) {
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1,	// mipmap level
 				   GL_RGBA8,	//Internal format
 				   4096, 4096,	//width,height
-				   5	//Number of layers
-		);
+				   5);	//Number of layers
 
-	sdlsurf = IMG_Load("img/atlas2.png");
-
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,	//Mipmap number
-					0, 0, 0, sdlsurf->w, sdlsurf->h, 1,	//width, height, depth
-					GL_RGBA,	//format
-					GL_UNSIGNED_BYTE,	//type
-					sdlsurf->pixels);	//pointer to data
-
-	sdlsurf = IMG_Load("img/ex1.png");
-
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,	//Mipmap number
-					0, 0, 1, sdlsurf->w, sdlsurf->h, 1,	//width, height, depth
-					GL_RGBA,	//format
-					GL_UNSIGNED_BYTE,	//type
-					sdlsurf->pixels);	//pointer to data
-
-	err = glGetError();
-	if (err)
-		printf("Error %d\n", err);
+	grLoadTexture("img/atlas.png", 0);
+	grLoadTexture("img/explosion1.png", 1);
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -199,15 +179,11 @@ unsigned int grLoadTextureArray(char *filename, int rows, int colomns) {
 	return textureHandle;
 }
 
-void grSetBlendAdd(unsigned int text) {
-//  glBindTexture(GL_TEXTURE_2D_ARRAY, text);
-//  glEnable(GL_BLEND);
+void grSetBlendAdd(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-void grSetBlend(unsigned int text) {
-//  glBindTexture(GL_TEXTURE_2D_ARRAY, text);
-//  glEnable(GL_BLEND);
+void grSetBlend(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, 1.0);
 }
@@ -254,16 +230,12 @@ void grBlitSquare(vec_t p, float size, int i, float *texc) {
 	grBlit(p, size, 0.f, i, texc);
 }
 
-void grBlitSquare2(vec_t p, float size, int i) {
-	// grBlit(p, size, 0.f, i);
-}
-
-void grBlitRot2(vec_t p, float r, float w, float h, int i, float *texc) {
+void grBlitRot2(vec_t p, float r, texc_t *tex) {
 	vec_t h2;
 	vec_t w2;
 
-	h2 = vangle(h, r);
-	w2 = vangle(w, r);
+	h2 = vangle(tex->h, r);
+	w2 = vangle(tex->w, r);
 
 	GLfloat points[] = {
 		p.x + h2.x - w2.y, p.y + h2.y + w2.x, 0.0f,
@@ -275,9 +247,9 @@ void grBlitRot2(vec_t p, float r, float w, float h, int i, float *texc) {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), points);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), texc);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
 	glBindVertexArray(quad_vao);
-	glUniform1i(1, i);
+	glUniform1i(1, tex->index);
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }

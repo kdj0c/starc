@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graphic.h"
+#include "config.h"
 
 typedef struct {
 	float x;
@@ -112,7 +113,7 @@ void stBlit(void) {
 	int cx, cy;
 	int img;
 	vec_t p;
-	grSetBlend(0);
+	grSetBlend();
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
 			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
