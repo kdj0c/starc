@@ -171,6 +171,9 @@ unsigned int grLoadTextureArray(void) {
 
 	grLoadTexture("img/atlas.png", 0);
 	grLoadTexture("img/explosion1.png", 1);
+	grLoadTexture("img/explosion2.png", 2);
+	grLoadTexture("img/explosion3.png", 3);
+	grLoadTexture("img/explosion4.png", 4);
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
