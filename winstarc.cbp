@@ -42,6 +42,7 @@
 			<Add directory="../SDL2_image-2.0.1/i686-w64-mingw32/lib" />
 			<Add directory="../glew-2.0.0/lib/Release/Win32" />
 		</Linker>
+		<Unit filename="README.md" />
 		<Unit filename="ai.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -67,9 +68,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="graphic.h" />
-		<Unit filename="img/atlas1.cfg" />
-		<Unit filename="img/atlas2.atlas" />
-		<Unit filename="img/atlas2.cfg" />
+		<Unit filename="img/atlas.atlas" />
+		<Unit filename="img/atlas.cfg" />
 		<Unit filename="list.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
