@@ -214,6 +214,7 @@ struct ps_node *psGetObject(const char *name, struct ps_node *nd) {
 			return cur;
 	}
 	return NULL;
+	fprintf(stderr, "Error, Node %s not found\n", name);
 }
 
 int psGetInt(const char *name, struct ps_node *nd) {

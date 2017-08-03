@@ -9,6 +9,23 @@
 #ifndef WEAPON_H_
 #define WEAPON_H_
 
+enum {
+	WE_LASER,
+	WE_MISSILE,
+};
+
+typedef struct {
+	char name[16];
+	texc_t texture;
+	/* diameter */
+	float size;
+	float speed;
+	float firerate;
+	int damage;
+	unsigned int color;
+	int type;
+} weapontype_t;
+
 void weInit(void);
 int weGetFree(void);
 void weMissile(int netid, int id, pos_t *p, unsigned int color, float time);

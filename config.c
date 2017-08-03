@@ -15,7 +15,10 @@
 #include "config.h"
 #include "parse.h"
 #include "ship.h"
+#include "weapon.h"
 
+int nbweapon = 0;
+weapontype_t *wtype = NULL;
 int nbship = 0;
 shiptype_t *stype = NULL;
 int nbturret = 0;
@@ -146,14 +149,14 @@ int cfShipGetLaser(struct ps_node *cfg, laser_t *las) {
 	struct ps_node *lcfg;
 	int j;
 
-	lcfg = psGetObject("laser", cfg);
+	lcfg = psGetObject("weapon", cfg);
 	j = 0;
 
 	for (lcfg = lcfg->child; lcfg; lcfg = lcfg->next) {
 		las[j].p.x = psGetFloat("x", lcfg);
 		las[j].p.y = psGetFloat("y", lcfg);
 		las[j].r = psGetFloat("r", lcfg) * M_PI / 180.;
-		las[j].color = (unsigned int) psGetInt("color", lcfg);
+		las[j].color = 0xFFFFFFFF; //(unsigned int) psGetInt("color", lcfg);
 		j++;
 	}
 	return j;
@@ -207,9 +210,23 @@ void cfShipGetHangar(struct ps_node *cfg, shiptype_t *st) {
 	st->hangar.r = psGetFloat("r", hcfg) * M_PI / 180.;
 }
 
+int cfGetWeaponType(struct ps_node *cfg) {
+	const char *name;
+
+	name = psGetStr("type", cfg);
+
+	if(!strcmp(name, "laser"))
+		return WE_LASER;
+
+	if(!strcmp(name, "missile"))
+		return WE_MISSILE;
+
+	return WE_LASER;
+}
+
 int cfReadGameData(void) {
 	struct ps_node *conf;
-	struct ps_node *tcfg;
+	struct ps_node *wcfg;
 	struct ps_node *scfg;
 	int i;
 
@@ -220,21 +237,20 @@ int cfReadGameData(void) {
 		return -1;
 	}
 
-	tcfg = psGetObject("turrettypes", conf);
-	nbturret = tcfg->len;
-	ttype = malloc(sizeof(*ttype) * nbturret);
-	memset(ttype, 0, sizeof(*ttype) * nbturret);
-	tcfg = tcfg->child;
+	wcfg = psGetObject("weapontypes", conf);
+	nbweapon = wcfg->len;
+	wtype = malloc(sizeof(*wtype) * nbweapon);
+	memset(wtype, 0, sizeof(*wtype) * nbweapon);
+	wcfg = wcfg->child;
 
-	for (i = 0; i < nbturret && tcfg; i++) {
-		cfShipString(tcfg, name, ttype);
-		ttype[i].size = psGetFloat("size", tcfg);
-		cfShipString(tcfg, shieldfile, ttype);
-		ttype[i].shieldsize = psGetFloat("shieldsize", tcfg);
-		ttype[i].maxhealth = psGetFloat("maxhealth", tcfg);
-		ttype[i].maniability = psGetFloat("maniability", tcfg);
-		ttype[i].numlaser = cfShipGetLaser(tcfg, ttype[i].laser);
-		tcfg = tcfg->next;
+	for (i = 0; i < nbweapon && wcfg; i++) {
+		cfShipString(wcfg, name, wtype);
+		wtype[i].damage = psGetInt("damage", wcfg);
+		wtype[i].firerate = psGetFloat("firerate", wcfg);
+		wtype[i].speed = psGetFloat("speed", wcfg);
+		wtype[i].color = psGetInt("color", wcfg);
+		wtype[i].type = cfGetWeaponType(wcfg);
+		wcfg = wcfg->next;
 	}
 
 	scfg = psGetObject("shiptypes", conf);
