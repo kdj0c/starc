@@ -167,7 +167,7 @@ void paDraw(float time) {
 			int index;
 			index = (int) ((1. - c) * 64);
 			grSetBlend();
-			grBlitRot2(p.p, p.r, &exTex[index].texc);
+			grBlitRot2(p.p, p.r, &exTex[index]);
 			grSetBlendAdd();
 		} else {
 			grBlitSquare(p.p, parts[i].size, 0, paTex.texc);
