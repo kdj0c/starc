@@ -266,14 +266,14 @@ void gmStartSingle(void) {
 	weInit();
 
 	saInit("replay1.rep");
-	evPostCreateShip("v1", &pos_player, 0, ntGetId(), pl_local);
-	evPostCreateShip("v1", &pos_ai1, 0, ntGetId(), pl_ai);
-	evPostCreateShip("v1", &pos_ai2, 0, ntGetId(), pl_ai);
-	evPostCreateShip("v1", &pos_ai3, 0, ntGetId(), pl_ai);
-	evPostCreateShip("v2", &pos_ai4, 1, ntGetId(), pl_ai);
-	evPostCreateShip("v2", &pos_ai5, 1, ntGetId(), pl_ai);
-	evPostCreateShip("v2", &pos_ai6, 1, ntGetId(), pl_ai);
-	evPostCreateShip("v2", &pos_ai7, 1, ntGetId(), pl_ai);
+	evPostCreateShip("Red3", &pos_player, 0, ntGetId(), pl_local);
+	evPostCreateShip("Red5", &pos_ai1, 0, ntGetId(), pl_ai);
+	evPostCreateShip("Red5", &pos_ai2, 0, ntGetId(), pl_ai);
+	evPostCreateShip("Red3", &pos_ai3, 0, ntGetId(), pl_ai);
+	evPostCreateShip("Green1", &pos_ai4, 1, ntGetId(), pl_ai);
+	evPostCreateShip("Green2", &pos_ai5, 1, ntGetId(), pl_ai);
+	evPostCreateShip("Green1", &pos_ai6, 1, ntGetId(), pl_ai);
+	evPostCreateShip("Green2", &pos_ai7, 1, ntGetId(), pl_ai);
 
 	grInitQuad();
 	grInitShader();

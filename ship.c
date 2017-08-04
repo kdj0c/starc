@@ -533,6 +533,7 @@ void shDrawShips(float time) {
 		grBlitRot2(sh->pos.p, sh->pos.r, &sh->t->texture);
 		if (time - sh->lastdamage < 500.) {
 			grSetBlendAdd();
+			grSetColor(sh->t->shieldcolor);
 			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, 0, sh->t->shieldtexture.texc);
 		}
 		if (sh->t->numturret) {

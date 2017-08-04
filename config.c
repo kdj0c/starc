@@ -185,7 +185,7 @@ void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
 		st->burst[j].p.x = psGetFloat("x", lcfg);
 		st->burst[j].p.y = psGetFloat("y", lcfg);
 		st->burst[j].size = psGetFloat("size", lcfg);
-		st->burst[j].color = (unsigned int) psGetInt("color", lcfg);
+		st->burst[j].color = psGetInt("color", lcfg)  << 8 | 0xFF;
 		j++;
 	}
 	st->numburst = j;
@@ -262,7 +262,7 @@ int cfReadGameData(void) {
 		wtype[i].firerate = 1000. / psGetFloat("firerate", wcfg);
 		wtype[i].speed = psGetFloat("speed", wcfg);
 		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.; // convert seconds to milliseconds.
-		wtype[i].color = psGetInt("color", wcfg);
+		wtype[i].color = psGetInt("color", wcfg) << 8 | 0xFF;
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;
 	}
@@ -278,7 +278,8 @@ int cfReadGameData(void) {
 		cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
 		// double the size of the sprite
 		stype[i].size = 2 * sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
-		cfGetTexture(psGetStr("shieldfile", scfg), &stype[i].shieldtexture);
+		cfGetTexture("shield", &stype[i].shieldtexture);
+		stype[i].shieldcolor = psGetInt("shieldcolor", scfg) << 8 | 0xFF;
 		stype[i].shieldsize = stype[i].size * 1.3f;
 		stype[i].maxhealth = psGetFloat("maxhealth", scfg);
 		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;

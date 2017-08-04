@@ -67,6 +67,7 @@ typedef struct {
 	float size;
 	char shieldfile[32];
 	texc_t shieldtexture;
+	unsigned int shieldcolor;
 	float shieldsize;
 	float maxhealth;
 	float maniability;

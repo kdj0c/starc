@@ -14,7 +14,7 @@
    height="297mm"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.92.1 r15371"
    sodipodi:docname="shield.svg">
   <defs
      id="defs4">
@@ -27,22 +27,22 @@
       <stop
          id="stop3600"
          offset="0.503824"
-         style="stop-color:#8000ff;stop-opacity:0;" />
+         style="stop-color:#ffffff;stop-opacity:0" />
       <stop
          id="stop3598"
          offset="0.90245396"
-         style="stop-color:#8000ff;stop-opacity:0.66041899;" />
+         style="stop-color:#ffffff;stop-opacity:0.65882355" />
       <stop
-         style="stop-color:#8000ff;stop-opacity:0;"
+         style="stop-color:#ffffff;stop-opacity:0"
          offset="1"
          id="stop3594" />
     </linearGradient>
     <inkscape:perspective
        sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="0 : 526.18109 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="744.09448 : 526.18109 : 1"
-       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_x="0 : 561.25983 : 1"
+       inkscape:vp_y="0 : 1066.6667 : 0"
+       inkscape:vp_z="793.70078 : 561.25983 : 1"
+       inkscape:persp3d-origin="396.85039 : 374.17322 : 1"
        id="perspective10" />
     <radialGradient
        inkscape:collect="always"
@@ -63,15 +63,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="-190.71429"
+     inkscape:cx="-667.85715"
      inkscape:cy="520"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1024"
-     inkscape:window-height="576"
-     inkscape:window-x="-1"
-     inkscape:window-y="-3"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -81,7 +81,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -98,7 +98,7 @@
        sodipodi:rx="238.57143"
        sodipodi:ry="238.57143"
        d="m 514.28572,596.64789 a 238.57143,238.57143 0 1 1 -477.142852,0 238.57143,238.57143 0 1 1 477.142852,0 z"
-       inkscape:export-xdpi="18.862276"
-       inkscape:export-ydpi="18.862276" />
+       inkscape:export-xdpi="48"
+       inkscape:export-ydpi="48" />
   </g>
 </svg>

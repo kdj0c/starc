@@ -53,7 +53,12 @@ void weFire(int netid, pos_t *p, weapontype_t *wt, float time) {
 	p->v = vadd(p->v, vangle(wt->speed, p->r));
 	bul[i].traj.base = *p;
 	bul[i].traj.basetime = time;
-	bul[i].traj.type = t_linear;
+	if (wt->type == WE_LASER)
+		bul[i].traj.type = t_linear;
+	else {
+		bul[i].traj.type = t_linear_acc;
+		bul[i].traj.thrust = 0.003;
+	}
 	bul[i].color = wt->color | 0xFF;
 	bul[i].netid = netid;
 	bul[i].type = wt;
