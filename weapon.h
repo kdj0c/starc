@@ -31,7 +31,7 @@ void weInit(void);
 int weGetFree(void);
 void weFire(int netid, pos_t *p, weapontype_t *wt, float time);
 void weUpdate(float time);
-void weHit(int id, pos_t *p, float time);
+float weHit(int id, pos_t *p, float time);
 
 #ifndef DEDICATED
 void weDraw(float time);

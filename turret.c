@@ -39,12 +39,12 @@ void tuDamage(turret_t *tu, float dg, float time) {
 }
 
 void tufirelaser(ship_t *sh, turret_t *tu, weapon_t *las, float time) {
-	pos_t p;
+/*	pos_t p;
 
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-//	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time);
+	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time); */
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {

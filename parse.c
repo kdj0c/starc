@@ -92,6 +92,7 @@ char *psReadfile(const char *filename) {
 	int fd;
 	struct stat st;
 	int count;
+	int off;
 
 	if (stat(filename, &st) < 0) {
 		fprintf(stderr, "Failed to open config file : %s\n", filename);
@@ -105,11 +106,16 @@ char *psReadfile(const char *filename) {
 	cfgbuf = malloc(st.st_size + 1);
 	if (!cfgbuf)
 		return NULL;
-	count = read(fd, cfgbuf, st.st_size);
-	if (count != st.st_size) {
-		fprintf(stderr, "Failed to read config file : %d/%ld\n", count, st.st_size);
-		return NULL;
-	}
+
+	off = 0;
+	do {
+		count = read(fd, cfgbuf + off, st.st_size - off);
+		if (count <= 0) {
+			fprintf(stderr, "Failed to read config file : %d/%ld\n", count, st.st_size);
+			return NULL;
+		}
+		off += count;
+	} while (off < st.st_size && count !=0);
 	close(fd);
 	cfgbuf[st.st_size] = 0;
 	return cfgbuf;

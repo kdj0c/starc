@@ -206,16 +206,18 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 
 void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time) {
 	ship_t *tg;
+	float damage;
+
+	damage = weHit(weid, p, time);
 
 	tg = shGetByID(tgid);
 	if (tg->t->numturret) {
 		turret_t *tu;
 
 		tu = &tg->turret[turret];
-		tuDamage(tu, 10., time);
+		tuDamage(tu, damage, time);
 	} else
-		shDamage(tg, 10., time);
-	weHit(weid, p, time);
+		shDamage(tg, damage, time);
 }
 
 void shFireWeapon(ship_t *sh, pos_t *p, int l, float time) {

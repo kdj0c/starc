@@ -72,10 +72,11 @@ void weUpdate(float time) {
 	}
 }
 
-void weHit(int id, pos_t *p, float time) {
+float weHit(int id, pos_t *p, float time) {
 	if (bul[id].type->type == WE_LASER)
 		paLaserHit(p->p, p->v, bul[id].color, time);
 	bul[id].maxlife = 0.;
+	return (float) bul[id].type->damage;
 }
 
 #ifndef DEDICATED
