@@ -19,14 +19,14 @@
 #define	SH_MOTHERSHIP 0x1
 
 #define MAX_TURRET 10
-#define MAX_LASER 5
+#define MAX_WEAPON 5
 #define MAX_ENGINE 5
 
 typedef struct {
 	vec_t p;
 	float r;
 	unsigned int color;
-} laser_t;
+} weapon_t;
 
 typedef struct {
 	vec_t p;
@@ -45,8 +45,8 @@ typedef struct {
 	float maxhealth;
 	float maniability;
 	unsigned int flag;
-	int numlaser;
-	laser_t laser[MAX_LASER];
+	int numweapon;
+	weapon_t laser[MAX_WEAPON];
 } turrettype_t;
 
 typedef struct {
@@ -71,8 +71,8 @@ typedef struct {
 	float maniability;
 	float thrust;
 	unsigned int flag;
-	int numlaser;
-	laser_t laser[MAX_LASER];
+	int numweapon;
+	weapon_t laser[MAX_WEAPON];
 	int numburst;
 	burst_t burst[MAX_ENGINE];
 	int numturret;

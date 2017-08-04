@@ -15,8 +15,7 @@
 #include "config.h"
 /* For testing only */
 #define NBPART 100000
-#define PA_LASER 0x1
-#define PA_EXP 0x2
+#define PA_EXP 0x1
 
 typedef struct {
 	float size;
@@ -99,7 +98,7 @@ void paBurst(pos_t *p, float size, unsigned int color, float time) {
 		freePart = 0;
 }
 
-void paLaser(vec_t p, vec_t v, unsigned int color, float time) {
+void paLaserHit(vec_t p, vec_t v, unsigned int color, float time) {
 	int i;
 	i = freePart;
 	parts[i].maxlife = rand() % 800 + 200;
@@ -111,38 +110,6 @@ void paLaser(vec_t p, vec_t v, unsigned int color, float time) {
 	parts[i].size = rand() % 100 + 100;
 	parts[i].color = color;
 	parts[i].flag = 0;
-	freePart++;
-	if (freePart >= NBPART)
-		freePart = 0;
-}
-
-void paLas(pos_t p, float len, unsigned int color) {
-	int i;
-	i = freePart;
-	parts[i].maxlife = rand() % 50 + 150;
-//  parts[i].p = p;
-	parts[i].size = len;
-//  parts[i].life = parts[i].maxlife;
-	parts[i].color = color;
-	parts[i].flag = PA_LASER;
-	freePart++;
-	if (freePart >= NBPART)
-		freePart = 0;
-}
-
-void paLas2(pos_t *p, float len, float width, float lifetime, unsigned int color, float time) {
-	int i;
-	i = freePart;
-	parts[i].maxlife = time + lifetime;
-	parts[i].traj.base = *p;
-	parts[i].size = len;
-
-	parts[i].maxlife = rand() % 30 + 30;
-//  parts[i].p = *p;
-	parts[i].size = len;
-//  parts[i].life = parts[i].maxlife;
-	parts[i].color = color;
-	parts[i].flag = PA_LASER;
 	freePart++;
 	if (freePart >= NBPART)
 		freePart = 0;
@@ -163,11 +130,7 @@ void paDraw(float time) {
 		grSetColor(parts[i].color);
 
 		get_pos(time, &parts[i].traj, &p);
-		if (parts[i].flag == PA_LASER) {
-			//grSetBlendAdd(lastex);
-			//grBlitLaser(p.p.x, p.p.y, parts[i].size, p.r, 40.);
-			//grSetBlendAdd(texture);
-		} else if (parts[i].flag == PA_EXP) {
+		if (parts[i].flag == PA_EXP) {
 			int index;
 			index = (int) ((1. - c) * 64);
 			grSetBlend();

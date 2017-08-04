@@ -20,6 +20,7 @@ typedef struct {
 	/* diameter */
 	float size;
 	float speed;
+	float lifetime;
 	float firerate;
 	int damage;
 	unsigned int color;

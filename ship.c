@@ -223,9 +223,9 @@ void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time) {
 void shFireLaser(ship_t *sh, pos_t *p, float time) {
 	int l, weid;
 
-	for (l = 0; l < sh->t->numlaser; l++) {
+	for (l = 0; l < sh->t->numweapon; l++) {
 		pos_t pl;
-		laser_t *las = &sh->t->laser[l];
+		weapon_t *las = &sh->t->laser[l];
 		pl.p = vmatrix(p->p, las->p, p->r);
 		pl.r = p->r + las->r;
 		pl.v = p->v;

@@ -78,7 +78,7 @@ void weUpdate(float time) {
 }
 
 void weHit(int id, pos_t *p, float time) {
-	paLaser(p->p, p->v, bul[id].color, time);
+	paLaserHit(p->p, p->v, bul[id].color, time);
 	bul[id].maxlife = 0.;
 }
 

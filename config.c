@@ -145,7 +145,7 @@ void cfGetTexture(const char *name, texc_t *tex) {
 		tex->texc[i] = texc[i] / 4096.;
 }
 
-int cfShipGetLaser(struct ps_node *cfg, laser_t *las) {
+int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 	struct ps_node *lcfg;
 	int j;
 
@@ -248,6 +248,7 @@ int cfReadGameData(void) {
 		wtype[i].damage = psGetInt("damage", wcfg);
 		wtype[i].firerate = psGetFloat("firerate", wcfg);
 		wtype[i].speed = psGetFloat("speed", wcfg);
+		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.; // convert seconds to milliseconds.
 		wtype[i].color = psGetInt("color", wcfg);
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;
@@ -270,7 +271,7 @@ int cfReadGameData(void) {
 		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;
 		stype[i].thrust = psGetFloat("thrust", scfg) / 10000.;
 
-		stype[i].numlaser = cfShipGetLaser(scfg, stype[i].laser);
+		stype[i].numweapon = cfShipGetWeapons(scfg, stype[i].laser);
 
 		cfShipGetBurst(scfg, &stype[i]);
 		cfShipGetTurret(scfg, &stype[i]);
