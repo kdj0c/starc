@@ -20,25 +20,20 @@
 #define NBPROJ 1000
 
 typedef struct {
-	texc_t tex;
-} wetype_t;
-
-typedef struct {
 	traj_t traj;
 	float maxlife;
 	unsigned int color;
 	int netid;
-	wetype_t *type;
+	weapontype_t *type;
 } bullet_t;
 
 static bullet_t *bul;
 static int freeBul = 0;
-static wetype_t laserBlue;
 
 void weInit(void) {
 	bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
-	cfGetTexture("laserBlue16", &laserBlue.tex);
+//	cfGetTexture("laserBlue16", &laserBlue.tex);
 }
 
 int weGetFree(void) {
@@ -51,17 +46,17 @@ int weGetFree(void) {
 	return i;
 }
 
-void weMissile(int netid, int id, pos_t *p, unsigned int color, float time) {
+void weFire(int netid, pos_t *p, weapontype_t *wt, float time) {
 	int i;
-	i = id;
-	bul[i].maxlife = time + 5000.;
-	p->v = vadd(p->v, vangle(5., p->r));
+	i = weGetFree();
+	bul[i].maxlife = time + wt->lifetime;
+	p->v = vadd(p->v, vangle(wt->speed, p->r));
 	bul[i].traj.base = *p;
 	bul[i].traj.basetime = time;
 	bul[i].traj.type = t_linear;
-	bul[i].color = color | 0xFF;
+	bul[i].color = wt->color | 0xFF;
 	bul[i].netid = netid;
-	bul[i].type = &laserBlue;
+	bul[i].type = wt;
 }
 
 void weUpdate(float time) {
@@ -78,7 +73,8 @@ void weUpdate(float time) {
 }
 
 void weHit(int id, pos_t *p, float time) {
-	paLaserHit(p->p, p->v, bul[id].color, time);
+	if (bul[id].type->type == WE_LASER)
+		paLaserHit(p->p, p->v, bul[id].color, time);
 	bul[id].maxlife = 0.;
 }
 
@@ -93,7 +89,7 @@ void weDraw(float time) {
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
-		grBlitRot2(p.p, p.r, &bul[i].type->tex);
+		grBlitRot2(p.p, p.r, &bul[i].type->texture);
 	}
 }
 #endif

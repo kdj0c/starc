@@ -29,7 +29,7 @@ typedef struct {
 
 void weInit(void);
 int weGetFree(void);
-void weMissile(int netid, int id, pos_t *p, unsigned int color, float time);
+void weFire(int netid, pos_t *p, weapontype_t *wt, float time);
 void weUpdate(float time);
 void weHit(int id, pos_t *p, float time);
 

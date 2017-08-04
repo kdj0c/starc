@@ -145,6 +145,18 @@ void cfGetTexture(const char *name, texc_t *tex) {
 		tex->texc[i] = texc[i] / 4096.;
 }
 
+weapontype_t *cfGetWeapon(const char *name) {
+	int i;
+
+	for (i = 0; i < nbweapon; i++) {
+		if (!strcmp(wtype[i].name, name))
+			return &wtype[i];
+	}
+	printf("Error weapon type not found %s\n", name);
+	return NULL;
+}
+
+
 int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 	struct ps_node *lcfg;
 	int j;
@@ -156,7 +168,7 @@ int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 		las[j].p.x = psGetFloat("x", lcfg);
 		las[j].p.y = psGetFloat("y", lcfg);
 		las[j].r = psGetFloat("r", lcfg) * M_PI / 180.;
-		las[j].color = 0xFFFFFFFF; //(unsigned int) psGetInt("color", lcfg);
+		las[j].wt = cfGetWeapon(psGetStr("type", lcfg));
 		j++;
 	}
 	return j;
@@ -245,8 +257,9 @@ int cfReadGameData(void) {
 
 	for (i = 0; i < nbweapon && wcfg; i++) {
 		cfShipString(wcfg, name, wtype);
+		cfGetTexture(wtype[i].name, &wtype[i].texture);
 		wtype[i].damage = psGetInt("damage", wcfg);
-		wtype[i].firerate = psGetFloat("firerate", wcfg);
+		wtype[i].firerate = 1000. / psGetFloat("firerate", wcfg);
 		wtype[i].speed = psGetFloat("speed", wcfg);
 		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.; // convert seconds to milliseconds.
 		wtype[i].color = psGetInt("color", wcfg);

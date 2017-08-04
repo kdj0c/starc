@@ -113,14 +113,12 @@ int shPostAllShips(float time, void *data) {
 	return n;
 }
 
-void shFire(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time) {
-	/*  float closer;
-	   ship_t *en;
-	   ship_t *sh;
-	   ship_t *tc = NULL;
-	   turret_t *tu; */
+void shFire(int netid, pos_t *p, int id, float time) {
+	ship_t *sh;
 
-	weMissile(netid, id, p, color, time);
+	sh = shGetByID(netid);
+
+	weFire(netid, p, sh->t->laser[id].wt, time);
 	return;
 /*	closer = LASER_RANGE;
 	list_for_each_entry(en, &ship_head, list) {
@@ -220,19 +218,15 @@ void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time) {
 	weHit(weid, p, time);
 }
 
-void shFireLaser(ship_t *sh, pos_t *p, float time) {
-	int l, weid;
+void shFireWeapon(ship_t *sh, pos_t *p, int l, float time) {
+	pos_t pl;
+	weapon_t *las = &sh->t->laser[l];
 
-	for (l = 0; l < sh->t->numweapon; l++) {
-		pos_t pl;
-		weapon_t *las = &sh->t->laser[l];
-		pl.p = vmatrix(p->p, las->p, p->r);
-		pl.r = p->r + las->r;
-		pl.v = p->v;
-		weid = weGetFree();
-		evPostFire(sh->netid, &pl, las->color, 200., LASER_RANGE, 20., weid, time);
-	}
-	sh->lastfire = time;
+	pl.p = vmatrix(p->p, las->p, p->r);
+	pl.r = p->r + las->r;
+	pl.v = p->v;
+	evPostFire(sh->netid, &pl, l, time);
+	sh->lastfire[l] = time;
 }
 
 void shNewTraj(shin_t *in, int netid, float time) {
@@ -368,7 +362,7 @@ void shBurst(ship_t *sh, float time) {
 		p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
 		size = sh->t->burst[i].size;
 		/* minimum burst size = 1/4 burst size, engine is always running */
-		size *= (3 * sh->traj.thrust + sh->t->thrust) / (4. * sh->t->thrust);
+		//size *= (3 * sh->traj.thrust + sh->t->thrust) / (4. * sh->t->thrust);
 		paBurst(&p, size, sh->t->burst[i].color, time);
 	}
 }
@@ -435,15 +429,18 @@ void shUpdateShips(float time) {
 		}
 
 		if (sh->in.fire1) {
-			if (time + 50. - sh->lastfire > RELOAD) {
-				float ftime;
-				pos_t p;
+			int i;
+			for (i = 0; i < sh->t->numweapon; i++) {
+				if (time + 50. - sh->lastfire[i] > sh->t->laser[i].wt->firerate) {
+					float ftime;
+					pos_t p;
 
-				ftime = sh->lastfire + RELOAD;
-				if (ftime < time)
-					ftime = time;
-				get_pos(ftime, &sh->traj, &p);
-				shFireLaser(sh, &p, ftime);
+					ftime = sh->lastfire[i] + sh->t->laser[i].wt->firerate;
+					if (ftime < time)
+						ftime = time;
+					get_pos(ftime, &sh->traj, &p);
+					shFireWeapon(sh, &p, i, ftime);
+				}
 			}
 		}
 		if (sh->turret)

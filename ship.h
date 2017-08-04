@@ -12,6 +12,7 @@
 #include "list.h"
 #include "vec.h"
 #include "graphic.h"
+#include "weapon.h"
 
 #define LASER_RANGE 15000
 
@@ -25,7 +26,7 @@
 typedef struct {
 	vec_t p;
 	float r;
-	unsigned int color;
+	weapontype_t *wt;
 } weapon_t;
 
 typedef struct {
@@ -104,7 +105,7 @@ typedef struct ship_s {
 	shin_t in;
 	traj_t traj;
 	pos_t pos;
-	float lastfire;
+	float lastfire[MAX_WEAPON];
 } ship_t;
 
 struct tur {
@@ -135,8 +136,8 @@ void shSetPlayer(ship_t *sh);
 void shLoadShipType(void);
 void shUpdateLocal(float time);
 void shUpdateShips(float time);
-void shFire(int netid, pos_t *p, float len, float width, float lifetime, unsigned int color, int id, float time);
-void shFireLaser(ship_t *sh, pos_t *p, float time);
+void shFire(int netid, pos_t *p, int id, float time);
+void shFireWeapon(ship_t *sh, pos_t *p, int l, float time);
 void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time);
 void shDetectCollision(float time);
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time);

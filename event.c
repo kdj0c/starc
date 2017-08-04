@@ -57,16 +57,12 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
 }
 
-void evPostFire(int owner, pos_t *p, unsigned int color, float lifetime, float len, float width, int id, float time) {
+void evPostFire(int owner, pos_t *p, int id, float time) {
 	ev_fi_t ev;
 
 	ev.owner = owner;
-	ev.width = width;
-	ev.color = color;
-	ev.len = len;
 	ev.p = *p;
 	ev.id = id;
-	ev.lifetime = lifetime;
 	evPostEvent(time, (void *) &ev, sizeof(ev), ev_fire);
 }
 
@@ -175,7 +171,7 @@ void evDoEvent(ev_t *ev) {
 	{
 		ev_fi_t *fi;
 		fi = (ev_fi_t *) ev->data;
-		shFire(fi->owner, &fi->p, fi->len, fi->width, fi->lifetime, fi->color, fi->id, ev->time);
+		shFire(fi->owner, &fi->p, fi->id, ev->time);
 	}
 		break;
 	case ev_hit:
