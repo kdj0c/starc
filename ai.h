@@ -20,6 +20,7 @@ typedef struct ai_s {
 } ai_t;
 
 ai_t *aiCreate(ship_t *sh);
-void aiThink(float time);
+void aiThinkAll(float time);
+void aiThink(ai_t *ai, shin_t *in, float time);
 
 #endif /* AI_H_ */

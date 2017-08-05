@@ -21,9 +21,9 @@
 #include "event.h"
 #include "weapon.h"
 
-#define RELOAD 200.
 #define ENG_POWER 1000.
 #define DEAD -12345.f
+#define RSP_TIME 5000.
 
 LIST_HEAD(ship_head);
 static ship_t *shPlayer = NULL;
@@ -411,14 +411,19 @@ void shUpdateShips(float time) {
 			pos_t np;
 			int msid;
 			ship_t *ms;
+			float rsptime;
 
 			sh->health = DEAD;
 
 			evPostDestroy(sh->netid, time);
 			ms = shFindMotherShip(sh->team);
-			if (ms)
+			rsptime = time + RSP_TIME;
+			if (ms) {
 				msid = ms->netid;
-			else
+				if (ms->hgRespawn > rsptime - 2000.)
+					rsptime = ms->hgRespawn + 2000.;
+				ms->hgRespawn = rsptime;
+			} else
 				msid = -1;
 
 			np.p.x = (rand() % 10000 - 5000) * 2.;
@@ -426,7 +431,8 @@ void shUpdateShips(float time) {
 			np.r = (rand() % 360 - 180) * M_PI / 180.;
 			np.v.x = 0;
 			np.v.y = 0;
-			evPostRespawn(&np, sh->netid, msid, time + 5000.);
+
+			evPostRespawn(&np, sh->netid, msid, rsptime);
 			continue;
 		}
 
@@ -499,6 +505,8 @@ ship_t *shFindNearestEnemy(ship_t *self) {
 		if (sh == self || sh->health <= 0)
 			continue;
 		if (sh->team == self->team)
+			continue;
+		if (sh->t->flag & SH_MOTHERSHIP)
 			continue;
 
 		d = sqdist(self->pos.p, sh->pos.p);

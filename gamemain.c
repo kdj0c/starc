@@ -204,7 +204,7 @@ void gmEngineLoop(void) {
 	if (g_net)
 		ntHandleMessage();
 	time = gtGetTime();
-	aiThink(time);
+	aiThinkAll(time);
 	evConsumeEvent(time);
 	shUpdateLocal(time);
 	shUpdateShips(time);
@@ -248,13 +248,13 @@ void gmLoop(void) {
 
 void gmStartSingle(void) {
 	make_pos(player, 0., 0., 0.);
-	make_pos(ai1, 5000., 0., 0.);
+	make_pos(ai1, -10000., 0., M_PI);
 	make_pos(ai2, 5000., 3000., 0.);
 	make_pos(ai3, 0., 5000., 0.);
-	make_pos(ai4, 0., 3000., 0.);
-	make_pos(ai5, 10000., 0., 0.);
-	make_pos(ai6, 8000., 3000., 0.);
-	make_pos(ai7, 3000., 8000., 0.);
+	make_pos(ai4, 20000., 0., 0.);
+	make_pos(ai5, 15000., 0., 0.);
+	make_pos(ai6, 20000., 3000., 0.);
+	make_pos(ai7, 20000., 8000., 0.);
 
 	g_net = 0;
 	gtInit();
@@ -266,11 +266,11 @@ void gmStartSingle(void) {
 	weInit();
 
 	saInit("replay1.rep");
-	evPostCreateShip("Red3", &pos_player, 0, ntGetId(), pl_local);
-	evPostCreateShip("Red5", &pos_ai1, 0, ntGetId(), pl_ai);
+	evPostCreateShip("Red5", &pos_player, 0, ntGetId(), pl_local);
+	evPostCreateShip("stationRed1", &pos_ai1, 0, ntGetId(), pl_ai);
 	evPostCreateShip("Red5", &pos_ai2, 0, ntGetId(), pl_ai);
 	evPostCreateShip("Red3", &pos_ai3, 0, ntGetId(), pl_ai);
-	evPostCreateShip("Green1", &pos_ai4, 1, ntGetId(), pl_ai);
+	evPostCreateShip("stationRed1", &pos_ai4, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green2", &pos_ai5, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green1", &pos_ai6, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green2", &pos_ai7, 1, ntGetId(), pl_ai);
