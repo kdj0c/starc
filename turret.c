@@ -38,13 +38,15 @@ void tuDamage(turret_t *tu, float dg, float time) {
 	tu->lastdamage = time;
 }
 
-void tufirelaser(ship_t *sh, turret_t *tu, weapon_t *las, float time) {
-/*	pos_t p;
+void tufirelaser(ship_t *sh, turret_t *tu, turrettype_t *t, int l, float time) {
+	pos_t p;
+	weapon_t *las = &t->laser[l];
 
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-	evPostFire(sh->netid, &p, las->color, 200., LASER_RANGE, 20., weGetFree(), time); */
+	evPostFire(sh->netid, &p, l, time);
+	tu->lastfire[l] = time;
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {
@@ -166,11 +168,13 @@ void tuUpdate(ship_t *sh, float time) {
 			d1 = vmatrix1(d, tu->r);
 			a = -atan2f(d1.y, d1.x);
 
-			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE && time - tu->lastfire > 200.) {
+			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE) {
 				for (l = 0; l < t->t->numweapon; l++) {
-					tufirelaser(sh, tu, &t->t->laser[l], time);
+					if (time - tu->lastfire[l] > t->t->laser[l].wt->firerate) {
+						tufirelaser(sh, tu, t->t, l, time);
+						tu->lastfire[l] = time;
+					}
 				}
-				tu->lastfire = time;
 			}
 
 			a /= t->t->maniability * 100.;
@@ -192,21 +196,19 @@ void tuDraw(ship_t *sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
 	int i;
-//  vec_t p;
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
-//      p = vadd(tu->p, vangle(200., tu->r));
 		tu->r = tuGetAim(tu, t->t->maniability, time);
-		grSetBlend();
-//      grBlitRot(tu->p, tu->r, 700., 0);
+		grBlitRot2(tu->p, tu->r, &t->t->tex);
 		if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd();
-//          grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0);
+			grSetColor(t->t->shieldcolor);
+			grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0, t->t->shieldtex.texc);
+			grSetBlend();
 		}
-
 	}
 }
 #endif

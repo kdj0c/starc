@@ -239,6 +239,7 @@ int cfGetWeaponType(struct ps_node *cfg) {
 int cfReadGameData(void) {
 	struct ps_node *conf;
 	struct ps_node *wcfg;
+	struct ps_node *tcfg;
 	struct ps_node *scfg;
 	int i;
 
@@ -265,6 +266,26 @@ int cfReadGameData(void) {
 		wtype[i].color = psGetInt("color", wcfg) << 8 | 0xFF;
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;
+	}
+
+	tcfg = psGetObject("turrettypes", conf);
+	nbturret = tcfg->len;
+	ttype = malloc(sizeof(*ttype) * nbturret);
+	memset(ttype, 0, sizeof(*ttype) * nbturret);
+	tcfg = tcfg->child;
+
+	for (i = 0; i < nbturret && tcfg; i++) {
+		cfShipString(tcfg, name, ttype);
+		cfShipString(tcfg, imgfile, ttype);
+		cfGetTexture(ttype[i].imgfile, &ttype[i].tex);
+		ttype[i].size = 2 * sqrt(ttype[i].tex.w * ttype[i].tex.w + ttype[i].tex.h * ttype[i].tex.h);
+		cfGetTexture("shield", &ttype[i].shieldtex);
+		ttype[i].shieldcolor = psGetInt("shieldcolor", tcfg) << 8 | 0xFF;
+		ttype[i].shieldsize = ttype[i].size * 1.3f;
+		ttype[i].maxhealth = psGetFloat("maxhealth", tcfg);
+		ttype[i].maniability = psGetFloat("maniability", tcfg) / 10000.;
+		ttype[i].numweapon = cfShipGetWeapons(tcfg, ttype[i].laser);
+		tcfg = tcfg->next;
 	}
 
 	scfg = psGetObject("shiptypes", conf);

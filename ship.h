@@ -38,10 +38,10 @@ typedef struct {
 typedef struct {
 	char name[16];
 	char imgfile[128];
-	unsigned int tex;
+	texc_t tex;
 	float size;
-	char shieldfile[32];
-	unsigned int shieldtex;
+	texc_t shieldtex;
+	unsigned int shieldcolor;
 	float shieldsize;
 	float maxhealth;
 	float maniability;
@@ -117,7 +117,7 @@ struct tur {
 	float baseaim;
 	ship_t *target;
 	float lastthink;
-	float lastfire;
+	float lastfire[MAX_WEAPON];
 	float lastdamage;
 	float dir;
 	float health;
