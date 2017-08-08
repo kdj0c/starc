@@ -33,7 +33,6 @@ static int freeBul = 0;
 void weInit(void) {
 	bul = malloc(NBPROJ * sizeof(*bul));
 	memset(bul, 0, NBPROJ * sizeof(*bul));
-//	cfGetTexture("laserBlue16", &laserBlue.tex);
 }
 
 int weGetFree(void) {
@@ -95,7 +94,7 @@ void weDraw(float time) {
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
-		grBlitRot2(p.p, p.r, &bul[i].type->texture);
+		grBlitRot(p.p, p.r, &bul[i].type->texture);
 	}
 }
 #endif

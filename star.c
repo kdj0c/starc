@@ -120,7 +120,7 @@ void stBlit(void) {
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
 			grSetShadow(star[cx][cy].c);
 			img = ((int) p.x) % 3;
-			grBlitSquare(p, star[cx][cy].size, 0, tex[img].texc);
+			grBlit(p, star[cx][cy].size, 0.f, &tex[img]);
 		}
 	}
 }

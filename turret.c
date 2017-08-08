@@ -202,11 +202,11 @@ void tuDraw(ship_t *sh, float time) {
 		tu = &sh->turret[i];
 		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
 		tu->r = tuGetAim(tu, t->t->maniability, time);
-		grBlitRot2(tu->p, tu->r, &t->t->tex);
+		grBlitRot(tu->p, tu->r, &t->t->tex);
 		if (time - tu->lastdamage < 500.) {
 			grSetBlendAdd();
 			grSetColor(t->t->shieldcolor);
-			grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., 0, t->t->shieldtex.texc);
+			grBlit(tu->p, t->t->shieldsize * M_SQRT1_2, 0., &t->t->shieldtex);
 			grSetBlend();
 		}
 	}

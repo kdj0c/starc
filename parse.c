@@ -115,7 +115,7 @@ char *psReadfile(const char *filename) {
 			return NULL;
 		}
 		off += count;
-	} while (off < st.st_size && count !=0);
+	} while (off < st.st_size && count != 0);
 	close(fd);
 	cfgbuf[st.st_size] = 0;
 	return cfgbuf;

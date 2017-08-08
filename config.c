@@ -156,7 +156,6 @@ weapontype_t *cfGetWeapon(const char *name) {
 	return NULL;
 }
 
-
 int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 	struct ps_node *lcfg;
 	int j;
@@ -185,7 +184,7 @@ void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
 		st->burst[j].p.x = psGetFloat("x", lcfg);
 		st->burst[j].p.y = psGetFloat("y", lcfg);
 		st->burst[j].size = psGetFloat("size", lcfg);
-		st->burst[j].color = psGetInt("color", lcfg)  << 8 | 0xFF;
+		st->burst[j].color = psGetInt("color", lcfg) << 8 | 0xFF;
 		j++;
 	}
 	st->numburst = j;
@@ -227,10 +226,10 @@ int cfGetWeaponType(struct ps_node *cfg) {
 
 	name = psGetStr("type", cfg);
 
-	if(!strcmp(name, "laser"))
+	if (!strcmp(name, "laser"))
 		return WE_LASER;
 
-	if(!strcmp(name, "missile"))
+	if (!strcmp(name, "missile"))
 		return WE_MISSILE;
 
 	return WE_LASER;
@@ -262,7 +261,7 @@ int cfReadGameData(void) {
 		wtype[i].damage = psGetInt("damage", wcfg);
 		wtype[i].firerate = 1000. / psGetFloat("firerate", wcfg);
 		wtype[i].speed = psGetFloat("speed", wcfg);
-		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.; // convert seconds to milliseconds.
+		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.;	// convert seconds to milliseconds.
 		wtype[i].color = psGetInt("color", wcfg) << 8 | 0xFF;
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;

@@ -229,11 +229,7 @@ void grBlitLaser(float x, float y, float len, float r, float width) {
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
-void grBlitSquare(vec_t p, float size, int i, float *texc) {
-	grBlit(p, size, 0.f, i, texc);
-}
-
-void grBlitRot2(vec_t p, float r, texc_t *tex) {
+void grBlitRot(vec_t p, float r, texc_t *tex) {
 	vec_t h2;
 	vec_t w2;
 
@@ -257,19 +253,7 @@ void grBlitRot2(vec_t p, float r, texc_t *tex) {
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
-void grBlitRot(vec_t p, float r, float size, int i, float *texc) {
-	float nr;
-	float s;
-	float a;
-	float b;
-	nr = r + M_PI_4;
-	s = size * M_SQRT1_2;
-	a = s * cos(nr);
-	b = s * sin(nr);
-	grBlit(p, a, b, i, texc);
-}
-
-void grBlit(vec_t p, float a, float b, int i, float *texc) {
+void grBlit(vec_t p, float a, float b, texc_t *tex) {
 	GLfloat points2[] = {
 		p.x + a, p.y + b, 0.0f,
 		p.x + b, p.y - a, 0.0f,
@@ -280,9 +264,9 @@ void grBlit(vec_t p, float a, float b, int i, float *texc) {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), texc);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
 	glBindVertexArray(quad_vao);
-	glUniform1i(1, i);
+	glUniform1i(1, tex->index);
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }

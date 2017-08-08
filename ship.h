@@ -101,7 +101,7 @@ typedef struct ship_s {
 	float health;
 	float lastdamage;
 	float engtime;
-	float hgRespawn; // for mothership to avoid all ships respawning at the same time.
+	float hgRespawn;	// for mothership to avoid all ships respawning at the same time.
 	int netid;
 	int team;
 	shin_t in;
