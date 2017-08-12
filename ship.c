@@ -320,6 +320,9 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
  * ->    ->       ->     ->    ->       ->
  * Va' = Va - k * AB and Vb' = Vb + k * AB
  */
+// Minimum bounce if objects collide at very low speed, to avoid multiple collision.
+#define MINB 0.30f
+
 void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	float k;
 	float m1, m2;
@@ -335,10 +338,18 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	m2 = sh2->t->size;
 
 	k = 2 * scal(d, dv);
-	if (k == 0.)
+	if (k >= 0.)
 		return;
 	k /= (norm(d) * norm(d));
 	k *= m1 * m2 / (m1 + m2);
+
+	// if both ships are on the same team, lower the bounce effect
+	if (sh1->team == sh2->team)
+		k /= 4.0f;
+
+	if (k > - MINB && k < 0)
+		k = - MINB;
+
 	sh1->traj.basetime = time;
 	sh2->traj.basetime = time;
 	p1->v = vsub(p1->v, vmul(d, (k / m1)));
@@ -346,8 +357,13 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	sh1->traj.base = *p1;
 	sh2->traj.base = *p2;
 
-	shDamage(sh1, 100, time);
-	shDamage(sh2, 100, time);
+	if (sh1->team != sh2->team) {
+		shDamage(sh1, 100, time);
+		shDamage(sh2, 100, time);
+	} else {
+		shDamage(sh1, 1, time);
+		shDamage(sh2, 1, time);
+	}
 }
 
 #ifndef DEDICATED
