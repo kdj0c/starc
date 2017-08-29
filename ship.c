@@ -514,7 +514,7 @@ ship_t *shFindMotherShip(int team) {
 
 ship_t *shFindNearestEnemy(ship_t *self) {
 	ship_t *sh;
-	float min_d;
+	float min_d = 0.f;
 	float d;
 	ship_t *nr = NULL;
 	list_for_each_entry(sh, &ship_head, list) {

@@ -138,6 +138,24 @@ void grInitShader(void) {
 	glUniform4f(uniform_colour, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
+void grInvertRedGreen(void *surface, int w, int h) {
+	unsigned char * p;
+	int i;
+	unsigned char tmp;
+
+	p = surface;
+
+	for (i = 0; i < w * h; i++) {
+		if (p[4 * i] > p[ 4 * i + 1] && p[4 * i] > p[ 4 * i + 2] &&
+			p[ 4 * i + 1] / 8 == p[ 4 * i + 2] / 8) {
+
+			tmp = p[4 * i + 1];
+			p[4 * i + 1] = p[4 * i];
+			p[4 * i] = tmp;
+			}
+	}
+}
+
 void grLoadTexture(const char *filename, int i) {
 	SDL_Surface *sdlsurf;
 	GLuint err;
@@ -147,6 +165,7 @@ void grLoadTexture(const char *filename, int i) {
 		printf("cannot load texture %s\n", filename);
 		return;
 	}
+	//grInvertRedGreen(sdlsurf->pixels, sdlsurf->w, sdlsurf->h);
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,	//Mipmap number
 					0, 0, i, sdlsurf->w, sdlsurf->h, 1,	//width, height, depth
 					GL_RGBA,	//format

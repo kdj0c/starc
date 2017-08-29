@@ -14,7 +14,7 @@
 #include "ship.h"
 
 typedef enum {
-	ev_newship,	//???
+	ev_newship,	//server->client
 	ev_newtraj,	//client->server
 	ev_respawn,	//server->client
 	ev_destroyed,	//server->client

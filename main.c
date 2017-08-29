@@ -20,9 +20,7 @@
 
 #include "gamemain.h"
 #include "graphic.h"
-
-//testing only
-#include "parse.h"
+#include "network.h"
 
 #include "config.h"
 
@@ -54,6 +52,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #else
 int main(int argc, char *argv[]) {
 #endif // _WIN32
+
+
+#ifdef DEDICATED
+	ntServerInit();
+	ntServerMain();
+#else
 	grconf_t c;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER) < 0) {
@@ -67,5 +71,6 @@ int main(int argc, char *argv[]) {
 	grInit(&c);
 
 	gmStartSingle();
+#endif
 	return 0;
 }
