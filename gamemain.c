@@ -268,7 +268,7 @@ void gmStartSingle(void) {
 	saInit("replay1.rep");
 	evPostCreateShip("Red5", &pos_player, 0, ntGetId(), pl_local);
 	evPostCreateShip("stationRed1", &pos_ai1, 0, ntGetId(), pl_ai);
-	evPostCreateShip("Red5", &pos_ai2, 0, ntGetId(), pl_ai);
+	evPostCreateShip("Red1", &pos_ai2, 0, ntGetId(), pl_ai);
 	evPostCreateShip("Red3", &pos_ai3, 0, ntGetId(), pl_ai);
 	evPostCreateShip("stationRed1", &pos_ai4, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green2", &pos_ai5, 1, ntGetId(), pl_ai);
@@ -286,7 +286,7 @@ void gmStartMulti(void) {
 	enterGameMode();
 	gtInit();
 
-	ntInit();
+	ntClientInit();
 	cfReadGameData();
 	shLoadShip();
 	paInit();

@@ -11,56 +11,13 @@
 
 #include "event.h"
 
-#if !defined __GNUC__ || (__GNUC__ > 2)
-#define BEG_UNION	union {
-#define END_UNION   };
-#else
-#define BUG_UNION
-#define END_UNION
-#endif
+int ntServerInit(void);
+int ntClientInit(void);
+void ntServerMain(void);
 
-#if defined __GNUC__ && (__GNUC__ < 3)
-#define ST_PREFIX(a) _a
-#else
-#define ST_PREFIX(a)
-#endif
-
-#define NEW_UNION(a, b) \
-BEG_UNION \
-struct \
-ST_PREFIX(a) \
-{ \
-b \
-} a; \
-END_UNION
-
-typedef struct {
-	int type;
-	float time;
-	NEW_UNION(DATA, char data[4];)
-	NEW_UNION(NEWSHIP, ev_cr_t cr;)
-	NEW_UNION(NEWTRAJ, ev_tr_t tr;)
-	NEW_UNION(RESPAWN, ev_rp_t rp;)
-	NEW_UNION(DESTROY, ev_ds_t ds;)
-	NEW_UNION(LASER, ev_fi_t la;)
-	NEW_UNION(TURRET, ev_tu_t tu;)
-	NEW_UNION(COLLIDE, ev_co_t co;)
-} ntmsg_t;
-
-#ifdef NETWORK
-void ntInit(void);
 void ntSendPing(void);
-int ntGetId(void);
-void ntHandleMessage(void);
 void ntSendEvent(float time, void *data, int size, event_e type);
-#else
-static inline void ntInit(void) {
-};
-static inline void ntSendPing(void) {
-};
-static inline void ntHandleMessage(void) {
-};
-static inline void ntSendEvent(float time, void *data, int size, event_e type) {
-};
-#endif
+void ntHandleMessage(void);
+
 #endif /* NETWORK_H_ */
+
