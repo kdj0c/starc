@@ -29,6 +29,9 @@ static int curx = 0;
 static int cury = 0;
 static texc_t tex[3];
 
+static float vertex[MAXST][MAXST][12];
+static float tc[MAXST][MAXST][8];
+
 static void newrandstar(int cx, int cy) {
 	star[cx][cy].x = random1;
 	star[cx][cy].y = random1;
@@ -116,11 +119,28 @@ void stBlit(void) {
 	grSetBlend();
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
+			float s = star[cx][cy].size;
 			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
-			grSetShadow(star[cx][cy].c);
+//			grSetShadow(star[cx][cy].c);
 			img = ((int) p.x) % 3;
-			grBlit(p, star[cx][cy].size, 0.f, &tex[img]);
+//			grBlit(p, star[cx][cy].size, 0.f, &tex[img]);
+			vertex[cx][cy][0] = p.x + s;
+			vertex[cx][cy][1] = p.y;
+			vertex[cx][cy][2] = 0.f;
+			vertex[cx][cy][3] = p.x;
+			vertex[cx][cy][4] = p.y - s;
+			vertex[cx][cy][5] = 0.f;
+			vertex[cx][cy][6] = p.x - s;
+			vertex[cx][cy][7] = p.y;
+			vertex[cx][cy][8] = 0.f;
+			vertex[cx][cy][9] = p.x;
+			vertex[cx][cy][10] = p.y + s;
+			vertex[cx][cy][11] = 0.f;
+
+			memcpy(tc[cx][cy], tex[img].texc, 8 * sizeof(float));
 		}
 	}
+	grSetShadow(1.0f);
+	grBlitStar(vertex, tc);
 }

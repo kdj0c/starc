@@ -86,39 +86,46 @@ static GLuint quad_vbo;
 static GLuint quad_vao;
 static GLuint texcoords_vbo;
 
+static GLuint star_vbo;
+static GLuint star_tc;
+static GLuint star_vao;
+
 void grInitQuad(void) {
-	GLfloat points[] = {
-		0.0f, 0.0f, 0.0f,
-		0.5f, 0.0f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
-	};
 
-	GLfloat texcoords[] = {
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f
-	};
-	glGenBuffers(1, &quad_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), points, GL_DYNAMIC_DRAW);
+	glGenVertexArrays(1, &star_vao);
+	glBindVertexArray(star_vao);
 
-	glGenBuffers(1, &texcoords_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), texcoords, GL_DYNAMIC_DRAW);
+	glGenBuffers(1, &star_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 400 * 12 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &star_tc);
+	glBindBuffer(GL_ARRAY_BUFFER, star_tc);
+	glBufferData(GL_ARRAY_BUFFER, 400 * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
 
 	glGenVertexArrays(1, &quad_vao);
 	glBindVertexArray(quad_vao);
 
+	glGenBuffers(1, &quad_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-
 	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &texcoords_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
 
 	atlasTexture = grLoadTextureArray();
 	glEnable(GL_BLEND);
@@ -289,6 +296,29 @@ void grBlit(vec_t p, float a, float b, texc_t *tex) {
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
+
+void grBlitStar(float *vertex, float *texc) {
+	int ind[400];
+	int count[400];
+	int i;
+
+	for ( i = 0; i < 400; i++) {
+		ind[i] = 4 * i;
+		count[i] = 4;
+	}
+	glUniform1i(1, 0);
+	glBindVertexArray(star_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 400 * 12 * sizeof(float), vertex);
+	glBindBuffer(GL_ARRAY_BUFFER, star_tc);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 400* 8 * sizeof(float), texc);
+
+	/* draw points 0-3 from the currently bound VAO with current in-use shader */
+	glMultiDrawArrays(GL_TRIANGLE_FAN, ind, count, 400);
+}
+
+
 
 void grChangeview(float x, float y, float r, float scale) {
 	float xscr;
