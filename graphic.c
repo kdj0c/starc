@@ -97,8 +97,8 @@ void grInitQuad(void) {
 
 	glGenBuffers(1, &star_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 400 * 12 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBufferData(GL_ARRAY_BUFFER, 400 * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
 	glGenBuffers(1, &star_tc);
@@ -114,8 +114,8 @@ void grInitQuad(void) {
 
 	glGenBuffers(1, &quad_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
 	glGenBuffers(1, &texcoords_vbo);
@@ -140,8 +140,8 @@ void grInitShader(void) {
 	uniform_colour = glGetUniformLocation(basic_shader, "add_colour");
 
 	glUseProgram(basic_shader);
-	glUniform3f(uniform_pos_off, 0.0f, 0.0f, 0.0f);
-	glUniform3f(uniform_pos_scal, 0.002f, 0.002f, 0.0f);
+	glUniform2f(uniform_pos_off, 0.0f, 0.0f);
+	glUniform2f(uniform_pos_scal, 0.002f, 0.002f);
 	glUniform4f(uniform_colour, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -263,10 +263,10 @@ void grBlitRot(vec_t p, float r, texc_t *tex) {
 	w2 = vangle(tex->w, r);
 
 	GLfloat points[] = {
-		p.x + h2.x - w2.y, p.y + h2.y + w2.x, 0.0f,
-		p.x + h2.x + w2.y, p.y + h2.y - w2.x, 0.0f,
-		p.x - h2.x + w2.y, p.y - h2.y - w2.x, 0.0f,
-		p.x - h2.x - w2.y, p.y - h2.y + w2.x, 0.0f,
+		p.x + h2.x - w2.y, p.y + h2.y + w2.x,
+		p.x + h2.x + w2.y, p.y + h2.y - w2.x,
+		p.x - h2.x + w2.y, p.y - h2.y - w2.x,
+		p.x - h2.x - w2.y, p.y - h2.y + w2.x
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
@@ -281,10 +281,10 @@ void grBlitRot(vec_t p, float r, texc_t *tex) {
 
 void grBlit(vec_t p, float a, float b, texc_t *tex) {
 	GLfloat points2[] = {
-		p.x + a, p.y + b, 0.0f,
-		p.x + b, p.y - a, 0.0f,
-		p.x - a, p.y - b, 0.0f,
-		p.x - b, p.y + a, 0.0f
+		p.x + a, p.y + b,
+		p.x + b, p.y - a,
+		p.x - a, p.y - b,
+		p.x - b, p.y + a,
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
@@ -310,7 +310,7 @@ void grBlitStar(float *vertex, float *texc) {
 	glBindVertexArray(star_vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 400 * 12 * sizeof(float), vertex);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 400 * 8 * sizeof(float), vertex);
 	glBindBuffer(GL_ARRAY_BUFFER, star_tc);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, 400* 8 * sizeof(float), texc);
 
@@ -331,8 +331,8 @@ void grChangeview(float x, float y, float r, float scale) {
 	/* coordinate tricks : we want width to be 10000 unit */
 	yscr = (xscr * grHeight) / ((float) grWidth);
 
-	glUniform3f(uniform_pos_off, -x, -y, 0.0f);
-	glUniform3f(uniform_pos_scal, 1.0f / xscr, 1.0f / yscr, 0.0f);
+	glUniform2f(uniform_pos_off, -x, -y);
+	glUniform2f(uniform_pos_scal, 1.0f / xscr, 1.0f / yscr);
 }
 
 void grReshape(int width, int height) {

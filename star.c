@@ -29,7 +29,7 @@ static int curx = 0;
 static int cury = 0;
 static texc_t tex[3];
 
-static float vertex[MAXST][MAXST][12];
+static float vertex[MAXST][MAXST][8];
 static float tc[MAXST][MAXST][8];
 
 static void newrandstar(int cx, int cy) {
@@ -127,16 +127,12 @@ void stBlit(void) {
 //			grBlit(p, star[cx][cy].size, 0.f, &tex[img]);
 			vertex[cx][cy][0] = p.x + s;
 			vertex[cx][cy][1] = p.y;
-			vertex[cx][cy][2] = 0.f;
-			vertex[cx][cy][3] = p.x;
-			vertex[cx][cy][4] = p.y - s;
-			vertex[cx][cy][5] = 0.f;
-			vertex[cx][cy][6] = p.x - s;
-			vertex[cx][cy][7] = p.y;
-			vertex[cx][cy][8] = 0.f;
-			vertex[cx][cy][9] = p.x;
-			vertex[cx][cy][10] = p.y + s;
-			vertex[cx][cy][11] = 0.f;
+			vertex[cx][cy][2] = p.x;
+			vertex[cx][cy][3] = p.y - s;
+			vertex[cx][cy][4] = p.x - s;
+			vertex[cx][cy][5] = p.y;
+			vertex[cx][cy][6] = p.x;
+			vertex[cx][cy][7] = p.y + s;
 
 			memcpy(tc[cx][cy], tex[img].texc, 8 * sizeof(float));
 		}
