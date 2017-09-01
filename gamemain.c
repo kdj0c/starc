@@ -92,9 +92,13 @@ void grDraw(void) {
 	stDraw();
 
 	shDrawShips(time);
+	paDrawExplosion(time);
 
 	weDraw(time);
+
+	shDrawShields(time);
 	paDraw(time);
+
 
 	if (player) {
 		//grDrawHUD(player->health);

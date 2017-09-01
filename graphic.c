@@ -43,6 +43,7 @@ static float *ltc;
 static unsigned int *lcolor;
 static int indices[GR_MAX];
 static int counts[GR_MAX];
+static int count;
 
 void grInit(grconf_t *c) {
 	SDL_GLContext glContext;
@@ -132,6 +133,8 @@ void grInitQuad(void) {
 		indices[i] = 4 * i;
 		counts[i] = 4;
 	}
+	count = 0;
+	grSetTextureIndex(0);
 }
 
 void grInitShader(void) {
@@ -209,6 +212,10 @@ unsigned int grLoadTextureArray(void) {
 	return textureHandle;
 }
 
+void grSetTextureIndex(int index) {
+	glUniform1i(1, index);
+}
+
 void grSetBlendAdd(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
@@ -218,88 +225,36 @@ void grSetBlend(void) {
 	color = 0xFFFFFFFF;
 }
 
-#define u8_to_float(c) (((float) (c)) / 255.0f)
-
-void grSetColor(unsigned int c) {
-	color = c;
-}
-void grSetShadow(float c) {
-	color = 0xFFFFFFFF; //00 + ((int) c * 255.);
-}
-
-void grBlitLaser(float x, float y, float len, float r, float width) {
-	float ax, ay, bx, by;
-
-	ax = -width * sin(r);
-	ay = width * cos(r);
-	bx = len * cos(r);
-	by = len * sin(r);
-
-	GLfloat points2[] = {
-		x + ax, y + ay, 0.0f,
-		x + ax + bx, y + ay + by, 0.0f,
-		x - ax + bx, y - ay + by, 0.0f,
-		x - ax, y - ay, 0.0f
-	};
-
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
-	glBindVertexArray(quad_vao);
-	/* draw points 0-3 from the currently bound VAO with current in-use shader */
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-}
-
-void grBlitRot(vec_t p, float r, texc_t *tex) {
+void grBatchAddRot(vec_t p, float r, texc_t *tex, unsigned int c) {
 	vec_t h2;
 	vec_t w2;
+	int o = 8 * count;
 
 	h2 = vangle(tex->h, r);
 	w2 = vangle(tex->w, r);
 
-	GLfloat points[] = {
-		p.x + h2.x - w2.y, p.y + h2.y + w2.x,
-		p.x + h2.x + w2.y, p.y + h2.y - w2.x,
-		p.x - h2.x + w2.y, p.y - h2.y - w2.x,
-		p.x - h2.x - w2.y, p.y - h2.y + w2.x
-	};
-	GLuint colors[] = { color, color, color, color};
+	lvert[o]     = p.x + h2.x - w2.y;
+	lvert[o + 1] = p.y + h2.y + w2.x;
+	lvert[o + 2] = p.x + h2.x + w2.y;
+	lvert[o + 3] = p.y + h2.y - w2.x;
+	lvert[o + 4] = p.x - h2.x + w2.y;
+	lvert[o + 5] = p.y - h2.y - w2.x;
+	lvert[o + 6] = p.x - h2.x - w2.y;
+	lvert[o + 7] = p.y - h2.y + w2.x;
 
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), points);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
-	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * 4, colors);
-	glBindVertexArray(quad_vao);
-	glUniform1i(1, tex->index);
-	/* draw points 0-3 from the currently bound VAO with current in-use shader */
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	memcpy(ltc + o, tex->texc, 8 * sizeof(float));
+
+	o = 4 * count;
+	lcolor[o] = c;
+	lcolor[o + 1] = c;
+	lcolor[o + 2] = c;
+	lcolor[o + 3] = c;
+
+	count++;
 }
 
-void grBlit(vec_t p, float a, float b, texc_t *tex) {
-	GLfloat points2[] = {
-		p.x + a, p.y + b,
-		p.x + b, p.y - a,
-		p.x - a, p.y - b,
-		p.x - b, p.y + a,
-	};
-
-	GLuint colors[] = { color, color, color, color};
-
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
-	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(unsigned int), colors);
-	glBindVertexArray(quad_vao);
-	glUniform1i(1, tex->index);
-	/* draw points 0-3 from the currently bound VAO with current in-use shader */
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-}
-
-void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c, int index) {
-	int o = 8 * index;
+void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c) {
+	int o = 8 * count;
 
 	lvert[o]     = p.x + a;
 	lvert[o + 1] = p.y + b;
@@ -312,17 +267,18 @@ void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c, int inde
 
 	memcpy(ltc + o, tex->texc, 8 * sizeof(float));
 
-	o = 4 * index;
+	o = 4 * count;
 	lcolor[o] = c;
 	lcolor[o + 1] = c;
 	lcolor[o + 2] = c;
 	lcolor[o + 3] = c;
+
+	count++;
 }
 
-void grBatchDraw(int count) {
-	glUniform1i(1, 0);
-	glBindVertexArray(quad_vao);
+void grBatchDraw(void) {
 
+	glBindVertexArray(quad_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, count * 8 * sizeof(float), lvert);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
@@ -332,6 +288,8 @@ void grBatchDraw(int count) {
 
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glMultiDrawArrays(GL_TRIANGLE_FAN, indices, counts, count);
+
+	count = 0;
 }
 
 void grChangeview(float x, float y, float r, float scale) {

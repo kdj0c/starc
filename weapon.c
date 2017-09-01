@@ -94,7 +94,8 @@ void weDraw(float time) {
 			continue;
 
 		get_pos(time, &bul[i].traj, &p);
-		grBlitRot(p.p, p.r, &bul[i].type->texture);
+		grBatchAddRot(p.p, p.r, &bul[i].type->texture, 0xFFFFFFFF);
 	}
+	grBatchDraw();
 }
 #endif

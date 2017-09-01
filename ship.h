@@ -127,6 +127,7 @@ typedef struct tur turret_t;
 
 #ifndef DEDICATED
 void shDrawShips(float time);
+void shDrawShields(float time);
 void shLoadShip(void);
 void shDrawShipHUD(ship_t *pl);
 #else

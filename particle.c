@@ -119,9 +119,6 @@ void paDraw(float time) {
 	int i;
 	float c;
 	pos_t p;
-	int count;
-
-	count = 0;
 
 	grSetBlendAdd();
 	for (i = 0; i < NBPART; i++) {
@@ -135,19 +132,16 @@ void paDraw(float time) {
 		parts[i].color |= ((int) (c * 255)) << 24;
 		get_pos(time, &parts[i].traj, &p);
 
-		grBatchAdd(p.p, parts[i].size, 0.f, &paTex, parts[i].color, count);
-		count++;
+		grBatchAdd(p.p, parts[i].size, 0.f, &paTex, parts[i].color);
 	}
-	grBatchDraw(count);
+	grBatchDraw();
 }
 
 void paDrawExplosion(float time) {
 	int i;
 	pos_t p;
-	int count;
 	int index;
 
-	count = 0;
 
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
@@ -158,7 +152,9 @@ void paDrawExplosion(float time) {
 
 		get_pos(time, &parts[i].traj, &p);
 		index = (int) (((time - parts[i].traj.basetime) / ((float) parts[i].maxlife)) * 64);
-		grBlitRot(p.p, p.r, &exTex[parts[i].anim][index]);
-		count++;
+		grSetTextureIndex(exTex[parts[i].anim][index].index);
+		grBatchAddRot(p.p, p.r, &exTex[parts[i].anim][index], 0xFFFFFFFF);
+		grBatchDraw();
 	}
+	grSetTextureIndex(0);
 }

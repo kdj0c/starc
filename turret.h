@@ -20,6 +20,7 @@ void tuDamage(turret_t *tu, float dg, float time);
 
 #ifndef DEDICATED
 void tuDraw(ship_t *sh, float time);
+void tuDrawShields(ship_t *sh, float time);
 #else
 #define tuDraw
 #endif

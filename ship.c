@@ -552,18 +552,32 @@ void shDrawShips(float time) {
 	list_for_each_entry(sh, &ship_head, list) {
 		if (sh->health <= 0)
 			continue;
-		grSetBlend();
 		get_pos(time, &sh->traj, &sh->pos);
-		grBlitRot(sh->pos.p, sh->pos.r, &sh->t->texture);
-		if (time - sh->lastdamage < 500.) {
-			grSetBlendAdd();
-			grSetColor(sh->t->shieldcolor);
-			grBlit(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture);
-		}
+		grBatchAddRot(sh->pos.p, sh->pos.r, &sh->t->texture, 0xFFFFFFFF);
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
 		}
 	}
+	grBatchDraw();
+}
+
+void shDrawShields(float time) {
+	ship_t *sh;
+
+	grSetBlendAdd();
+
+	list_for_each_entry(sh, &ship_head, list) {
+		if (sh->health <= 0)
+			continue;
+
+		if (time - sh->lastdamage < 500.) {
+			grBatchAdd(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture, sh->t->shieldcolor);
+		}
+		if (sh->t->numturret) {
+			tuDrawShields(sh, time);
+		}
+	}
+	grBatchDraw();
 }
 
 void shDrawShipHUD(ship_t *pl) {
@@ -586,7 +600,6 @@ void shDrawShipHUD(ship_t *pl) {
 			grSetColor(0x0000FF80);
 		else
 			grSetColor(0xFF000080);
-//      grBlitRot(v, r, 10, 0);
 	}
 #endif
 }

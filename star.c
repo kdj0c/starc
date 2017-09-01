@@ -113,6 +113,7 @@ void stDraw(void) {
 	int cx, cy;
 	int img;
 	vec_t p;
+
 	grSetBlend();
 
 	for (cx = 0; cx < MAXST; cx++) {
@@ -121,8 +122,8 @@ void stDraw(void) {
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
 			img = ((int) p.x) % 3;
 
-			grBatchAdd(p, star[cx][cy].size, 0.f, &tex[img], star[cx][cy].c, cy + cx * MAXST);
+			grBatchAdd(p, star[cx][cy].size, 0.f, &tex[img], star[cx][cy].c);
 		}
 	}
-	grBatchDraw(MAXST * MAXST);
+	grBatchDraw();
 }

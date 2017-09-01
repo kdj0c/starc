@@ -34,14 +34,12 @@ void grInitShader(void);
 void grInitQuad(void);
 
 unsigned int grLoadTextureArray(void);
+void grSetTextureIndex(int index);
 void grSetBlendAdd(void);
 void grSetBlend(void);
-void grSetColor(unsigned int color);
-void grSetShadow(float c);
-void grBlitRot(vec_t p, float r, texc_t *tex);
-void grBlit(vec_t p, float a, float b, texc_t *tex);
-void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c, int index);
-void grBatchDraw(int count);
+void grBatchAddRot(vec_t p, float r, texc_t *tex, unsigned int c);
+void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c);
+void grBatchDraw();
 void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);
 void grBlitLaser(float x, float y, float len, float r, float width);
