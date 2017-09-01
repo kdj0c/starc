@@ -14,7 +14,7 @@
 #include "graphic.h"
 #include "config.h"
 /* For testing only */
-#define NBPART 100000
+#define NBPART 2000
 #define PA_EXP 0x1
 
 typedef struct {
@@ -119,11 +119,15 @@ void paDraw(float time) {
 	int i;
 	float c;
 	pos_t p;
+	int count;
+
+	count = 0;
 
 	grSetBlendAdd();
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
+		count++;
 		c = 1. - (time - parts[i].traj.basetime) / ((float) parts[i].maxlife);
 		parts[i].color &= ~0xFF;
 		parts[i].color |= (int) (c * 255);

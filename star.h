@@ -10,6 +10,6 @@
 #define STAR_H_
 
 void stUpdate(float x, float y);
-void stBlit(void);
+void stDraw(void);
 
 #endif /* STAR_H_ */

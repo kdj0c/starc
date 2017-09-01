@@ -25,17 +25,21 @@
 #include "vec.h"
 #include "shader.h"
 
+// maximum number of packed sprite draw
+#define GR_MAX 2000
+
 static int grWidth = 100;
 static int grHeight = 100;
 static SDL_Window *grwindow;
 
-/* TODO remove this global variable */
-//extern FTGLfont * menufont;
-
 static GLint uniform_pos_off;
 static GLint uniform_pos_scal;
-static GLint uniform_colour;
 static GLuint atlasTexture;
+
+/* Arrays of vertex, texture coordinates, and colors for batch draw */
+static float *lvert;
+static float *ltc;
+static unsigned int *lcolor;
 
 void grInit(grconf_t *c) {
 	SDL_GLContext glContext;
@@ -85,10 +89,13 @@ void grInit(grconf_t *c) {
 static GLuint quad_vbo;
 static GLuint quad_vao;
 static GLuint texcoords_vbo;
+static GLuint color_vbo;
 
 static GLuint star_vbo;
 static GLuint star_tc;
 static GLuint star_vao;
+
+static GLuint color;
 
 void grInitQuad(void) {
 
@@ -124,11 +131,21 @@ void grInitQuad(void) {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(1);
 
+	glGenBuffers(1, &color_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
+	glEnableVertexAttribArray(2);
+
 	glBindVertexArray(0);
 
 
 	atlasTexture = grLoadTextureArray();
 	glEnable(GL_BLEND);
+
+	lvert = malloc(GR_MAX * 8 * sizeof(float));
+	ltc = malloc(GR_MAX * 8 * sizeof(float));
+	lcolor = malloc(GR_MAX * 8 * sizeof(unsigned int));
 }
 
 void grInitShader(void) {
@@ -137,12 +154,10 @@ void grInitShader(void) {
 
 	uniform_pos_off = glGetUniformLocation(basic_shader, "position_offset");
 	uniform_pos_scal = glGetUniformLocation(basic_shader, "position_scaling");
-	uniform_colour = glGetUniformLocation(basic_shader, "add_colour");
 
 	glUseProgram(basic_shader);
 	glUniform2f(uniform_pos_off, 0.0f, 0.0f);
 	glUniform2f(uniform_pos_scal, 0.002f, 0.002f);
-	glUniform4f(uniform_colour, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void grInvertRedGreen(void *surface, int w, int h) {
@@ -214,23 +229,16 @@ void grSetBlendAdd(void) {
 
 void grSetBlend(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, 1.0);
+	color = 0xFFFFFFFF;
 }
 
 #define u8_to_float(c) (((float) (c)) / 255.0f)
 
-void grSetColor(unsigned int color) {
-	float r, g, b, a;
-
-	r = u8_to_float((color >> 24) & 0xFF);
-	g = u8_to_float((color >> 16) & 0xFF);
-	b = u8_to_float((color >> 8) & 0xFF);
-	a = u8_to_float(color & 0xFF);
-
-	glUniform4f(uniform_colour, r, g, b, a);
+void grSetColor(unsigned int c) {
+	color = c;
 }
 void grSetShadow(float c) {
-	glUniform4f(uniform_colour, 1.0, 1.0, 1.0, c);
+	color = 0xFFFFFFFF; //00 + ((int) c * 255.);
 }
 
 void grBlitLaser(float x, float y, float len, float r, float width) {
@@ -268,11 +276,14 @@ void grBlitRot(vec_t p, float r, texc_t *tex) {
 		p.x - h2.x + w2.y, p.y - h2.y - w2.x,
 		p.x - h2.x - w2.y, p.y - h2.y + w2.x
 	};
+	GLuint colors[] = { color, color, color, color};
 
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points), points);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * 4, colors);
 	glBindVertexArray(quad_vao);
 	glUniform1i(1, tex->index);
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
@@ -287,10 +298,14 @@ void grBlit(vec_t p, float a, float b, texc_t *tex) {
 		p.x - b, p.y + a,
 	};
 
+	GLuint colors[] = { color, color, color, color};
+
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points2), points2);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), tex->texc);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(unsigned int), colors);
 	glBindVertexArray(quad_vao);
 	glUniform1i(1, tex->index);
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */

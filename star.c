@@ -112,7 +112,7 @@ void stUpdate(float x, float y) {
 	cury = ncy;
 }
 
-void stBlit(void) {
+void stDraw(void) {
 	int cx, cy;
 	int img;
 	vec_t p;

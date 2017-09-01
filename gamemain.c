@@ -89,7 +89,7 @@ void grDraw(void) {
 		grChangeview(player->pos.p.x, player->pos.p.y, player->pos.r, scale);
 	else
 		grChangeview(0.0, 0.0, 0.0, scale);
-	stBlit();
+	stDraw();
 
 	shDrawShips(time);
 
