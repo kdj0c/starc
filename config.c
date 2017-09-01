@@ -26,6 +26,10 @@ turrettype_t *ttype = NULL;
 
 #define cfShipString(cf, f, st)  strcpy(st[i].f, psGetStr(#f, cf))
 
+static inline unsigned int rgb2bgr(unsigned int c) {
+	return 0xFF000000 | ((c << 16) & 0xFF0000) | (c & 0xFF00) | (c >> 16);
+}
+
 void cfReadGraphic(grconf_t *c) {
 	struct ps_node *conf;
 	struct ps_node *grconf;
@@ -184,7 +188,7 @@ void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
 		st->burst[j].p.x = psGetFloat("x", lcfg);
 		st->burst[j].p.y = psGetFloat("y", lcfg);
 		st->burst[j].size = psGetFloat("size", lcfg);
-		st->burst[j].color = psGetInt("color", lcfg) << 8 | 0xFF;
+		st->burst[j].color = rgb2bgr(psGetInt("color", lcfg));
 		j++;
 	}
 	st->numburst = j;
@@ -262,7 +266,7 @@ int cfReadGameData(void) {
 		wtype[i].firerate = 1000. / psGetFloat("firerate", wcfg);
 		wtype[i].speed = psGetFloat("speed", wcfg);
 		wtype[i].lifetime = psGetFloat("lifetime", wcfg) * 1000.;	// convert seconds to milliseconds.
-		wtype[i].color = psGetInt("color", wcfg) << 8 | 0xFF;
+		wtype[i].color = rgb2bgr(psGetInt("color", wcfg));
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;
 	}
@@ -279,7 +283,7 @@ int cfReadGameData(void) {
 		cfGetTexture(ttype[i].imgfile, &ttype[i].tex);
 		ttype[i].size = 2 * sqrt(ttype[i].tex.w * ttype[i].tex.w + ttype[i].tex.h * ttype[i].tex.h);
 		cfGetTexture("shield", &ttype[i].shieldtex);
-		ttype[i].shieldcolor = psGetInt("shieldcolor", tcfg) << 8 | 0xFF;
+		ttype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", tcfg));
 		ttype[i].shieldsize = ttype[i].size * 1.3f;
 		ttype[i].maxhealth = psGetFloat("maxhealth", tcfg);
 		ttype[i].maniability = psGetFloat("maniability", tcfg) / 10000.;
@@ -299,7 +303,7 @@ int cfReadGameData(void) {
 		// double the size of the sprite
 		stype[i].size = 2 * sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
 		cfGetTexture("shield", &stype[i].shieldtexture);
-		stype[i].shieldcolor = psGetInt("shieldcolor", scfg) << 8 | 0xFF;
+		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg));
 		stype[i].shieldsize = stype[i].size * 1.3f;
 		stype[i].maxhealth = psGetFloat("maxhealth", scfg);
 		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;

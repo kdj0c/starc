@@ -127,21 +127,38 @@ void paDraw(float time) {
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;
-		count++;
+		if (parts[i].flag == PA_EXP)
+			continue;
+
 		c = 1. - (time - parts[i].traj.basetime) / ((float) parts[i].maxlife);
-		parts[i].color &= ~0xFF;
-		parts[i].color |= (int) (c * 255);
-		grSetColor(parts[i].color);
+		parts[i].color &= ~0xFF000000;
+		parts[i].color |= ((int) (c * 255)) << 24;
+		get_pos(time, &parts[i].traj, &p);
+
+		grBatchAdd(p.p, parts[i].size, 0.f, &paTex, parts[i].color, count);
+		count++;
+	}
+	grBatchDraw(count);
+}
+
+void paDrawExplosion(float time) {
+	int i;
+	pos_t p;
+	int count;
+	int index;
+
+	count = 0;
+
+	for (i = 0; i < NBPART; i++) {
+		if (parts[i].traj.basetime + parts[i].maxlife <= time)
+			continue;
+
+		if (parts[i].flag != PA_EXP)
+			continue;
 
 		get_pos(time, &parts[i].traj, &p);
-		if (parts[i].flag == PA_EXP) {
-			int index;
-			index = (int) ((1. - c) * 64);
-			grSetBlend();
-			grBlitRot(p.p, p.r, &exTex[parts[i].anim][index]);
-			grSetBlendAdd();
-		} else {
-			grBlit(p.p, parts[i].size, 0.f, &paTex);
-		}
+		index = (int) (((time - parts[i].traj.basetime) / ((float) parts[i].maxlife)) * 64);
+		grBlitRot(p.p, p.r, &exTex[parts[i].anim][index]);
+		count++;
 	}
 }

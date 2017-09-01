@@ -15,7 +15,7 @@ typedef struct {
 	float x;
 	float y;
 	float size;
-	float c;
+	unsigned int c;
 } star_t;
 
 //table dimension (20x20)
@@ -29,14 +29,11 @@ static int curx = 0;
 static int cury = 0;
 static texc_t tex[3];
 
-static float vertex[MAXST][MAXST][8];
-static float tc[MAXST][MAXST][8];
-
 static void newrandstar(int cx, int cy) {
 	star[cx][cy].x = random1;
 	star[cx][cy].y = random1;
 	star[cx][cy].size = random1 * 50 + 50;
-	star[cx][cy].c = random1;
+	star[cx][cy].c = ((unsigned int)(random1 * 64 + 128) << 24) + 0xFFFFFF;
 }
 
 void stUpdate(float x, float y) {
@@ -117,26 +114,15 @@ void stDraw(void) {
 	int img;
 	vec_t p;
 	grSetBlend();
+
 	for (cx = 0; cx < MAXST; cx++) {
 		for (cy = 0; cy < MAXST; cy++) {
-			float s = star[cx][cy].size;
 			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
-//			grSetShadow(star[cx][cy].c);
 			img = ((int) p.x) % 3;
-//			grBlit(p, star[cx][cy].size, 0.f, &tex[img]);
-			vertex[cx][cy][0] = p.x + s;
-			vertex[cx][cy][1] = p.y;
-			vertex[cx][cy][2] = p.x;
-			vertex[cx][cy][3] = p.y - s;
-			vertex[cx][cy][4] = p.x - s;
-			vertex[cx][cy][5] = p.y;
-			vertex[cx][cy][6] = p.x;
-			vertex[cx][cy][7] = p.y + s;
 
-			memcpy(tc[cx][cy], tex[img].texc, 8 * sizeof(float));
+			grBatchAdd(p, star[cx][cy].size, 0.f, &tex[img], star[cx][cy].c, cy + cx * MAXST);
 		}
 	}
-	grSetShadow(1.0f);
-	grBlitStar(vertex, tc);
+	grBatchDraw(MAXST * MAXST);
 }

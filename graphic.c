@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #define GL_GLEXT_PROTOTYPES
@@ -40,6 +41,8 @@ static GLuint atlasTexture;
 static float *lvert;
 static float *ltc;
 static unsigned int *lcolor;
+static int indices[GR_MAX];
+static int counts[GR_MAX];
 
 void grInit(grconf_t *c) {
 	SDL_GLContext glContext;
@@ -91,61 +94,44 @@ static GLuint quad_vao;
 static GLuint texcoords_vbo;
 static GLuint color_vbo;
 
-static GLuint star_vbo;
-static GLuint star_tc;
-static GLuint star_vao;
-
 static GLuint color;
 
 void grInitQuad(void) {
-
-	glGenVertexArrays(1, &star_vao);
-	glBindVertexArray(star_vao);
-
-	glGenBuffers(1, &star_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 400 * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(0);
-
-	glGenBuffers(1, &star_tc);
-	glBindBuffer(GL_ARRAY_BUFFER, star_tc);
-	glBufferData(GL_ARRAY_BUFFER, 400 * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
+	int i;
 
 	glGenVertexArrays(1, &quad_vao);
 	glBindVertexArray(quad_vao);
 
 	glGenBuffers(1, &quad_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, GR_MAX * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
 	glGenBuffers(1, &texcoords_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, GR_MAX *8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(1);
 
 	glGenBuffers(1, &color_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, GR_MAX *4 * sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
-
 
 	atlasTexture = grLoadTextureArray();
 	glEnable(GL_BLEND);
 
 	lvert = malloc(GR_MAX * 8 * sizeof(float));
 	ltc = malloc(GR_MAX * 8 * sizeof(float));
-	lcolor = malloc(GR_MAX * 8 * sizeof(unsigned int));
+	lcolor = malloc(GR_MAX * 4 * sizeof(unsigned int));
+	for (i = 0; i < GR_MAX; i++) {
+		indices[i] = 4 * i;
+		counts[i] = 4;
+	}
 }
 
 void grInitShader(void) {
@@ -312,28 +298,41 @@ void grBlit(vec_t p, float a, float b, texc_t *tex) {
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
-void grBlitStar(float *vertex, float *texc) {
-	int ind[400];
-	int count[400];
-	int i;
+void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c, int index) {
+	int o = 8 * index;
 
-	for ( i = 0; i < 400; i++) {
-		ind[i] = 4 * i;
-		count[i] = 4;
-	}
-	glUniform1i(1, 0);
-	glBindVertexArray(star_vao);
+	lvert[o]     = p.x + a;
+	lvert[o + 1] = p.y + b;
+	lvert[o + 2] = p.x + b;
+	lvert[o + 3] = p.y - a;
+	lvert[o + 4] = p.x - a;
+	lvert[o + 5] = p.y - b;
+	lvert[o + 6] = p.x - b;
+	lvert[o + 7] = p.y + a;
 
-	glBindBuffer(GL_ARRAY_BUFFER, star_vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 400 * 8 * sizeof(float), vertex);
-	glBindBuffer(GL_ARRAY_BUFFER, star_tc);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 400* 8 * sizeof(float), texc);
+	memcpy(ltc + o, tex->texc, 8 * sizeof(float));
 
-	/* draw points 0-3 from the currently bound VAO with current in-use shader */
-	glMultiDrawArrays(GL_TRIANGLE_FAN, ind, count, 400);
+	o = 4 * index;
+	lcolor[o] = c;
+	lcolor[o + 1] = c;
+	lcolor[o + 2] = c;
+	lcolor[o + 3] = c;
 }
 
+void grBatchDraw(int count) {
+	glUniform1i(1, 0);
+	glBindVertexArray(quad_vao);
 
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, count * 8 * sizeof(float), lvert);
+	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, count * 8 * sizeof(float), ltc);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, count * 4 * sizeof(unsigned int), lcolor);
+
+	/* draw points 0-3 from the currently bound VAO with current in-use shader */
+	glMultiDrawArrays(GL_TRIANGLE_FAN, indices, counts, count);
+}
 
 void grChangeview(float x, float y, float r, float scale) {
 	float xscr;
