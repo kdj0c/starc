@@ -71,10 +71,10 @@ void cfReadAtlasData(void) {
 	struct ps_node *scfg;
 	int i;
 
-	conf = psParseFile("img/atlas.cfg");
+	conf = psParseFile("img/atlas.json");
 
 	if (!conf) {
-		printf("Error when reading configuration file atlas.cfg\n");
+		printf("Error when reading configuration file img/atlas.json\n");
 		return;
 	}
 	scfg = psGetObject("images", conf);
@@ -88,8 +88,8 @@ void cfReadAtlasData(void) {
 		cfShipString(scfg, name, atlas);
 		atlas[i].x = psGetInt("x", scfg);
 		atlas[i].y = psGetInt("y", scfg);
-		atlas[i].w = psGetInt("width", scfg);
-		atlas[i].h = psGetInt("height", scfg);
+		atlas[i].w = psGetInt("w", scfg);
+		atlas[i].h = psGetInt("h", scfg);
 		scfg = scfg->next;
 	}
 }

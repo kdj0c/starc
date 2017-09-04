@@ -127,10 +127,11 @@ struct ps_node *psParseFile(const char *filename) {
 	struct ps_node *cur;
 	char *data;
 	char *p;
-	char *startkey;
+	char *startkey = "root";
 	char *startvalue;
 	char c;
 	int state;
+	int prevstate;
 	ps_type t;
 
 	data = psReadfile(filename);
@@ -149,17 +150,20 @@ struct ps_node *psParseFile(const char *filename) {
 		switch (state) {
 		case PS_COMMENT:
 			if (c == '\n')
-				state = PS_SEEK_KEY;
+				state = prevstate;
 			break;
 		case PS_SEEK_KEY:
-			if (c == '#')
+			if (c == '#') {
+				prevstate = state;
 				state = PS_COMMENT;
-			else if (c == '}' || c == ')') {
+			} else if (c == '}' || c == ']') {
 				cur = cur->parent;
 				parent = cur->parent;
 			} else if (c == '{') {
-				cur = createNode(PS_OBJECT, startkey, parent);
-				parent = cur;
+				if (cur != root) {
+					cur = createNode(PS_OBJECT, startkey, parent);
+					parent = cur;
+				}
 				state = PS_SEEK_KEY;
 			} else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 				startkey = p;
@@ -167,13 +171,16 @@ struct ps_node *psParseFile(const char *filename) {
 			}
 			break;
 		case PS_KEY:
-			if (c == ' ' || c == '\n' || c == '\t' || c == '=' || c == ':') {
+			if (c == ' ' || c == '\n' || c == '\t' || c == '=' || c == ':' || c == '"') {
 				*p = 0;
 				state = PS_SEEK_VALUE;
 			}
 			break;
 		case PS_SEEK_VALUE:
-			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '"' || c == '-') {
+			if (c == '#') {
+				prevstate = state;
+				state = PS_COMMENT;
+			} else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '"' || c == '-') {
 				startvalue = p;
 				state = PS_VALUE;
 				t = PS_INTEGER;
@@ -182,7 +189,7 @@ struct ps_node *psParseFile(const char *filename) {
 				cur = createNode(PS_OBJECT, startkey, parent);
 				parent = cur;
 				state = PS_SEEK_KEY;
-			} else if (c == '(') {
+			} else if (c == '[') {
 				*p = 0;
 				cur = createNode(PS_ARRAY, startkey, parent);
 				parent = cur;
@@ -190,7 +197,7 @@ struct ps_node *psParseFile(const char *filename) {
 			}
 			break;
 		case PS_VALUE:
-			if (c == ' ' || c == '\n' || c == '\t' || c == ';' || c == '"') {
+			if (c == ' ' || c == '\n' || c == '\t' || c == ';' || c == ',' || c == '"') {
 				*p = 0;
 				if (*startvalue == '"') {
 					cur = createNode(PS_STRING, startkey, parent);
@@ -207,7 +214,7 @@ struct ps_node *psParseFile(const char *filename) {
 				t = PS_FLOAT;
 		}
 	}
-	// printNodes(root, 0);
+	//printNodes(root, 0);
 	return root;
 }
 
@@ -219,8 +226,8 @@ struct ps_node *psGetObject(const char *name, struct ps_node *nd) {
 		if (!strcmp(name, cur->key))
 			return cur;
 	}
+	//fprintf(stderr, "Error, Node %s not found\n", name);
 	return NULL;
-	fprintf(stderr, "Error, Node %s not found\n", name);
 }
 
 int psGetInt(const char *name, struct ps_node *nd) {
