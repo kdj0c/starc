@@ -27,8 +27,6 @@ typedef struct {
 	int index;
 } texc_t;
 
-#ifndef DEDICATED
-
 void grInit(grconf_t *c);
 void grInitShader(void);
 void grInitQuad(void);
@@ -43,10 +41,6 @@ void grBatchDraw();
 void grChangeview(float x, float y, float r, float scale);
 void grReshape(int width, int height);
 void grBlitLaser(float x, float y, float len, float r, float width);
-void grDrawHUD(float health);
 void grSwap(void);
-#else
-#define grSetColor(color)
-#endif
 
 #endif /* GRAPHIC_H_ */

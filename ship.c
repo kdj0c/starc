@@ -47,30 +47,6 @@ void shSetPlayer(ship_t *sh) {
 	shPlayer = sh;
 }
 
-#ifndef DEDICATED
-void shLoadShip(void) {
-/*	ship_t *sh;
-	int i;
-
-	list_for_each_entry(sh, &ship_head, list)
-	{
-		if (!sh->t->tex)
-			sh->t->tex = grLoadTextureArray(sh->t->imgfile, 1, 1);
-		if (!sh->t->shieldtex)
-			sh->t->shieldtex = grLoadTextureArray(sh->t->shieldfile, 1, 1);
-		for (i = 0; i < sh->t->numturret; i++) {
-			if (!sh->t->turret[i].t->tex) {
-				sh->t->turret[i].t->tex = grLoadTexture(
-						sh->t->turret[i].t->imgfile);
-				sh->t->turret[i].t->shieldtex = grLoadTexture(
-						sh->t->turret[i].t->shieldfile);
-			}
-		}
-	}
-	hudarrowtex = grLoadTexture("img/arrow.png");*/
-}
-#endif
-
 ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time) {
 	ship_t *newship;
 
@@ -580,27 +556,4 @@ void shDrawShields(float time) {
 	grBatchDraw();
 }
 
-void shDrawShipHUD(ship_t *pl) {
-#if 0
-	ship_t *sh;
-	float r;
-	vec_t d, v;
-	vec_t mid = { pl->pos.p.x, pl->pos.p.y };
-
-	grSetBlend(hudarrowtex);
-	list_for_each_entry(sh, &ship_head, list) {
-		if (sh->health <= 0 || sh == pl)
-			continue;
-		d = vsub(sh->pos.p, pl->pos.p);
-		if (sqnorm(d) < 5000. * 5000. * 4)
-			continue;
-		r = atan2(d.x, -d.y) - pl->pos.r;
-		v = vadd(mid, vangle(350., r));
-		if (pl->team == sh->team)
-			grSetColor(0x0000FF80);
-		else
-			grSetColor(0xFF000080);
-	}
-#endif
-}
 #endif

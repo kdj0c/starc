@@ -137,7 +137,6 @@ void evDoEvent(ev_t *ev) {
 		ship_t *sh;
 		cr = (ev_cr_t *) ev->data;
 		sh = shCreateShip(cr->shipname, &cr->pos, cr->team, cr->owner, ev->time);
-		shLoadShip();
 		if (cr->control == pl_ai)
 			aiCreate(sh);
 		else if (cr->control == pl_local)

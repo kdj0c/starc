@@ -230,6 +230,11 @@ void grBatchAddRot(vec_t p, float r, texc_t *tex, unsigned int c) {
 	vec_t w2;
 	int o = 8 * count;
 
+	if (count >= GR_MAX) {
+		fprintf(stderr, "Warning too much draw in the queue\n");
+		return;
+	}
+
 	h2 = vangle(tex->h, r);
 	w2 = vangle(tex->w, r);
 
@@ -255,6 +260,11 @@ void grBatchAddRot(vec_t p, float r, texc_t *tex, unsigned int c) {
 
 void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c) {
 	int o = 8 * count;
+
+	if (count >= GR_MAX) {
+		fprintf(stderr, "Warning too much draw in the queue\n");
+		return;
+	}
 
 	lvert[o]     = p.x + a;
 	lvert[o + 1] = p.y + b;
@@ -317,39 +327,4 @@ void grReshape(int width, int height) {
 
 void grSwap(void) {
 	SDL_GL_SwapWindow(grwindow);
-}
-
-void grDrawHUD(float health) {
-#if 0
-	char h[16];
-	int ih;
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	gluOrtho2D(0., 800, 0., 600);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glColor3f(0., 1., 0.);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	ih = (int) health;
-	if (ih < 0)
-		ih = 0;
-	sprintf(h, "+ %d", ih);
-	ftglRenderFont(menufont, h, FTGL_RENDER_ALL);
-
-	/* new projection for radar */
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0., 800., 0., 600., 0., 1.);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-#endif
-
 }

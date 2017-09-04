@@ -99,11 +99,6 @@ void grDraw(void) {
 	shDrawShields(time);
 	paDraw(time);
 
-
-	if (player) {
-		//grDrawHUD(player->health);
-		//shDrawShipHUD(player);
-	}
 	grSwap();
 }
 
@@ -265,7 +260,6 @@ void gmStartSingle(void) {
 	enterGameMode();
 	cfReadAtlasData();
 	cfReadGameData();
-	shLoadShip();
 	paInit();
 	weInit();
 
@@ -292,7 +286,6 @@ void gmStartMulti(void) {
 
 	ntClientInit();
 	cfReadGameData();
-	shLoadShip();
 	paInit();
 	weInit();
 	ntHandleMessage();
@@ -307,7 +300,6 @@ void gmReplay(void) {
 	gtInit();
 	enterGameMode();
 	cfReadGameData();
-	shLoadShip();
 	paInit();
 	weInit();
 
