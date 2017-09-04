@@ -87,7 +87,8 @@
 		</Unit>
 		<Unit filename="graphic.h" />
 		<Unit filename="img/atlas.atlas" />
-		<Unit filename="img/atlas.cfg" />
+		<Unit filename="img/atlas.json" />
+		<Unit filename="img/atlas2json.py" />
 		<Unit filename="list.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
