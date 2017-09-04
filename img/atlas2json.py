@@ -27,5 +27,5 @@ for i in range(0, int(len(lines) / 7)):
 
 outjson = {"images" : outjson}
 
-with open(outfile, 'w') as  f:
+with open(outfile, 'w', newline = '\n') as  f:
     json.dump(outjson, f, indent=2)
