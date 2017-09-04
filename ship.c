@@ -62,6 +62,7 @@ ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time) {
 	newship->team = team;
 	newship->health = newship->t->maxhealth;
 	newship->netid = netid;
+	newship->thrusttime = time;
 
 	if (newship->t->numturret)
 		tuAddTurret(newship);
@@ -343,21 +344,23 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 }
 
 #ifndef DEDICATED
+#define PA_PER_SECONDS (1000./100.)
 void shBurst(ship_t *sh, float time) {
 	int i;
-	float size;
+	float ttime;
 
-	if (!sh->traj.thrust)
+	if (!sh->traj.thrust) {
+		sh->thrusttime = time;
 		return;
-	for (i = 0; i < sh->t->numburst; i++) {
-		pos_t p;
-		p.r = sh->pos.r;
-		p.v = sh->pos.v;
-		p.p = vmatrix(sh->pos.p, sh->t->burst[i].p, sh->pos.r);
-		size = sh->t->burst[i].size;
-		/* minimum burst size = 1/4 burst size, engine is always running */
-		//size *= (3 * sh->traj.thrust + sh->t->thrust) / (4. * sh->t->thrust);
-		paBurst(&p, size, sh->t->burst[i].color, time);
+	}
+	for (ttime = sh->thrusttime + PA_PER_SECONDS; ttime < time; ttime += PA_PER_SECONDS) {
+		for (i = 0; i < sh->t->numburst; i++) {
+			pos_t p;
+			get_pos(ttime, &sh->traj, &p);
+			p.p = vmatrix(p.p, sh->t->burst[i].p, p.r);
+			paBurst(&p, sh->t->burst[i].size, sh->t->burst[i].color, ttime);
+		}
+		sh->thrusttime = ttime;
 	}
 }
 #endif

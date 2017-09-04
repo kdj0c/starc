@@ -142,7 +142,6 @@ void paDrawExplosion(float time) {
 	pos_t p;
 	int index;
 
-
 	for (i = 0; i < NBPART; i++) {
 		if (parts[i].traj.basetime + parts[i].maxlife <= time)
 			continue;

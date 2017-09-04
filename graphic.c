@@ -287,6 +287,8 @@ void grBatchAdd(vec_t p, float a, float b, texc_t *tex, unsigned int c) {
 }
 
 void grBatchDraw(void) {
+	if (!count)
+		return;
 
 	glBindVertexArray(quad_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
@@ -299,6 +301,7 @@ void grBatchDraw(void) {
 	/* draw points 0-3 from the currently bound VAO with current in-use shader */
 	glMultiDrawArrays(GL_TRIANGLE_FAN, indices, counts, count);
 
+	//printf("Batch %d\n", count);
 	count = 0;
 }
 

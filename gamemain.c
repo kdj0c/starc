@@ -53,7 +53,7 @@ void dummy() {
 
 }
 
-void grDraw(void) {
+void gmDraw(void) {
 	static int fpstime = 0;
 	static int frame = 0;
 	int time;
@@ -240,7 +240,7 @@ void gmLoop(void) {
 	while (!done) {
 		gmGetEvent();
 		gmEngineLoop();
-		grDraw();
+		gmDraw();
 		SDL_Delay(1);
 	}
 }
