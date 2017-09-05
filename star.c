@@ -120,8 +120,7 @@ void stDraw(void) {
 		for (cy = 0; cy < MAXST; cy++) {
 			p.x = (curx + cx + star[cx][cy].x) * SQSIZE;
 			p.y = (cury + cy + star[cx][cy].y) * SQSIZE;
-			img = ((int) p.x) % 3;
-
+			img = ((int) star[cx][cy].size) % 3;
 			grBatchAdd(p, star[cx][cy].size, 0.f, &tex[img], star[cx][cy].c);
 		}
 	}
