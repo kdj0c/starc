@@ -52,7 +52,7 @@ void printNodes(struct ps_node *nd, int level) {
 	for (cur = nd; cur; cur = cur->next) {
 		if (level)
 			printf("%*s", level, "");
-		printf("%d Node %s ", level, cur->key);
+		printf("%d Node %s ", level, cur->key ? cur->key : "");
 		switch (cur->type) {
 		case PS_OBJECT:
 			printf("Object\n");
@@ -161,7 +161,7 @@ struct ps_node *psParseFile(const char *filename) {
 				parent = cur->parent;
 			} else if (c == '{') {
 				if (cur != root) {
-					cur = createNode(PS_OBJECT, startkey, parent);
+					cur = createNode(PS_OBJECT, NULL, parent);
 					parent = cur;
 				}
 				state = PS_SEEK_KEY;
@@ -193,6 +193,11 @@ struct ps_node *psParseFile(const char *filename) {
 				*p = 0;
 				cur = createNode(PS_ARRAY, startkey, parent);
 				parent = cur;
+				startkey = NULL;
+				state = PS_SEEK_VALUE;
+			} else if (c == ']') {
+				cur = cur->parent;
+				parent = cur->parent;
 				state = PS_SEEK_KEY;
 			}
 			break;
@@ -209,7 +214,10 @@ struct ps_node *psParseFile(const char *filename) {
 					cur = createNode(PS_INTEGER, startkey, parent);
 					cur->value_i = (int) strtol(startvalue, NULL, 0);
 				}
-				state = PS_SEEK_KEY;
+				if (parent->type == PS_OBJECT)
+					state = PS_SEEK_KEY;
+				else if (parent->type == PS_ARRAY)
+					state = PS_SEEK_VALUE;
 			} else if (c == '.')
 				t = PS_FLOAT;
 		}

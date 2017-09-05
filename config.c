@@ -145,8 +145,10 @@ int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 	int j;
 
 	lcfg = psGetObject("weapon", cfg);
-	j = 0;
+	if (!lcfg)
+		return 0;
 
+	j = 0;
 	for (lcfg = lcfg->child; lcfg; lcfg = lcfg->next) {
 		las[j].p.x = psGetFloat("x", lcfg);
 		las[j].p.y = psGetFloat("y", lcfg);
@@ -157,13 +159,15 @@ int cfShipGetWeapons(struct ps_node *cfg, weapon_t *las) {
 	return j;
 }
 
-void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
+int cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
 	struct ps_node *lcfg;
 	int j;
 
 	lcfg = psGetObject("burst", cfg);
-	j = 0;
+	if (!lcfg)
+		return 0;
 
+	j = 0;
 	for (lcfg = lcfg->child; lcfg; lcfg = lcfg->next) {
 		st->burst[j].p.x = psGetFloat("x", lcfg);
 		st->burst[j].p.y = psGetFloat("y", lcfg);
@@ -171,16 +175,16 @@ void cfShipGetBurst(struct ps_node *cfg, shiptype_t *st) {
 		st->burst[j].color = rgb2bgr(psGetInt("color", lcfg));
 		j++;
 	}
-	st->numburst = j;
+	return j;
 }
 
-void cfShipGetTurret(struct ps_node *cfg, shiptype_t *st) {
+int cfShipGetTurret(struct ps_node *cfg, shiptype_t *st) {
 	struct ps_node *tcfg;
 	int j;
 
 	tcfg = psGetObject("turret", cfg);
 	if (!tcfg)
-		return;
+		return 0;
 
 	j = 0;
 	for (tcfg = tcfg->child; tcfg; tcfg = tcfg->next) {
@@ -189,7 +193,7 @@ void cfShipGetTurret(struct ps_node *cfg, shiptype_t *st) {
 		st->turret[j].p.y = psGetFloat("y", tcfg);
 		j++;
 	}
-	st->numturret = j;
+	return j;
 }
 
 void cfShipGetHangar(struct ps_node *cfg, shiptype_t *st) {
@@ -261,7 +265,7 @@ int cfReadGameData(void) {
 		cfShipString(tcfg, name, ttype);
 		cfShipString(tcfg, imgfile, ttype);
 		cfGetTexture(ttype[i].imgfile, &ttype[i].tex);
-		ttype[i].size = 2 * sqrt(ttype[i].tex.w * ttype[i].tex.w + ttype[i].tex.h * ttype[i].tex.h);
+		ttype[i].size = sqrt(ttype[i].tex.w * ttype[i].tex.w + ttype[i].tex.h * ttype[i].tex.h);
 		cfGetTexture("shield", &ttype[i].shieldtex);
 		ttype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", tcfg));
 		ttype[i].shieldsize = ttype[i].size * 1.3f;
@@ -281,7 +285,7 @@ int cfReadGameData(void) {
 		cfShipString(scfg, name, stype);
 		cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
 		// double the size of the sprite
-		stype[i].size = 2 * sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
+		stype[i].size = sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
 		cfGetTexture("shield", &stype[i].shieldtexture);
 		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg));
 		stype[i].shieldsize = stype[i].size * 1.3f;
@@ -290,9 +294,8 @@ int cfReadGameData(void) {
 		stype[i].thrust = psGetFloat("thrust", scfg) / 10000.;
 
 		stype[i].numweapon = cfShipGetWeapons(scfg, stype[i].laser);
-
-		cfShipGetBurst(scfg, &stype[i]);
-		cfShipGetTurret(scfg, &stype[i]);
+		stype[i].numburst = cfShipGetBurst(scfg, &stype[i]);
+		stype[i].numturret = cfShipGetTurret(scfg, &stype[i]);
 		cfShipGetHangar(scfg, &stype[i]);
 		scfg = scfg->next;
 	}
