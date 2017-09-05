@@ -41,8 +41,9 @@ void paInit(void) {
 			for (j = 0; j < 8; j++) {
 				texc_t *t = &exTex[e][i + j * 8];
 				t->index = e + 1;
-				t->w = 4096. / 4.;
-				t->h = 4096. / 4.;
+				/* should be 4096 /8, but tweaked for bigger explosions */
+				t->w = 4096. / 2.;
+				t->h = 4096. / 2.;
 				t->texc[0] = 1. / 8. * i;
 				t->texc[1] = 1. / 8. * j;
 				t->texc[2] = 1. / 8. * (i + 1);
@@ -107,7 +108,7 @@ void paLaserHit(vec_t p, vec_t v, unsigned int color, float time) {
 	parts[i].traj.basetime = time;
 	parts[i].traj.type = t_linear;
 
-	parts[i].size = rand() % 100 + 100;
+	parts[i].size = rand() % 50 + 50;
 	parts[i].color = color;
 	parts[i].flag = 0;
 	freePart++;
