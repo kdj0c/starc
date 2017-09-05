@@ -95,49 +95,15 @@ void shFire(int netid, pos_t *p, int id, float time) {
 
 	sh = shGetByID(netid);
 
-	weFire(netid, p, sh->t->laser[id].wt, time);
-	return;
-/*	closer = LASER_RANGE;
-	list_for_each_entry(en, &ship_head, list) {
-		float s;
-		pos_t enp;
-		vec_t d, t;
-		if (en->health <= 0 || en == sh)
-			continue;
-        get_pos(time, &en->traj, &enp);
-        d = vsub(enp.p, p->p);
-		s = en->t->shieldsize / 2.f;
-
-        if (norm(d) > LASER_RANGE + s)
-            continue;
-
-        if (en->t->flag & SH_MOTHERSHIP) {
-            // check for turret
-            tu = tuCheckTurret(en, p, &enp, len, &closer);
-            if (tu)
-                tc = en;
-        } else {
-            t = vmatrix1(d, p->r);
-            if (t.x > 0 && t.x < LASER_RANGE + s && t.y > -s && t.y < s) {
-                len = t.x - sqrt(s * s - t.y * t.y);
-                if (len < closer) {
-                    closer = len;
-                    tc = en;
-                }
-            }
-        }
-	}
-	if(tc) {
-	    vec_t tmp;
-	    if (tc->t->flag & SH_MOTHERSHIP) {
-	        tuDamage(tu, 50., time);
-	    } else {
-            shDamage(tc, 50., time);
-	    }
-		tmp = vadd(p->p, vangle(closer, p->r));
-//		paLaser(tmp, tc->pos.v, color);
-	}
-    paLas(*p, closer, color);*/
+	/* for turret */
+	if (id >= MAX_WEAPON) {
+        int tu;
+        int l;
+        l = (id - MAX_WEAPON) % MAX_TURRET;
+        tu = (id - MAX_WEAPON) / MAX_TURRET;
+        weFire(netid, p, sh->t->turret[tu].t->laser[l].wt, time);
+	} else
+        weFire(netid, p, sh->t->laser[id].wt, time);
 }
 
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {

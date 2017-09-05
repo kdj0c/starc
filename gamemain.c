@@ -268,7 +268,7 @@ void gmStartSingle(void) {
 	evPostCreateShip("stationRed1", &pos_ai1, 0, ntGetId(), pl_ai);
 	evPostCreateShip("Red1", &pos_ai2, 0, ntGetId(), pl_ai);
 	evPostCreateShip("Red3", &pos_ai3, 0, ntGetId(), pl_ai);
-//	evPostCreateShip("stationRed1", &pos_ai4, 1, ntGetId(), pl_ai);
+	evPostCreateShip("stationRed1", &pos_ai4, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green2", &pos_ai5, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green1", &pos_ai6, 1, ntGetId(), pl_ai);
 	evPostCreateShip("Green2", &pos_ai7, 1, ntGetId(), pl_ai);

@@ -38,14 +38,14 @@ void tuDamage(turret_t *tu, float dg, float time) {
 	tu->lastdamage = time;
 }
 
-void tufirelaser(ship_t *sh, turret_t *tu, turrettype_t *t, int l, float time) {
+void tufirelaser(ship_t *sh, turret_t *tu, turrettype_t *t, int i, int l, float time) {
 	pos_t p;
 	weapon_t *las = &t->laser[l];
 
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-	evPostFire(sh->netid, &p, l, time);
+	evPostFire(sh->netid, &p, MAX_WEAPON + i * MAX_TURRET + l, time);
 	tu->lastfire[l] = time;
 }
 
@@ -171,7 +171,7 @@ void tuUpdate(ship_t *sh, float time) {
 			if (a < .03 && a > -.03 && norm(d) < LASER_RANGE) {
 				for (l = 0; l < t->t->numweapon; l++) {
 					if (time - tu->lastfire[l] > t->t->laser[l].wt->firerate) {
-						tufirelaser(sh, tu, t->t, l, time);
+						tufirelaser(sh, tu, t->t, i, l, time);
 						tu->lastfire[l] = time;
 					}
 				}
