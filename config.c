@@ -23,6 +23,8 @@ int nbship = 0;
 shiptype_t *stype = NULL;
 int nbturret = 0;
 turrettype_t *ttype = NULL;
+int nbparts = 0;
+parttype_t *ptype = NULL;
 
 #define cfShipString(cf, f, st)  strcpy(st[i].f, psGetStr(#f, cf))
 
@@ -127,6 +129,95 @@ void cfGetTexture(const char *name, texc_t *tex) {
 
 	for (i = 0; i < 8; i++)
 		tex->texc[i] = texc[i] / 4096.;
+}
+
+
+int cfGetAnchors(struct ps_node *cfg, anchor_t *anc, vec_t offset) {
+	struct ps_node *acfg;
+	int i = 0;
+
+	acfg = psGetObject("anchors", cfg);
+	if (!acfg)
+		return 0;
+
+	for (acfg = acfg->child; acfg; acfg = acfg->next) {
+		anc[i].p.x = psGetFloat("x", acfg) - offset.x;
+		anc[i].p.y = psGetFloat("y", acfg) - offset.y;
+		anc[i].r = psGetFloat("r", acfg);
+		i++;
+	}
+	return i;
+}
+
+void cfGetStationParts(struct ps_node *conf) {
+	struct ps_node *pcfg;
+	int i;
+	vec_t offset;
+
+	pcfg = psGetObject("stationparts", conf);
+	nbparts = pcfg->len;
+	ptype = malloc(sizeof(*ptype) * nbparts);
+	memset(ptype, 0, sizeof(*ptype) * nbparts);
+	pcfg = pcfg->child;
+
+	for (i = 0; i < nbparts && pcfg; i++) {
+		cfShipString(pcfg, name, ptype);
+		cfGetTexture(ptype[i].name, &ptype[i].tex);
+		offset.x = ptype[i].tex.w / 2.;
+		offset.y = ptype[i].tex.h / 2.;
+		ptype[i].maxhealth = psGetFloat("maxhealth", pcfg);
+		ptype[i].numanc = cfGetAnchors(pcfg, ptype->anc, offset);
+		pcfg = pcfg->next;
+	}
+}
+
+parttype_t *cfGetPart(const char *name) {
+	int i;
+
+	for (i = 0; i < nbparts; i++) {
+		if (!strcmp(ptype[i].name, name))
+			return &ptype[i];
+	}
+	printf("Error station part not found %s\n", name);
+	return NULL;
+}
+
+int cfAssembleParts(struct ps_node *cfg, part_t * part) {
+	struct ps_node *pcfg;
+	int npart = 0;
+
+	pcfg = psGetObject("parts", cfg);
+	if (!pcfg)
+		return 0;
+
+	for (pcfg = pcfg->child; pcfg; pcfg = pcfg->next) {
+		part[npart].part = cfGetPart(pcfg->value_s);
+		npart++;
+	}
+	pcfg = psGetObject("links", cfg);
+	if (!pcfg)
+		return 0;
+
+	part[0].p.x = 0.;
+	part[0].p.y = 0.;
+	part[0].r = 0.;
+
+	for (pcfg = pcfg->child; pcfg; pcfg = pcfg->next) {
+		int p1, p2, a1, a2;
+
+		p1 = psGetInt("p1", pcfg) - 1;
+		p2 = psGetInt("p2", pcfg) - 1;
+		a1 = psGetInt("a1", pcfg) - 1;
+		a2 = psGetInt("a2", pcfg) - 1;
+
+		if (p1 < 0 || p2 < 0 || p1 >= npart || p2 >= npart)
+			printf("errors link is not valid \n");
+
+		part[p2].p = vmatrix(part[p1].part->anc[a1].p, part[p2].part->anc[a2].p,  part[p1].part->anc[a1].r);
+		part[p2].r = part[p1].part->anc[a1].r + part[p2].part->anc[a2].r;
+	}
+
+	return npart;
 }
 
 weapontype_t *cfGetWeapon(const char *name) {
@@ -275,6 +366,8 @@ int cfReadGameData(void) {
 		tcfg = tcfg->next;
 	}
 
+	cfGetStationParts(conf);
+
 	scfg = psGetObject("shiptypes", conf);
 	nbship = scfg->len;
 	stype = malloc(sizeof(*stype) * nbship);
@@ -297,6 +390,8 @@ int cfReadGameData(void) {
 		stype[i].numburst = cfShipGetBurst(scfg, &stype[i]);
 		stype[i].numturret = cfShipGetTurret(scfg, &stype[i]);
 		cfShipGetHangar(scfg, &stype[i]);
+		stype[i].numparts = cfAssembleParts(scfg, stype[i].part);
+
 		scfg = scfg->next;
 	}
 

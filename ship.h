@@ -22,6 +22,7 @@
 #define MAX_TURRET 10
 #define MAX_WEAPON 5
 #define MAX_ENGINE 5
+#define MAX_PARTS 10
 
 typedef struct {
 	vec_t p;
@@ -61,6 +62,25 @@ typedef struct {
 } hangar_t;
 
 typedef struct {
+	vec_t p;
+	float r;
+} anchor_t;
+
+typedef struct {
+	char name[16];
+	int numanc;
+	anchor_t anc[4];
+	texc_t tex;
+	float maxhealth;
+} parttype_t;
+
+typedef struct {
+	vec_t p;
+	float r;
+	parttype_t *part;
+} part_t;
+
+typedef struct {
 	char name[16];
 	texc_t texture;
 	/* diameter */
@@ -80,6 +100,8 @@ typedef struct {
 	int numturret;
 	turretpos_t turret[MAX_TURRET];
 	hangar_t hangar;
+	int numparts;
+	part_t part[MAX_PARTS];
 } shiptype_t;
 
 typedef struct {

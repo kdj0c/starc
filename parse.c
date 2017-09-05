@@ -222,7 +222,7 @@ struct ps_node *psParseFile(const char *filename) {
 				t = PS_FLOAT;
 		}
 	}
-	//printNodes(root, 0);
+	printNodes(root, 0);
 	return root;
 }
 
