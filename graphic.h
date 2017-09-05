@@ -12,7 +12,7 @@
 #include <SDL2/SDL.h>
 #include "vec.h"
 
-#define WIDTH_UNIT 20000
+#define WIDTH_UNIT 10000
 
 typedef struct {
 	int fullscreen;

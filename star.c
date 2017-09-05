@@ -32,7 +32,7 @@ static texc_t tex[3];
 static void newrandstar(int cx, int cy) {
 	star[cx][cy].x = random1;
 	star[cx][cy].y = random1;
-	star[cx][cy].size = random1 * 50 + 50;
+	star[cx][cy].size = random1 * 25 + 25;
 	star[cx][cy].c = ((unsigned int)(random1 * 64 + 128) << 24) + 0xFFFFFF;
 }
 

@@ -524,6 +524,32 @@ ship_t *shGetByID(int id) {
 	return NULL;
 }
 
+void shDrawDebug(ship_t *sh, float time) {
+	pos_t pl;
+	int l;
+
+	static texc_t tex;
+
+	if (!tex.h)
+		cfGetTexture("star", &tex);
+
+	for (l = 0; l < sh->t->numweapon; l++) {
+		weapon_t *las = &sh->t->laser[l];
+
+		pl.p = vmatrix(sh->pos.p, las->p, sh->pos.r);
+		pl.r = sh->pos.r + las->r;
+		grBatchAddRot(pl.p, pl.r, &tex, 0xFFFFFFFF);
+	}
+
+	for (l = 0; l < sh->t->numburst; l++) {
+		burst_t *b = &sh->t->burst[l];
+
+		pl.p = vmatrix(sh->pos.p, b->p, sh->pos.r);
+		grBatchAddRot(pl.p, sh->pos.r, &tex, 0xFFFFFFFF);
+	}
+
+}
+
 #ifndef DEDICATED
 void shDrawShips(float time) {
 	ship_t *sh;
@@ -533,6 +559,8 @@ void shDrawShips(float time) {
 			continue;
 		get_pos(time, &sh->traj, &sh->pos);
 		grBatchAddRot(sh->pos.p, sh->pos.r, &sh->t->texture, 0xFFFFFFFF);
+		shDrawDebug(sh, time);
+
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
 		}

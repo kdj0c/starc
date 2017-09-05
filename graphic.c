@@ -235,8 +235,8 @@ void grBatchAddRot(vec_t p, float r, texc_t *tex, unsigned int c) {
 		return;
 	}
 
-	h2 = vangle(tex->h, r);
-	w2 = vangle(tex->w, r);
+	h2 = vangle(tex->h / 2., r);
+	w2 = vangle(tex->w / 2., r);
 
 	lvert[o]     = p.x + h2.x - w2.y;
 	lvert[o + 1] = p.y + h2.y + w2.x;

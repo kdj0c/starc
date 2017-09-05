@@ -40,7 +40,7 @@ int weGetFree(void) {
 
 	i = freeBul;
 	freeBul++;
-	if (freeBul > NBPROJ)
+	if (freeBul >= NBPROJ)
 		freeBul = 0;
 	return i;
 }

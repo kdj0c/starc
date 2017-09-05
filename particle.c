@@ -90,7 +90,7 @@ void paBurst(pos_t *p, float size, unsigned int color, float time) {
 	parts[i].traj.basetime = time;
 	parts[i].traj.type = t_linear;
 	parts[i].maxlife = rand() % 1000 + 1000 / size;
-	parts[i].size = (rand() % 100 + 50) * size;
+	parts[i].size = (rand() % 50 + 25) * size;
 	parts[i].color = color;
 	parts[i].flag = 0;
 	freePart++;
