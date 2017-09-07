@@ -62,14 +62,8 @@ typedef struct {
 } hangar_t;
 
 typedef struct {
-	vec_t p;
-	float r;
-} anchor_t;
-
-typedef struct {
 	char name[16];
-	int numanc;
-	anchor_t anc[4];
+	unsigned int cmask;
 	texc_t tex;
 	float maxhealth;
 } parttype_t;

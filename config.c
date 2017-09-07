@@ -17,6 +17,14 @@
 #include "ship.h"
 #include "weapon.h"
 
+typedef enum {
+	pc_up,
+	pc_left,
+	pc_down,
+	pc_right,
+} partcon_e;
+
+
 int nbweapon = 0;
 weapontype_t *wtype = NULL;
 int nbship = 0;
@@ -131,28 +139,9 @@ void cfGetTexture(const char *name, texc_t *tex) {
 		tex->texc[i] = texc[i] / 4096.;
 }
 
-
-int cfGetAnchors(struct ps_node *cfg, anchor_t *anc, vec_t offset) {
-	struct ps_node *acfg;
-	int i = 0;
-
-	acfg = psGetObject("anchors", cfg);
-	if (!acfg)
-		return 0;
-
-	for (acfg = acfg->child; acfg; acfg = acfg->next) {
-		anc[i].p.x = psGetFloat("x", acfg) - offset.x;
-		anc[i].p.y = psGetFloat("y", acfg) - offset.y;
-		anc[i].r = psGetFloat("r", acfg);
-		i++;
-	}
-	return i;
-}
-
 void cfGetStationParts(struct ps_node *conf) {
 	struct ps_node *pcfg;
 	int i;
-	vec_t offset;
 
 	pcfg = psGetObject("stationparts", conf);
 	nbparts = pcfg->len;
@@ -163,10 +152,8 @@ void cfGetStationParts(struct ps_node *conf) {
 	for (i = 0; i < nbparts && pcfg; i++) {
 		cfShipString(pcfg, name, ptype);
 		cfGetTexture(ptype[i].name, &ptype[i].tex);
-		offset.x = ptype[i].tex.w / 2.;
-		offset.y = ptype[i].tex.h / 2.;
 		ptype[i].maxhealth = psGetFloat("maxhealth", pcfg);
-		ptype[i].numanc = cfGetAnchors(pcfg, ptype->anc, offset);
+		ptype[i].cmask = psGetInt("cmask", pcfg);
 		pcfg = pcfg->next;
 	}
 }
@@ -182,9 +169,33 @@ parttype_t *cfGetPart(const char *name) {
 	return NULL;
 }
 
+vec_t getOffset(partcon_e dir, texc_t *tex) {
+
+	switch (dir) {
+	case pc_up:
+		return vec(tex->h / 2. - 1.0, 0.);
+	case pc_left:
+		return vec(0., tex->w / 2. - 1.0);
+	case pc_down:
+		return vec(-tex->h / 2. - 1.0, 0.);
+	case pc_right:
+		return vec(0., -tex->w / 2. - 1.0);
+	default:
+		printf("Part connection error %d\n", dir);
+		return vec(0.,0.);
+	}
+}
+
+float getAngle(partcon_e dir1, partcon_e dir2) {
+
+return dir1 * M_PI_2 - dir2 * M_PI_2 + M_PI;
+}
+
+
 int cfAssembleParts(struct ps_node *cfg, part_t * part) {
 	struct ps_node *pcfg;
 	int npart = 0;
+	int p = 0;
 
 	pcfg = psGetObject("parts", cfg);
 	if (!pcfg)
@@ -203,20 +214,27 @@ int cfAssembleParts(struct ps_node *cfg, part_t * part) {
 	part[0].r = 0.;
 
 	for (pcfg = pcfg->child; pcfg; pcfg = pcfg->next) {
-		int p1, p2, a1, a2;
+		int p1, a1, a2;
 
-		p1 = psGetInt("p1", pcfg) - 1;
-		p2 = psGetInt("p2", pcfg) - 1;
+		p++;
+
+		p1 = psGetInt("p", pcfg) - 1;
 		a1 = psGetInt("a1", pcfg) - 1;
 		a2 = psGetInt("a2", pcfg) - 1;
 
-		if (p1 < 0 || p2 < 0 || p1 >= npart || p2 >= npart)
-			printf("errors link is not valid \n");
+		if (p1 < 0 || p1 >= npart || p >= npart)
+			printf("error link is not valid \n");
 
-		part[p2].p = vmatrix(part[p1].part->anc[a1].p, part[p2].part->anc[a2].p,  part[p1].part->anc[a1].r);
-		part[p2].r = part[p1].part->anc[a1].r + part[p2].part->anc[a2].r;
+		if (!(part[p1].part->cmask & (1 << a1)))
+			printf("error in link %d, anchor %d not usable mask %08x\n", p1, a1, part[p1].part->cmask);
+
+		if (!(part[p].part->cmask & (1 << a2)))
+			printf("error in link %d, anchor %d not usable mask %08x\n", p, a2, part[p].part->cmask);
+
+		part[p].p = vmatrix(part[p1].p, getOffset(a1, &part[p1].part->tex), -part[p1].r);
+		part[p].r = part[p1].r + getAngle(a1, a2);
+		part[p].p = vmatrix(part[p].p, getOffset(a2, &part[p].part->tex), M_PI - part[p].r);
 	}
-
 	return npart;
 }
 

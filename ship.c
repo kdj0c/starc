@@ -517,6 +517,22 @@ void shDrawDebug(ship_t *sh, float time) {
 }
 
 #ifndef DEDICATED
+void shDrawPart(ship_t *sh, float time) {
+	int i;
+	part_t *pt;
+
+	for (i = 0; i < sh->t->numparts; i++) {
+		vec_t p;
+		float r;
+
+		pt = &sh->t->part[i];
+		p = vmatrix(sh->pos.p, pt->p, sh->pos.r);
+		r = sh->pos.r + pt->r;
+		grBatchAddRot(p, r, &pt->part->tex, 0xFFFFFFFF);
+	}
+
+}
+
 void shDrawShips(float time) {
 	ship_t *sh;
 
@@ -524,12 +540,17 @@ void shDrawShips(float time) {
 		if (sh->health <= 0)
 			continue;
 		get_pos(time, &sh->traj, &sh->pos);
-		grBatchAddRot(sh->pos.p, sh->pos.r, &sh->t->texture, 0xFFFFFFFF);
-		shDrawDebug(sh, time);
 
+		if (!sh->t->numparts) {
+			grBatchAddRot(sh->pos.p, sh->pos.r, &sh->t->texture, 0xFFFFFFFF);
+			shDrawDebug(sh, time);
+		} else {
+			shDrawPart(sh, time);
+		}
 		if (sh->t->numturret) {
 			tuDraw(sh, time);
 		}
+
 	}
 	grBatchDraw();
 }
