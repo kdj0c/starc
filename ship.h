@@ -22,7 +22,7 @@
 #define MAX_TURRET 10
 #define MAX_WEAPON 5
 #define MAX_ENGINE 5
-#define MAX_PARTS 10
+#define MAX_PARTS 50
 
 typedef struct {
 	vec_t p;

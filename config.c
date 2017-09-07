@@ -226,10 +226,10 @@ int cfAssembleParts(struct ps_node *cfg, part_t * part) {
 			printf("error link is not valid \n");
 
 		if (!(part[p1].part->cmask & (1 << a1)))
-			printf("error in link %d, anchor %d not usable mask %08x\n", p1, a1, part[p1].part->cmask);
+			printf("error in link %d, anchor %d not usable mask %08x, %s\n", p1, a1, part[p1].part->cmask, part[p1].part->name);
 
 		if (!(part[p].part->cmask & (1 << a2)))
-			printf("error in link %d, anchor %d not usable mask %08x\n", p, a2, part[p].part->cmask);
+			printf("error in link %d, anchor %d not usable mask %08x, %s\n", p, a2, part[p].part->cmask, part[p].part->name);
 
 		part[p].p = vmatrix(part[p1].p, getOffset(a1, &part[p1].part->tex), -part[p1].r);
 		part[p].r = part[p1].r + getAngle(a1, a2);
