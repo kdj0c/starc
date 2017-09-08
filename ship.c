@@ -126,19 +126,8 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 			continue;
 
 		if (sh->t->flag & SH_MOTHERSHIP) {
-			// check for turret
-			tu = tuCheckTurretProj(sh, p, &shp, size);
-			if (tu >= 0) {
-				p->v = shp.v;
-				evPostHit(netid, sh->netid, tu, p, weid, time);
-				return 1;
-			}
-		} else {
-			/*            float l;
 
-			   l = s * s - sqnorm(d);
-			   l = sqrt(l);
-			   p->p = vsub(p->p, vangle(l, p->r)); */
+		} else {
 			p->v = shp.v;
 			evPostHit(netid, sh->netid, 0, p, weid, time);
 			return 1;

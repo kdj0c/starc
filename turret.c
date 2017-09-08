@@ -27,8 +27,8 @@ void tuAddTurret(ship_t *sh) {
 
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
-		new[i].p = vmatrix(sh->pos.p, t->p, sh->pos.r);
-		new[i].r = sh->pos.r;
+		new[i].p = vmatrix(sh->pos.p, sh->t->part[t->i].p, sh->pos.r);
+		new[i].r = sh->pos.r + sh->t->part[t->i].r;
 		new[i].health = t->t->maxhealth;
 	}
 }
@@ -72,67 +72,6 @@ void tuSetMove(int netid, float *dir, float time) {
 	}
 }
 
-turret_t *tuCheckTurret(ship_t *sh, pos_t *p, pos_t *ms, float len, float *min) {
-	turret_t *tu;
-	turretpos_t *t;
-	int i;
-	vec_t tp;
-	turret_t *res = NULL;
-	vec_t d, d1;
-	float s;
-
-	for (i = 0; i < sh->t->numturret; i++) {
-		t = &sh->t->turret[i];
-		tu = &sh->turret[i];
-		tp = vmatrix(ms->p, t->p, ms->r);
-
-		if (tu->health <= 0)
-			continue;
-
-		d = vsub(tp, p->p);
-		s = t->t->shieldsize / 2.f;
-
-		if (norm(d) > LASER_RANGE + s)
-			continue;
-
-		d1 = vmatrix1(d, p->r);
-		if (d1.x > 0 && d1.x < LASER_RANGE + s && d1.y > -s && d1.y < s) {
-			len = d1.x - sqrt(s * s - d1.y * d1.y);
-			if (len < *min) {
-				*min = len;
-				res = tu;
-			}
-		}
-	}
-	return res;
-}
-
-int tuCheckTurretProj(ship_t *sh, pos_t *p, pos_t *ms, float len) {
-	turret_t *tu;
-	turretpos_t *t;
-	int i;
-	vec_t tp;
-	vec_t d;
-	float s;
-
-	for (i = 0; i < sh->t->numturret; i++) {
-		t = &sh->t->turret[i];
-		tu = &sh->turret[i];
-		tp = vmatrix(ms->p, t->p, ms->r);
-
-		if (tu->health <= 0)
-			continue;
-
-		d = vsub(tp, p->p);
-		s = t->t->shieldsize / 2.f;
-
-		if (norm(d) > s + len)
-			continue;
-		return i;
-	}
-	return -1;
-}
-
 void tuUpdate(ship_t *sh, float time) {
 	turret_t *tu;
 	turretpos_t *t;
@@ -156,7 +95,7 @@ void tuUpdate(ship_t *sh, float time) {
 			tu->lastthink = time;
 		}
 
-		tu->p = vmatrix(mp.p, t->p, mp.r);
+		tu->p = vmatrix(mp.p, sh->t->part[t->i].p, mp.r);
 		if (tu->target) {
 			vec_t d, d1;
 			pos_t tp;
@@ -200,7 +139,7 @@ void tuDraw(ship_t *sh, float time) {
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
-		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
+		tu->p = vmatrix(sh->pos.p, sh->t->part[t->i].p, sh->pos.r);
 		tu->r = tuGetAim(tu, t->t->maniability, time);
 		grBatchAddRot(tu->p, tu->r, &t->t->tex, 0xFFFFFFFF);
 	}
@@ -214,7 +153,7 @@ void tuDrawShields(ship_t *sh, float time) {
 	for (i = 0; i < sh->t->numturret; i++) {
 		t = &sh->t->turret[i];
 		tu = &sh->turret[i];
-		tu->p = vmatrix(sh->pos.p, t->p, sh->pos.r);
+		tu->p = vmatrix(sh->pos.p, sh->t->part[t->i].p, sh->pos.r);
 		tu->r = tuGetAim(tu, t->t->maniability, time);
 		if (time - tu->lastdamage < 500.) {
 			grBatchAdd(tu->p, t->t->shieldsize * M_SQRT1_2, 0., &t->t->shieldtex, t->t->shieldcolor);

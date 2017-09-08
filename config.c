@@ -298,8 +298,7 @@ int cfShipGetTurret(struct ps_node *cfg, shiptype_t *st) {
 	j = 0;
 	for (tcfg = tcfg->child; tcfg; tcfg = tcfg->next) {
 		st->turret[j].t = cfGetTurret(psGetStr("type", tcfg));
-		st->turret[j].p.x = psGetFloat("x", tcfg);
-		st->turret[j].p.y = psGetFloat("y", tcfg);
+		st->turret[j].i = psGetInt("part", tcfg);
 		j++;
 	}
 	return j;
@@ -332,19 +331,9 @@ int cfGetWeaponType(struct ps_node *cfg) {
 	return WE_LASER;
 }
 
-int cfReadGameData(void) {
-	struct ps_node *conf;
+void cfReadWeaponData(struct ps_node *conf) {
 	struct ps_node *wcfg;
-	struct ps_node *tcfg;
-	struct ps_node *scfg;
 	int i;
-
-	conf = psParseFile("ship.cfg");
-
-	if (!conf) {
-		printf("Error when reading configuration file ship.cfg\n");
-		return -1;
-	}
 
 	wcfg = psGetObject("weapontypes", conf);
 	nbweapon = wcfg->len;
@@ -363,6 +352,11 @@ int cfReadGameData(void) {
 		wtype[i].type = cfGetWeaponType(wcfg);
 		wcfg = wcfg->next;
 	}
+}
+
+void cfReadTurretData(struct ps_node *conf) {
+	struct ps_node *tcfg;
+	int i;
 
 	tcfg = psGetObject("turrettypes", conf);
 	nbturret = tcfg->len;
@@ -383,8 +377,11 @@ int cfReadGameData(void) {
 		ttype[i].numweapon = cfShipGetWeapons(tcfg, ttype[i].laser);
 		tcfg = tcfg->next;
 	}
+}
 
-	cfGetStationParts(conf);
+void cfReadShipData(struct ps_node *conf) {
+	struct ps_node *scfg;
+	int i;
 
 	scfg = psGetObject("shiptypes", conf);
 	nbship = scfg->len;
@@ -412,6 +409,22 @@ int cfReadGameData(void) {
 
 		scfg = scfg->next;
 	}
+}
+
+int cfReadGameData(void) {
+	struct ps_node *conf;
+
+	conf = psParseFile("ship.cfg");
+
+	if (!conf) {
+		printf("Error when reading configuration file ship.cfg\n");
+		return -1;
+	}
+
+	cfReadWeaponData(conf);
+	cfReadTurretData(conf);
+	cfGetStationParts(conf);
+	cfReadShipData(conf);
 
 	psFreeNodes(conf);
 	return 0;

@@ -52,7 +52,7 @@ typedef struct {
 } turrettype_t;
 
 typedef struct {
-	vec_t p;
+	int i;		// index of station part the turret is attached to
 	turrettype_t *t;
 } turretpos_t;
 
