@@ -72,7 +72,7 @@ typedef struct {
 typedef struct {
 	int owner;
 	int target;
-	int turret;
+	int part;
 	pos_t p;
 	int id;
 } ev_hi_t;

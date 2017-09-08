@@ -14,16 +14,15 @@ void msInitMotherShip() {
 }
 
 void msRespawn(ship_t *sh, ship_t *ms, float time) {
-	hangar_t *hg;
 	pos_t tmp;
 
 	sh->health = sh->t->maxhealth;
-	hg = &ms->t->hangar;
 
 	get_pos(time, &ms->traj, &tmp);
 
-	sh->traj.base.p = vmatrix(tmp.p, hg->p, tmp.r);
-	sh->traj.base.r = tmp.r - hg->r;
+	sh->traj.base.p = vmatrix(tmp.p, ms->t->part[ms->t->hangar].p, tmp.r);
+	sh->traj.base.r = tmp.r + ms->t->part[ms->t->hangar].r - M_PI_2;
 	sh->traj.base.v = vadd(ms->pos.v, vangle(1., sh->traj.base.r));
+	sh->traj.base.dr = 0.;
 	sh->traj.basetime = time;
 }

@@ -154,6 +154,8 @@ void cfGetStationParts(struct ps_node *conf) {
 		cfGetTexture(ptype[i].name, &ptype[i].tex);
 		ptype[i].maxhealth = psGetFloat("maxhealth", pcfg);
 		ptype[i].cmask = psGetInt("cmask", pcfg);
+
+		ptype[i].shieldsize = 1.3f * sqrt(ptype[i].tex.w * ptype[i].tex.w + ptype[i].tex.h * ptype[i].tex.h);
 		pcfg = pcfg->next;
 	}
 }
@@ -192,7 +194,7 @@ return dir1 * M_PI_2 - dir2 * M_PI_2 + M_PI;
 }
 
 
-int cfAssembleParts(struct ps_node *cfg, part_t * part) {
+int cfAssembleParts(struct ps_node *cfg, partpos_t * part) {
 	struct ps_node *pcfg;
 	int npart = 0;
 	int p = 0;
@@ -312,9 +314,7 @@ void cfShipGetHangar(struct ps_node *cfg, shiptype_t *st) {
 		return;
 
 	st->flag |= SH_MOTHERSHIP;
-	st->hangar.p.x = psGetFloat("x", hcfg);
-	st->hangar.p.y = psGetFloat("y", hcfg);
-	st->hangar.r = psGetFloat("r", hcfg) * M_PI / 180.;
+	st->hangar = psGetInt("hangar", cfg);
 }
 
 int cfGetWeaponType(struct ps_node *cfg) {
@@ -329,6 +329,19 @@ int cfGetWeaponType(struct ps_node *cfg) {
 		return WE_MISSILE;
 
 	return WE_LASER;
+}
+
+float cfPartGetSize(int numpart, partpos_t *pt) {
+	int i;
+	float max = 0.;
+	float d;
+
+	for (i = 0; i < numpart; i++) {
+		d = sqnorm(pt[i].p) + sqnorm(vec(pt[i].part->tex.h, pt[i].part->tex.w));
+		if (d > max)
+			max = d;
+	}
+	return 2. * sqrt(max);
 }
 
 void cfReadWeaponData(struct ps_node *conf) {
@@ -391,21 +404,25 @@ void cfReadShipData(struct ps_node *conf) {
 
 	for (i = 0; i < nbship; i++) {
 		cfShipString(scfg, name, stype);
-		cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
-		// double the size of the sprite
-		stype[i].size = sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
+
+		stype[i].numparts = cfAssembleParts(scfg, stype[i].part);
+		if (stype[i].numparts) {
+			stype[i].numturret = cfShipGetTurret(scfg, &stype[i]);
+			cfShipGetHangar(scfg, &stype[i]);
+			stype[i].size = cfPartGetSize(stype[i].numparts, stype[i].part);
+			stype[i].maxhealth = 100.;
+		} else {
+			cfGetTexture(psGetStr("imgfile", scfg), &stype[i].texture);
+			stype[i].size = sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
+			stype[i].maxhealth = psGetFloat("maxhealth", scfg);
+		}
 		cfGetTexture("shield", &stype[i].shieldtexture);
-		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg)) & 0x00FFFFFF;
 		stype[i].shieldsize = stype[i].size * 1.3f;
-		stype[i].maxhealth = psGetFloat("maxhealth", scfg);
+		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg)) & 0x00FFFFFF;
 		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;
 		stype[i].thrust = psGetFloat("thrust", scfg) / 10000.;
-
 		stype[i].numweapon = cfShipGetWeapons(scfg, stype[i].laser);
 		stype[i].numburst = cfShipGetBurst(scfg, &stype[i]);
-		stype[i].numturret = cfShipGetTurret(scfg, &stype[i]);
-		cfShipGetHangar(scfg, &stype[i]);
-		stype[i].numparts = cfAssembleParts(scfg, stype[i].part);
 
 		scfg = scfg->next;
 	}

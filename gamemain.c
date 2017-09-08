@@ -246,14 +246,14 @@ void gmLoop(void) {
 }
 
 void gmStartSingle(void) {
-	make_pos(player, 0., 0., M_PI);
+	make_pos(player, 0., 0., 0.);
 	make_pos(ai1, -2000., 0., 0.);
-	make_pos(ai2, 5000., 3000., 0.);
-	make_pos(ai3, 0., 5000., 0.);
-	make_pos(ai4, 20000., 0., 0.);
+	make_pos(ai2, 0., 2000., 0.);
+	make_pos(ai3, 0., -2000., 0.);
+	make_pos(ai4, 20000., 0., M_PI);
 	make_pos(ai5, 15000., 0., 0.);
-	make_pos(ai6, 20000., 3000., 0.);
-	make_pos(ai7, 20000., 8000., 0.);
+	make_pos(ai6, 15000., 2000., 0.);
+	make_pos(ai7, 15000., -2000., 0.);
 
 	g_net = 0;
 	gtInit();

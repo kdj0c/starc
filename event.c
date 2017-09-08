@@ -66,12 +66,12 @@ void evPostFire(int owner, pos_t *p, int id, float time) {
 	evPostEvent(time, (void *) &ev, sizeof(ev), ev_fire);
 }
 
-void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time) {
+void evPostHit(int owner, int target, int part, pos_t *p, int id, float time) {
 	ev_hi_t ev;
 
 	ev.owner = owner;
 	ev.target = target;
-	ev.turret = turret;
+	ev.part = part;
 	ev.p = *p;
 	ev.id = id;
 	evPostEvent(time, (void *) &ev, sizeof(ev), ev_hit);
@@ -177,7 +177,7 @@ void evDoEvent(ev_t *ev) {
 	{
 		ev_hi_t *hi;
 		hi = (ev_hi_t *) ev->data;
-		shHit(hi->owner, hi->target, hi->turret, &hi->p, hi->id, ev->time);
+		shHit(hi->owner, hi->target, hi->part, &hi->p, hi->id, ev->time);
 	}
 		break;
 	case ev_turret:

@@ -67,6 +67,16 @@ ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time) {
 	if (newship->t->numturret)
 		tuAddTurret(newship);
 
+	if (newship->t->numparts) {
+		int i;
+
+		newship->part = malloc(sizeof(part_t) * newship->t->numparts);
+		memset(newship->part, 0, sizeof(part_t) * newship->t->numparts);
+		for (i = 0; i < newship->t->numparts; i++)
+			newship->part[i].health = newship->t->part->part->maxhealth;
+	}
+
+
 	addShip(newship);
 	return newship;
 }
@@ -108,7 +118,6 @@ void shFire(int netid, pos_t *p, int id, float time) {
 
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 	ship_t *sh;
-	int tu;
 
 	list_for_each_entry(sh, &ship_head, list) {
 		float s;
@@ -125,8 +134,21 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 		if (sqnorm(d) > s * s)
 			continue;
 
-		if (sh->t->flag & SH_MOTHERSHIP) {
+		if (sh->t->numparts) {
+			partpos_t *pt;
+			vec_t pp;
+			int i;
 
+			for (i = 0; i < sh->t->numparts; i++) {
+				pt = &sh->t->part[i];
+				pp = vmatrix(shp.p, pt->p, sh->pos.r);
+				d = vsub(pp, p->p);
+				s = pt->part->shieldsize / 2.f;
+				if (sqnorm(d) > s * s)
+					continue;
+				p->v = shp.v;
+				evPostHit(netid, sh->netid, i, p, weid, time);
+			}
 		} else {
 			p->v = shp.v;
 			evPostHit(netid, sh->netid, 0, p, weid, time);
@@ -134,22 +156,6 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 		}
 	}
 	return 0;
-}
-
-void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time) {
-	ship_t *tg;
-	float damage;
-
-	damage = weHit(weid, p, time);
-
-	tg = shGetByID(tgid);
-	if (tg->t->numturret) {
-		turret_t *tu;
-
-		tu = &tg->turret[turret];
-		tuDamage(tu, damage, time);
-	} else
-		shDamage(tg, damage, time);
 }
 
 void shFireWeapon(ship_t *sh, pos_t *p, int l, float time) {
@@ -220,6 +226,13 @@ void shDamage(ship_t *sh, float dg, float time) {
 	}
 }
 
+void shDamagePart(ship_t *sh, int part, float dg, float time) {
+	if (sh->part[part].health > 0) {
+		sh->part[part].health -= dg;
+		sh->part[part].lastdamage = time;
+	}
+}
+
 void shDestroy(int netid, float time) {
 	ship_t *sh;
 
@@ -242,6 +255,20 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
 		sh->traj.base = *np;
 		sh->traj.basetime = time;
 	}
+}
+
+void shHit(int owner, int tgid, int partid, pos_t *p, int weid, float time) {
+	ship_t *tg;
+	float damage;
+
+	damage = weHit(weid, p, time);
+
+	tg = shGetByID(tgid);
+
+	if (tg->t->numparts)
+		shDamagePart(tg, partid, damage, time);
+	else
+		shDamage(tg, damage, time);
 }
 
 /*
@@ -350,6 +377,8 @@ void shUpdateLocal(float time) {
 	}
 }
 
+// avoid two ships to respawn at the same time on a mothership
+#define MS_RESPAWN_DELAY 2000.
 void shUpdateShips(float time) {
 	ship_t *sh;
 
@@ -357,7 +386,7 @@ void shUpdateShips(float time) {
 		if (sh->health == DEAD)
 			continue;
 
-		if (sh->health <= 0) {
+		if (sh->health <= 0 && !sh->t->flag | SH_MOTHERSHIP) {
 			pos_t np;
 			int msid;
 			ship_t *ms;
@@ -370,8 +399,8 @@ void shUpdateShips(float time) {
 			rsptime = time + RSP_TIME;
 			if (ms) {
 				msid = ms->netid;
-				if (ms->hgRespawn > rsptime - 2000.)
-					rsptime = ms->hgRespawn + 2000.;
+				if (ms->hgRespawn > rsptime - MS_RESPAWN_DELAY)
+					rsptime = ms->hgRespawn + MS_RESPAWN_DELAY;
 				ms->hgRespawn = rsptime;
 			} else
 				msid = -1;
@@ -508,7 +537,7 @@ void shDrawDebug(ship_t *sh, float time) {
 #ifndef DEDICATED
 void shDrawPart(ship_t *sh, float time) {
 	int i;
-	part_t *pt;
+	partpos_t *pt;
 
 	for (i = 0; i < sh->t->numparts; i++) {
 		vec_t p;
@@ -519,7 +548,28 @@ void shDrawPart(ship_t *sh, float time) {
 		r = sh->pos.r + pt->r;
 		grBatchAddRot(p, r, &pt->part->tex, 0xFFFFFFFF);
 	}
+}
 
+#define SHIELD_FADE 800.
+void shDrawPartShields(ship_t *sh, float time) {
+	int i;
+	partpos_t *pt;
+
+	for (i = 0; i < sh->t->numparts; i++) {
+		vec_t p;
+		unsigned char fade;
+
+
+		if (time - sh->part[i].lastdamage >= SHIELD_FADE)
+			continue;
+
+		fade = (unsigned char) (255 - 255 * ((time - sh->part[i].lastdamage) / SHIELD_FADE));
+
+		pt = &sh->t->part[i];
+		p = vmatrix(sh->pos.p, pt->p, sh->pos.r);
+
+		grBatchAdd(p, sh->t->part[i].part->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture, sh->t->shieldcolor | (fade << 24));
+	}
 }
 
 void shDrawShips(float time) {
@@ -544,7 +594,6 @@ void shDrawShips(float time) {
 	grBatchDraw();
 }
 
-#define SHIELD_FADE 800.
 void shDrawShields(float time) {
 	ship_t *sh;
 
@@ -554,17 +603,18 @@ void shDrawShields(float time) {
 		if (sh->health <= 0)
 			continue;
 
+		if (sh->t->numparts) {
+			shDrawPartShields(sh, time);
+			continue;
+		}
+
 		if (time - sh->lastdamage < SHIELD_FADE) {
 			unsigned char fade;
 
 			fade = (unsigned char) (255 - 255 * ((time - sh->lastdamage) / SHIELD_FADE));
 			grBatchAdd(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture, sh->t->shieldcolor | (fade << 24));
 		}
-		if (sh->t->numturret) {
-			tuDrawShields(sh, time);
-		}
 	}
 	grBatchDraw();
 }
-
 #endif

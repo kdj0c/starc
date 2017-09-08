@@ -57,8 +57,7 @@ typedef struct {
 } turretpos_t;
 
 typedef struct {
-	vec_t p;
-	float r;
+	int i;		// index of station part the hangar is attached to
 } hangar_t;
 
 typedef struct {
@@ -66,12 +65,18 @@ typedef struct {
 	unsigned int cmask;
 	texc_t tex;
 	float maxhealth;
+	float shieldsize;
 } parttype_t;
 
 typedef struct {
 	vec_t p;
 	float r;
 	parttype_t *part;
+} partpos_t;
+
+typedef struct {
+	float lastdamage;
+	float health;
 } part_t;
 
 typedef struct {
@@ -79,7 +84,6 @@ typedef struct {
 	texc_t texture;
 	/* diameter */
 	float size;
-	char shieldfile[32];
 	texc_t shieldtexture;
 	unsigned int shieldcolor;
 	float shieldsize;
@@ -93,9 +97,9 @@ typedef struct {
 	burst_t burst[MAX_ENGINE];
 	int numturret;
 	turretpos_t turret[MAX_TURRET];
-	hangar_t hangar;
+	int hangar; //part index, where the hangar is located
 	int numparts;
-	part_t part[MAX_PARTS];
+	partpos_t part[MAX_PARTS];
 } shiptype_t;
 
 typedef struct {
@@ -125,6 +129,7 @@ typedef struct ship_s {
 	traj_t traj;
 	pos_t pos;
 	float lastfire[MAX_WEAPON];
+	part_t *part;
 } ship_t;
 
 struct tur {
@@ -139,7 +144,6 @@ struct tur {
 	float dir;
 	float health;
 };
-
 typedef struct tur turret_t;
 
 void shDrawShips(float time);
