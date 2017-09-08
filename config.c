@@ -170,16 +170,16 @@ parttype_t *cfGetPart(const char *name) {
 }
 
 vec_t getOffset(partcon_e dir, texc_t *tex) {
-
+/* remove 1 px from texture, to avoid black line between tiles */
 	switch (dir) {
 	case pc_up:
 		return vec(tex->h / 2. - 1.0, 0.);
 	case pc_left:
 		return vec(0., tex->w / 2. - 1.0);
 	case pc_down:
-		return vec(-tex->h / 2. - 1.0, 0.);
+		return vec(-tex->h / 2. + 1.0, 0.);
 	case pc_right:
-		return vec(0., -tex->w / 2. - 1.0);
+		return vec(0., -tex->w / 2. + 1.0);
 	default:
 		printf("Part connection error %d\n", dir);
 		return vec(0.,0.);
@@ -376,7 +376,7 @@ int cfReadGameData(void) {
 		cfGetTexture(ttype[i].imgfile, &ttype[i].tex);
 		ttype[i].size = sqrt(ttype[i].tex.w * ttype[i].tex.w + ttype[i].tex.h * ttype[i].tex.h);
 		cfGetTexture("shield", &ttype[i].shieldtex);
-		ttype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", tcfg));
+		ttype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", tcfg)) & 0x00FFFFFF;
 		ttype[i].shieldsize = ttype[i].size * 1.3f;
 		ttype[i].maxhealth = psGetFloat("maxhealth", tcfg);
 		ttype[i].maniability = psGetFloat("maniability", tcfg) / 10000.;
@@ -398,7 +398,7 @@ int cfReadGameData(void) {
 		// double the size of the sprite
 		stype[i].size = sqrt(stype[i].texture.w * stype[i].texture.w + stype[i].texture.h * stype[i].texture.h);
 		cfGetTexture("shield", &stype[i].shieldtexture);
-		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg));
+		stype[i].shieldcolor = rgb2bgr(psGetInt("shieldcolor", scfg)) & 0x00FFFFFF;
 		stype[i].shieldsize = stype[i].size * 1.3f;
 		stype[i].maxhealth = psGetFloat("maxhealth", scfg);
 		stype[i].maniability = psGetFloat("maniability", scfg) / 10000.;

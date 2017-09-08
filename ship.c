@@ -555,6 +555,7 @@ void shDrawShips(float time) {
 	grBatchDraw();
 }
 
+#define SHIELD_FADE 800.
 void shDrawShields(float time) {
 	ship_t *sh;
 
@@ -564,8 +565,11 @@ void shDrawShields(float time) {
 		if (sh->health <= 0)
 			continue;
 
-		if (time - sh->lastdamage < 500.) {
-			grBatchAdd(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture, sh->t->shieldcolor);
+		if (time - sh->lastdamage < SHIELD_FADE) {
+			unsigned char fade;
+
+			fade = (unsigned char) (255 - 255 * ((time - sh->lastdamage) / SHIELD_FADE));
+			grBatchAdd(sh->pos.p, sh->t->shieldsize * M_SQRT1_2, 0, &sh->t->shieldtexture, sh->t->shieldcolor | (fade << 24));
 		}
 		if (sh->t->numturret) {
 			tuDrawShields(sh, time);

@@ -108,5 +108,3 @@ GLuint create_programme_from_files(const char *vert_file_name, const char *frag_
 	frag = create_shader(frag_file_name, GL_FRAGMENT_SHADER);
 	return create_programme(vert, frag);
 }
-
- /*******************/
