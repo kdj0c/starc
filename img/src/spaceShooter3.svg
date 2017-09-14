@@ -17,7 +17,7 @@
    viewBox="0 0 2600 1300"
    id="svg5325"
    sodipodi:docname="spaceShooter3.svg"
-   inkscape:version="0.92.1 r15371">
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06">
   <metadata
      id="metadata5329">
     <rdf:RDF>
@@ -40,14 +40,14 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1001"
+     inkscape:window-height="1016"
      id="namedview5327"
      showgrid="false"
      inkscape:zoom="0.5676923"
-     inkscape:cx="2583.5354"
-     inkscape:cy="563.76433"
-     inkscape:window-x="-9"
-     inkscape:window-y="-9"
+     inkscape:cx="542.66449"
+     inkscape:cy="628.40254"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg5325" />
   <defs
@@ -10272,14 +10272,20 @@
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4059">
+     id="g4059"
+     inkscape:export-filename="/mnt/jeux/sources/game/new/starc/img/src/atlas/PNG/Stations/sPart32.png"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_70_FILL"
        id="use4057" />
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4063">
+     id="g4063"
+     inkscape:export-filename="/mnt/jeux/sources/game/new/starc/img/src/atlas/PNG/Stations/sPart31.png"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_71_FILL"
        id="use4061" />
@@ -10391,14 +10397,18 @@
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4127">
+     id="g4127"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_85_FILL"
        id="use4125" />
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4131">
+     id="g4131"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_86_FILL"
        id="use4129" />
@@ -10407,8 +10417,8 @@
      transform="matrix( 1, 0, 0, 1, 0,0) "
      id="g4135"
      inkscape:export-filename="C:\Users\az02081\Documents\Perso\cb\starc\img\src\atlas\PNG\Stations\turret3.png"
-     inkscape:export-xdpi="192"
-     inkscape:export-ydpi="192">
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_87_FILL"
        id="use4133" />
@@ -10417,8 +10427,8 @@
      transform="matrix( 1, 0, 0, 1, 0,0) "
      id="g4139"
      inkscape:export-filename="C:\Users\az02081\Documents\Perso\cb\starc\img\src\atlas\PNG\Stations\turret2.png"
-     inkscape:export-xdpi="192"
-     inkscape:export-ydpi="192">
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_88_FILL"
        id="use4137" />
@@ -10427,22 +10437,26 @@
      transform="matrix( 1, 0, 0, 1, 0,0) "
      id="g4143"
      inkscape:export-filename="C:\Users\az02081\Documents\Perso\cb\starc\img\src\atlas\PNG\Stations\turret1.png"
-     inkscape:export-xdpi="192"
-     inkscape:export-ydpi="192">
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_89_FILL"
        id="use4141" />
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4147">
+     id="g4147"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_90_FILL"
        id="use4145" />
   </g>
   <g
      transform="matrix( 1, 0, 0, 1, 0,0) "
-     id="g4151">
+     id="g4151"
+     inkscape:export-xdpi="400"
+     inkscape:export-ydpi="400">
     <use
        xlink:href="#Layer0_91_FILL"
        id="use4149" />
