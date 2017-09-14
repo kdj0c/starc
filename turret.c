@@ -45,8 +45,11 @@ void tufirelaser(ship_t *sh, turret_t *tu, turrettype_t *t, int i, int l, float 
 	p.p = vmatrix(tu->p, las->p, tu->r);
 	p.r = tu->r + las->r;
 	p.v = sh->pos.v;
-	evPostFire(sh->netid, &p, MAX_WEAPON + i * MAX_TURRET + l, time);
+	evPostFire(sh->netid, &p, MAX_WEAPON + i * MAX_TURRET + l, sh->weId, time);
 	tu->lastfire[l] = time;
+	sh->weId++;
+	if (sh->weId >= MAX_WEID)
+		sh->weId = 0;
 }
 
 float tuGetAim(turret_t *tu, float m, float time) {

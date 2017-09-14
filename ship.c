@@ -103,23 +103,23 @@ int shPostAllShips(float time, void *data) {
 	return n;
 }
 
-void shFire(int netid, pos_t *p, int id, float time) {
+void shFire(int netid, pos_t *p, int weNum, unsigned int weId, float time) {
 	ship_t *sh;
 
 	sh = shGetByID(netid);
 
 	/* for turret */
-	if (id >= MAX_WEAPON) {
+	if (weNum >= MAX_WEAPON) {
         int tu;
         int l;
-        l = (id - MAX_WEAPON) % MAX_TURRET;
-        tu = (id - MAX_WEAPON) / MAX_TURRET;
-        weFire(netid, p, sh->t->turret[tu].t->laser[l].wt, time);
+        l = (weNum - MAX_WEAPON) % MAX_TURRET;
+        tu = (weNum - MAX_WEAPON) / MAX_TURRET;
+        weFire(netid, p, sh->t->turret[tu].t->laser[l].wt, weId, time);
 	} else
-        weFire(netid, p, sh->t->laser[id].wt, time);
+        weFire(netid, p, sh->t->laser[weNum].wt, weId, time);
 }
 
-int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
+int shDetectHit(int netid, pos_t *p, float size, int weId, float time) {
 	ship_t *sh;
 
 	list_for_each_entry(sh, ship_head, list) {
@@ -150,26 +150,29 @@ int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 				if (sqnorm(d) > s * s)
 					continue;
 				p->v = shp.v;
-				evPostHit(netid, sh->netid, i, p, weid, time);
+				evPostHit(netid, sh->netid, i, p, weId, time);
 			}
 		} else {
 			p->v = shp.v;
-			evPostHit(netid, sh->netid, 0, p, weid, time);
+			evPostHit(netid, sh->netid, 0, p, weId, time);
 			return 1;
 		}
 	}
 	return 0;
 }
 
-void shFireWeapon(ship_t *sh, pos_t *p, int l, float time) {
+void shFireWeapon(ship_t *sh, pos_t *p, int weNum, float time) {
 	pos_t pl;
-	weapon_t *las = &sh->t->laser[l];
+	weapon_t *las = &sh->t->laser[weNum];
 
 	pl.p = vmatrix(p->p, las->p, p->r);
 	pl.r = p->r + las->r;
 	pl.v = p->v;
-	evPostFire(sh->netid, &pl, l, time);
-	sh->lastfire[l] = time;
+	evPostFire(sh->netid, &pl, weNum, sh->weId, time);
+	sh->lastfire[weNum] = time;
+	sh->weId++;
+	if (sh->weId >= MAX_WEID)
+		sh->weId = 0;
 }
 
 void shNewTraj(shin_t *in, int netid, float time) {
@@ -260,11 +263,11 @@ void shRespawn(int netid, pos_t *np, int msid, float time) {
 	}
 }
 
-void shHit(int owner, int tgid, int partid, pos_t *p, int weid, float time) {
+void shHit(int owner, int tgid, int partid, pos_t *p, int weId, int server, float time) {
 	ship_t *tg;
 	float damage;
 
-	damage = weHit(weid, p, time);
+	damage = weHit(weId, p, server, time);
 
 	tg = shGetByID(tgid);
 

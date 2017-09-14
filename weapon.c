@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "vec.h"
 #include "ship.h"
@@ -24,6 +25,7 @@ typedef struct {
 	float maxlife;
 	unsigned int color;
 	int netid;
+	unsigned int weId;
 	weapontype_t *type;
 } bullet_t;
 
@@ -45,7 +47,19 @@ int weGetFree(void) {
 	return i;
 }
 
-void weFire(int netid, pos_t *p, weapontype_t *wt, float time) {
+bullet_t *weGetId(unsigned int weId) {
+	int i;
+
+	for (i = 0; i < NBPROJ; i++) {
+		if (bul[i].weId == weId)
+			return &bul[i];
+	}
+	printf("ERROR weId Not found %d\n", weId);
+	return NULL;
+}
+
+
+void weFire(int netid, pos_t *p, weapontype_t *wt, unsigned int weId, float time) {
 	int i;
 	i = weGetFree();
 	bul[i].maxlife = time + wt->lifetime;
@@ -61,6 +75,7 @@ void weFire(int netid, pos_t *p, weapontype_t *wt, float time) {
 	bul[i].color = wt->color | 0xFF;
 	bul[i].netid = netid;
 	bul[i].type = wt;
+	bul[i].weId = weId;
 }
 
 void weUpdate(float time) {
@@ -68,19 +83,31 @@ void weUpdate(float time) {
 	pos_t p;
 
 	for (i = 0; i < NBPROJ; i++) {
-		if (time >= bul[i].maxlife)
+		if (!bul[i].maxlife)
 			continue;
+
+		if (time >= bul[i].maxlife) {
+			bul[i].maxlife = 0.;
+			continue;
+		}
 		get_pos(time, &bul[i].traj, &p);
-		if (shDetectHit(bul[i].netid, &p, 150., i, time))
+		if (shDetectHit(bul[i].netid, &p, 150., bul[i].weId, time))
 			bul[i].maxlife = time;
 	}
 }
 
-float weHit(int id, pos_t *p, float time) {
-	if (bul[id].type->type == WE_LASER)
-		paLaserHit(p->p, p->v, bul[id].color, time);
-	bul[id].maxlife = 0.;
-	return (float) bul[id].type->damage;
+float weHit(int weId, pos_t *p, int server, float time) {
+	bullet_t *b;
+
+	b = weGetId(weId);
+
+	if (!server) {
+		if (b->type->type == WE_LASER)
+			paLaserHit(p->p, p->v, b->color, time);
+		b->maxlife = 0.;
+		b->weId = 0;
+	}
+	return (float) b->type->damage;
 }
 
 #ifndef DEDICATED

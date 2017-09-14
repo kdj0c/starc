@@ -23,6 +23,7 @@
 #define MAX_WEAPON 5
 #define MAX_ENGINE 5
 #define MAX_PARTS 50
+#define MAX_WEID 10000
 
 typedef struct {
 	vec_t p;
@@ -128,6 +129,7 @@ typedef struct ship_s {
 	shin_t in;
 	traj_t traj;
 	pos_t pos;
+	unsigned int weId;	 // to have unique ID over network for bullet/missile
 	float lastfire[MAX_WEAPON];
 	part_t *part;
 } ship_t;
@@ -154,9 +156,9 @@ void shSetPlayer(ship_t *sh);
 void shLoadShipType(void);
 void shUpdateLocal(float time);
 void shUpdateShips(float time);
-void shFire(int netid, pos_t *p, int id, float time);
-void shFireWeapon(ship_t *sh, pos_t *p, int l, float time);
-void shHit(int owner, int tgid, int turret, pos_t *p, int weid, float time);
+void shFire(int netid, pos_t *p, int weNum, unsigned int weId, float time) ;
+void shFireWeapon(ship_t *sh, pos_t *p, int weNum, float time);
+void shHit(int owner, int tgid, int turret, pos_t *p, int weid, int server, float time);
 void shDetectCollision(float time);
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time);
 void shDamage(ship_t *sh, float dg, float time);

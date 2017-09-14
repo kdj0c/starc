@@ -34,7 +34,7 @@ void evPostDestroy(int netid, float time) {
 	ev_ds_t ev;
 
 	ev.owner = netid;
-	evPostEvent(time, (void *) &ev, sizeof(ev), ev_destroyed);
+	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_destroyed);
 }
 
 void evPostRespawn(pos_t *newp, int netid, int msid, float time) {
@@ -66,23 +66,24 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_newship);
 }
 
-void evPostFire(int owner, pos_t *p, int id, float time) {
+void evPostFire(int owner, pos_t *p, int weNum, unsigned int weId, float time) {
 	ev_fi_t ev;
 
 	ev.owner = owner;
 	ev.p = *p;
-	ev.id = id;
+	ev.weNum = weNum;
+	ev.weId = owner + weId;
 	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_fire);
 }
 
-void evPostHit(int owner, int target, int part, pos_t *p, int id, float time) {
+void evPostHit(int owner, int target, int part, pos_t *p, int weId, float time) {
 	ev_hi_t ev;
 
 	ev.owner = owner;
 	ev.target = target;
 	ev.part = part;
 	ev.p = *p;
-	ev.id = id;
+	ev.weId = weId;
 	evPostEvent(time, (void *) &ev, sizeof(ev), ev_hit);
 }
 
@@ -181,14 +182,14 @@ void evDoEvent(ev_t *ev, int server) {
 
 		fi = (ev_fi_t *) ev->data;
 		if (!server)
-			shFire(fi->owner, &fi->p, fi->id, ev->time);
+			shFire(fi->owner, &fi->p, fi->weNum, fi->weId, ev->time);
 	}
 		break;
 	case ev_hit:
 	{
 		ev_hi_t *hi;
 		hi = (ev_hi_t *) ev->data;
-		shHit(hi->owner, hi->target, hi->part, &hi->p, hi->id, ev->time);
+		shHit(hi->owner, hi->target, hi->part, &hi->p, hi->weId, server, ev->time);
 	}
 		break;
 	case ev_turret:

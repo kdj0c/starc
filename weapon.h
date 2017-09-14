@@ -29,9 +29,9 @@ typedef struct {
 
 void weInit(void);
 int weGetFree(void);
-void weFire(int netid, pos_t *p, weapontype_t *wt, float time);
+void weFire(int netid, pos_t *p, weapontype_t *wt, unsigned int weId, float time);
 void weUpdate(float time);
-float weHit(int id, pos_t *p, float time);
+float weHit(int id, pos_t *p, int server, float time);
 
 #ifndef DEDICATED
 void weDraw(float time);

@@ -23,7 +23,7 @@ LIST_HEAD(server_ships);
 int curid = 0xf1457;
 
 int seNewId(void) {
-	return curid++;
+	return curid += 2 * MAX_WEID;
 }
 
 
@@ -92,7 +92,8 @@ void serverMain(float time) {
 	aiThinkAll(time);
 	seConsumeEvent(time);
 	shUpdateShips(time);
-//	shDetectCollision(time);
+	seConsumeEvent(time);
+	shDetectCollision(time);
 	seConsumeEvent(time);
 	weUpdate(time);
 	seConsumeEvent(time);
