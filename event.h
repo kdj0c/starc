@@ -14,14 +14,14 @@
 #include "ship.h"
 
 typedef enum {
-	ev_newship,	//server->client
-	ev_newtraj,	//client->server
-	ev_respawn,	//server->client
-	ev_destroyed,	//server->client
-	ev_fire,	//client->server
-	ev_hit,
-	ev_turret,	//client->server
-	ev_collide,	//server->client
+	ev_newship,	//server->everybody
+	ev_newtraj,	//owner->everybody
+	ev_respawn,	//server->everybody
+	ev_destroyed,	//server->everybody
+	ev_fire,	//owner->everybody
+	ev_hit,		//server->everybody
+	ev_turret,	//owner->everybody
+	ev_collide,	//server->everybody
 	ev_ping	// network only
 } event_e;
 
@@ -101,5 +101,6 @@ void evPostFire(int owner, pos_t *p, int id, float time);
 void evPostHit(int owner, int target, int turret, pos_t *p, int id, float time);
 void evPostTurret(int owner, float *dir, float time);
 void evPostCollide(int owner1, int owner2, pos_t *p1, pos_t *p2, float time);
+void evDoEvent(ev_t *ev, int server);
 
 #endif

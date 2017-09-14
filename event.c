@@ -17,6 +17,7 @@
 #include "network.h"
 #include "gametime.h"
 #include "save.h"
+#include "server.h"
 
 LIST_HEAD(old_event);
 LIST_HEAD(act_event);
@@ -46,6 +47,7 @@ void evPostRespawn(pos_t *newp, int netid, int msid, float time) {
 
 void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	ev_cr_t ev;
+	float time;
 
 	ev.owner = netid;
 	ev.control = control;
@@ -53,8 +55,15 @@ void evPostCreateShip(char *name, pos_t *p, int team, int netid, int control) {
 	ev.team = team;
 	memset(ev.shipname, 0, sizeof(ev.shipname));
 	strcpy(ev.shipname, name);
+	time = gtGetTime();
 
-	evPostEventNow((void *) &ev, sizeof(ev), ev_newship);
+	sePostEventToServer(time, (void *) &ev, sizeof(ev), ev_newship);
+	if (control == pl_ai)
+		ev.control = pl_remote;
+	else
+		ev.control = pl_local;
+
+	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_newship);
 }
 
 void evPostFire(int owner, pos_t *p, int id, float time) {
@@ -63,7 +72,7 @@ void evPostFire(int owner, pos_t *p, int id, float time) {
 	ev.owner = owner;
 	ev.p = *p;
 	ev.id = id;
-	evPostEvent(time, (void *) &ev, sizeof(ev), ev_fire);
+	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_fire);
 }
 
 void evPostHit(int owner, int target, int part, pos_t *p, int id, float time) {
@@ -125,10 +134,10 @@ void evPostEventLocal(float time, void *data, int size, event_e type) {
 
 void evPostEvent(float time, void *data, int size, event_e type) {
 	evPostEventLocal(time, data, size, type);
-	ntSendEvent(time, data, size, type);
+	sePostEventToServer(time, data, size, type);
 }
 
-void evDoEvent(ev_t *ev) {
+void evDoEvent(ev_t *ev, int server) {
 //    printf("do event %d, %f\n", ev->type, ev->time);
 	switch (ev->type) {
 	case ev_newship:
@@ -169,8 +178,10 @@ void evDoEvent(ev_t *ev) {
 	case ev_fire:
 	{
 		ev_fi_t *fi;
+
 		fi = (ev_fi_t *) ev->data;
-		shFire(fi->owner, &fi->p, fi->id, ev->time);
+		if (!server)
+			shFire(fi->owner, &fi->p, fi->id, ev->time);
 	}
 		break;
 	case ev_hit:
@@ -206,7 +217,7 @@ void evConsumeEvent(float time) {
 		return;
 	ev = list_first_entry(&act_event, ev_t, list);
 	while (ev && ev->time <= time) {
-		evDoEvent(ev);
+		evDoEvent(ev, 0);
 		list_del(&ev->list);
 		list_add(&ev->list, &old_event);
 		if (list_empty(&act_event))

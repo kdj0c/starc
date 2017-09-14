@@ -25,14 +25,15 @@
 #define DEAD -12345.f
 #define RSP_TIME 5000.
 
-LIST_HEAD(ship_head);
+struct list_head *ship_head = NULL;
+
 static ship_t *shPlayer = NULL;
 
 static void addShip(ship_t *sh) {
 	if (sh->t->flag & SH_MOTHERSHIP)
-		list_add(&sh->list, &ship_head);
+		list_add(&sh->list, ship_head);
 	else
-		list_add_tail(&sh->list, &ship_head);
+		list_add_tail(&sh->list, ship_head);
 }
 
 static void removeShip(ship_t *sh) {
@@ -45,6 +46,10 @@ ship_t *shGetPlayer(void) {
 
 void shSetPlayer(ship_t *sh) {
 	shPlayer = sh;
+}
+
+void shSetList(struct list_head *list) {
+	ship_head = list;
 }
 
 ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time) {
@@ -75,8 +80,6 @@ ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time) {
 		for (i = 0; i < newship->t->numparts; i++)
 			newship->part[i].health = newship->t->part->part->maxhealth;
 	}
-
-
 	addShip(newship);
 	return newship;
 }
@@ -87,7 +90,7 @@ int shPostAllShips(float time, void *data) {
 	int n = 0;
 
 	ev = (ev_cr_t *) data;
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		get_pos(time, &sh->traj, &ev->pos);
 		ev->owner = sh->netid;
 		ev->control = pl_remote;
@@ -119,7 +122,7 @@ void shFire(int netid, pos_t *p, int id, float time) {
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time) {
 	ship_t *sh;
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		float s;
 		pos_t shp;
 		vec_t d;
@@ -211,7 +214,7 @@ void shNewTraj(shin_t *in, int netid, float time) {
  */
 void shDisconnect(int clid) {
 	ship_t *sh;
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->netid >> 8 == clid) {
 			printf("Disconnect ship %d\n", sh->netid);
 			removeShip(sh);
@@ -350,23 +353,8 @@ void shBurst(ship_t *sh, float time) {
 void shUpdateLocal(float time) {
 	ship_t *sh;
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->traj.type != t_none) {
-/*			if (sh->in.acceleration && sh->engtime > 0.) {
-				float rem_power;
-
-				rem_power = sh->engtime - (time - sh->traj.basetime);
-				if (rem_power < 0.) {
-					float ptime;
-					pos_t p;
-					ptime = time + rem_power;
-					get_pos(ptime, &sh->traj, &p);
-					sh->traj.basetime = ptime;
-					sh->traj.base = p;
-					sh->traj.thrust /= 3.;
-					sh->engtime = 0.;
-				}
-			} */
 			get_pos(time, &sh->traj, &sh->pos);
 		}
 #ifndef DEDICATED
@@ -382,7 +370,7 @@ void shUpdateLocal(float time) {
 void shUpdateShips(float time) {
 	ship_t *sh;
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->health == DEAD)
 			continue;
 
@@ -414,7 +402,6 @@ void shUpdateShips(float time) {
 			evPostRespawn(&np, sh->netid, msid, rsptime);
 			continue;
 		}
-
 		if (sh->in.fire1) {
 			int i;
 			for (i = 0; i < sh->t->numweapon; i++) {
@@ -440,7 +427,7 @@ void shDetectCollision(float time) {
 	pos_t p1;
 	pos_t p2;
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		ship_t *en;
 		float s;
 
@@ -450,7 +437,7 @@ void shDetectCollision(float time) {
 			continue;
 		en = sh;
 		get_pos(time, &sh->traj, &p1);
-		list_for_each_entry_continue(en, &ship_head, list) {
+		list_for_each_entry_continue(en, ship_head, list) {
 			if (en->health <= 0 || (en->t->flag & SH_MOTHERSHIP))
 				continue;
 			s = (en->t->shieldsize + sh->t->shieldsize) / 2.f;
@@ -466,7 +453,7 @@ void shDetectCollision(float time) {
 
 ship_t *shFindMotherShip(int team) {
 	ship_t *sh;
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->team != team)
 			continue;
 		if (sh->t->flag & SH_MOTHERSHIP)
@@ -480,7 +467,7 @@ ship_t *shFindNearestEnemy(ship_t *self) {
 	float min_d = 0.f;
 	float d;
 	ship_t *nr = NULL;
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh == self || sh->health <= 0)
 			continue;
 		if (sh->team == self->team)
@@ -500,7 +487,7 @@ ship_t *shFindNearestEnemy(ship_t *self) {
 
 ship_t *shGetByID(int id) {
 	ship_t *sh;
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->netid == id) {
 			return sh;
 		}
@@ -575,7 +562,7 @@ void shDrawPartShields(ship_t *sh, float time) {
 void shDrawShips(float time) {
 	ship_t *sh;
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->health <= 0)
 			continue;
 		get_pos(time, &sh->traj, &sh->pos);
@@ -599,7 +586,7 @@ void shDrawShields(float time) {
 
 	grSetBlendAdd();
 
-	list_for_each_entry(sh, &ship_head, list) {
+	list_for_each_entry(sh, ship_head, list) {
 		if (sh->health <= 0)
 			continue;
 

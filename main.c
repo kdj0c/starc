@@ -60,6 +60,8 @@ int main(int argc, char *argv[]) {
 #else
 	grconf_t c;
 
+	SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER) < 0) {
 		fprintf(stderr, "Failed to initialise SDL: %s\n", SDL_GetError());
 		exit(1);

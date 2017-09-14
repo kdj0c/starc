@@ -31,6 +31,7 @@
 #include "weapon.h"
 #include "gametime.h"
 #include "save.h"
+#include "server.h"
 
 ship_t *player = NULL;
 static float scale = 1.f;
@@ -41,13 +42,7 @@ shin_t pl_in = { 0, };
 int kleft = 0;
 int kright = 0;
 
-#ifndef NETWORK
-int curid = 0;
-
-int ntGetId(void) {
-	return curid++;
-}
-#endif
+LIST_HEAD(client_ships);
 
 void dummy() {
 
@@ -203,13 +198,11 @@ void gmEngineLoop(void) {
 	if (g_net)
 		ntHandleMessage();
 	time = gtGetTime();
-	aiThinkAll(time);
+
+	serverMain(time);
+	shSetList(&client_ships);
 	evConsumeEvent(time);
 	shUpdateLocal(time);
-	shUpdateShips(time);
-	shDetectCollision(time);
-	weUpdate(time);
-	evConsumeEvent(time);
 }
 
 void gmGetEvent(void) {
@@ -246,15 +239,6 @@ void gmLoop(void) {
 }
 
 void gmStartSingle(void) {
-	make_pos(player, 0., 0., 0.);
-	make_pos(ai1, -2000., 0., 0.);
-	make_pos(ai2, 0., 2000., 0.);
-	make_pos(ai3, 0., -2000., 0.);
-	make_pos(ai4, 20000., 0., M_PI);
-	make_pos(ai5, 15000., 0., 0.);
-	make_pos(ai6, 15000., 2000., 0.);
-	make_pos(ai7, 15000., -2000., 0.);
-
 	g_net = 0;
 	gtInit();
 	enterGameMode();
@@ -264,14 +248,7 @@ void gmStartSingle(void) {
 	weInit();
 
 	saInit("replay1.rep");
-	evPostCreateShip("Red5", &pos_player, 0, ntGetId(), pl_local);
-	evPostCreateShip("stationRed1", &pos_ai1, 0, ntGetId(), pl_ai);
-	evPostCreateShip("Red1", &pos_ai2, 0, ntGetId(), pl_ai);
-	evPostCreateShip("Red3", &pos_ai3, 0, ntGetId(), pl_ai);
-	evPostCreateShip("stationRed1", &pos_ai4, 1, ntGetId(), pl_ai);
-	evPostCreateShip("Green2", &pos_ai5, 1, ntGetId(), pl_ai);
-	evPostCreateShip("Green1", &pos_ai6, 1, ntGetId(), pl_ai);
-	evPostCreateShip("Green2", &pos_ai7, 1, ntGetId(), pl_ai);
+	seStartServerLocal();
 
 	grInitQuad();
 	grInitShader();
@@ -279,7 +256,7 @@ void gmStartSingle(void) {
 }
 
 void gmStartMulti(void) {
-	make_pos(player, 0., 0., 0.);
+//	make_pos(player, 0., 0., 0.);
 	g_net = 1;
 	enterGameMode();
 	gtInit();
@@ -289,7 +266,7 @@ void gmStartMulti(void) {
 	paInit();
 	weInit();
 	ntHandleMessage();
-	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
+//	evPostCreateShip("v2", &pos_player, 0, ntGetId(), pl_local);
 
 	gmLoop();
 }

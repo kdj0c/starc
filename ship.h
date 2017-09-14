@@ -169,4 +169,5 @@ void shNewTraj(shin_t *in, int netid, float time);
 void shDisconnect(int clid);
 int shPostAllShips(float time, void *data);
 void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time);
+void shSetList(struct list_head *list);
 #endif /* SHIP_H_ */

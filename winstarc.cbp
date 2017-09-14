@@ -119,6 +119,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="save.h" />
+		<Unit filename="server.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="server.h" />
 		<Unit filename="shader.c">
 			<Option compilerVar="CC" />
 		</Unit>
