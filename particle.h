@@ -11,7 +11,7 @@
 
 #ifndef DEDICATED
 void paInit(void);
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time);
+void paExplosion(vec_t p, vec_t v, float time);
 void paDraw(float time);
 void paDrawExplosion(float time);
 void paBurst(pos_t *p, float size, unsigned int color, float time);

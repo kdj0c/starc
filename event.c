@@ -30,10 +30,11 @@ void evPostTrajEv(shin_t *in, int owner) {
 	evPostEventNow((void *) &ev, sizeof(ev), ev_newtraj);
 }
 
-void evPostDestroy(int netid, float time) {
+void evPostDestroy(int netid, int part, float time) {
 	ev_ds_t ev;
 
 	ev.owner = netid;
+	ev.part = part;
 	evPostEventLocal(time, (void *) &ev, sizeof(ev), ev_destroyed);
 }
 
@@ -164,7 +165,7 @@ void evDoEvent(ev_t *ev, int server) {
 	{
 		ev_ds_t *ds;
 		ds = (ev_ds_t *) ev->data;
-		shDestroy(ds->owner, ev->time);
+		shDestroy(ds->owner, ds->part, ev->time);
 		printf("destroyed %d\n", ds->owner);
 	}
 		break;

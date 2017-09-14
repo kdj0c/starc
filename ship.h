@@ -163,7 +163,7 @@ void shDetectCollision(float time);
 int shDetectHit(int netid, pos_t *p, float size, int weid, float time);
 void shDamage(ship_t *sh, float dg, float time);
 void shRespawn(int netid, pos_t *np, int msid, float time);
-void shDestroy(int netid, float time);
+void shDestroy(int netid, int part, float time);
 ship_t *shCreateShip(char *name, pos_t *pos, int team, int netid, float time);
 ship_t *shFindMotherShip(int team);
 ship_t *shFindNearestEnemy(ship_t *self);

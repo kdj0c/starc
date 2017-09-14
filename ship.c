@@ -143,6 +143,9 @@ int shDetectHit(int netid, pos_t *p, float size, int weId, float time) {
 			int i;
 
 			for (i = 0; i < sh->t->numparts; i++) {
+				if (sh->part[i].health <= 0.)
+					continue;
+
 				pt = &sh->t->part[i];
 				pp = vmatrix(shp.p, pt->p, sh->pos.r);
 				d = vsub(pp, p->p);
@@ -239,13 +242,22 @@ void shDamagePart(ship_t *sh, int part, float dg, float time) {
 	}
 }
 
-void shDestroy(int netid, float time) {
+void shDestroy(int netid, int part, float time) {
 	ship_t *sh;
 
 	sh = shGetByID(netid);
-	paExplosion(sh->pos.p, sh->pos.v, sh->t->size * 3.5, 2000, sh->t->burst[0].color, time);
-	if (sh->health > 0)
-		sh->health = 0;
+	if (sh->t->numparts) {
+		partpos_t *pt;
+		vec_t p;
+
+		pt = &sh->t->part[part];
+		p = vmatrix(sh->pos.p, pt->p, sh->pos.r);
+		paExplosion(p, sh->pos.v, time);
+	} else {
+		paExplosion(sh->pos.p, sh->pos.v, time);
+		if (sh->health > 0)
+			sh->health = 0;
+	}
 }
 
 void shRespawn(int netid, pos_t *np, int msid, float time) {
@@ -372,6 +384,7 @@ void shUpdateLocal(float time) {
 #define MS_RESPAWN_DELAY 2000.
 void shUpdateShips(float time) {
 	ship_t *sh;
+	int i;
 
 	list_for_each_entry(sh, ship_head, list) {
 		if (sh->health == DEAD)
@@ -385,7 +398,7 @@ void shUpdateShips(float time) {
 
 			sh->health = DEAD;
 
-			evPostDestroy(sh->netid, time);
+			evPostDestroy(sh->netid, 0, time);
 			ms = shFindMotherShip(sh->team);
 			rsptime = time + RSP_TIME;
 			if (ms) {
@@ -405,6 +418,15 @@ void shUpdateShips(float time) {
 			evPostRespawn(&np, sh->netid, msid, rsptime);
 			continue;
 		}
+		if (sh->t->numparts) {
+			for (i = 0; i < sh->t->numparts; i++) {
+				if (sh->part[i].health <= 0 && sh->part[i].health != DEAD) {
+					sh->part[i].health = DEAD;
+					evPostDestroy(sh->netid, i, time);
+				}
+			}
+		}
+
 		if (sh->in.fire1) {
 			int i;
 			for (i = 0; i < sh->t->numweapon; i++) {
@@ -533,6 +555,9 @@ void shDrawPart(ship_t *sh, float time) {
 		vec_t p;
 		float r;
 
+		if (sh->part[i].health <= 0)
+			continue;
+
 		pt = &sh->t->part[i];
 		p = vmatrix(sh->pos.p, pt->p, sh->pos.r);
 		r = sh->pos.r + pt->r;
@@ -549,6 +574,8 @@ void shDrawPartShields(ship_t *sh, float time) {
 		vec_t p;
 		unsigned char fade;
 
+		if (sh->part[i].health <= 0)
+			continue;
 
 		if (time - sh->part[i].lastdamage >= SHIELD_FADE)
 			continue;

@@ -57,7 +57,7 @@ void paInit(void) {
 	}
 }
 
-void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, float time) {
+void paExplosion(vec_t p, vec_t v, float time) {
 	int i;
 
 	i = freePart;
@@ -68,7 +68,6 @@ void paExplosion(vec_t p, vec_t v, float s, int number, unsigned int color, floa
 	parts[i].traj.basetime = time;
 	parts[i].traj.type = t_linear;
 	parts[i].maxlife = 1500;
-	parts[i].size = s;
 	parts[i].flag = PA_EXP;
 	parts[i].anim = rand() % 4;
 

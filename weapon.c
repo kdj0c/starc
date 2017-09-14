@@ -105,7 +105,7 @@ float weHit(int weId, pos_t *p, int server, float time) {
 		if (b->type->type == WE_LASER)
 			paLaserHit(p->p, p->v, b->color, time);
 		b->maxlife = 0.;
-		b->weId = 0;
+		//b->weId = 0;
 	}
 	return (float) b->type->damage;
 }
