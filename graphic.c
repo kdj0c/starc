@@ -194,7 +194,7 @@ unsigned int grLoadTextureArray(void) {
 	glGenTextures(1, &textureHandle);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureHandle);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1,	// mipmap level
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 10,	// mipmap level
 				   GL_RGBA8,	//Internal format
 				   4096, 4096,	//width,height
 				   5);	//Number of layers
@@ -205,10 +205,13 @@ unsigned int grLoadTextureArray(void) {
 	grLoadTexture("img/explosion3.png", 3);
 	grLoadTexture("img/explosion4.png", 4);
 
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
 	return textureHandle;
 }
 
