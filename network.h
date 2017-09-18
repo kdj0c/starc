@@ -20,4 +20,3 @@ void ntSendEvent(float time, void *data, int size, event_e type);
 void ntHandleMessage(void);
 
 #endif /* NETWORK_H_ */
-

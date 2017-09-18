@@ -111,13 +111,13 @@ void grInitQuad(void) {
 
 	glGenBuffers(1, &texcoords_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoords_vbo);
-	glBufferData(GL_ARRAY_BUFFER, GR_MAX *8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, GR_MAX * 8 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(1);
 
 	glGenBuffers(1, &color_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-	glBufferData(GL_ARRAY_BUFFER, GR_MAX *4 * sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, GR_MAX * 4 * sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
 	glEnableVertexAttribArray(2);
 
@@ -150,20 +150,20 @@ void grInitShader(void) {
 }
 
 void grInvertRedGreen(void *surface, int w, int h) {
-	unsigned char * p;
+	unsigned char *p;
 	int i;
 	unsigned char tmp;
 
 	p = surface;
 
 	for (i = 0; i < w * h; i++) {
-		if (p[4 * i] > p[ 4 * i + 1] && p[4 * i] > p[ 4 * i + 2] &&
+		if (p[4 * i] > p[4 * i + 1] && p[4 * i] > p[4 * i + 2] &&
 			p[ 4 * i + 1] / 8 == p[ 4 * i + 2] / 8) {
 
 			tmp = p[4 * i + 1];
 			p[4 * i + 1] = p[4 * i];
 			p[4 * i] = tmp;
-			}
+		}
 	}
 }
 

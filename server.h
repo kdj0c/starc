@@ -9,10 +9,8 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-
 void seStartServerLocal(void);
 void serverMain(float time);
-
 void sePostEventToServer(float time, void *data, int size, event_e type);
 
 #endif

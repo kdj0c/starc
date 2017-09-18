@@ -110,13 +110,13 @@ void shFire(int netid, pos_t *p, int weNum, unsigned int weId, float time) {
 
 	/* for turret */
 	if (weNum >= MAX_WEAPON) {
-        int tu;
-        int l;
-        l = (weNum - MAX_WEAPON) % MAX_TURRET;
-        tu = (weNum - MAX_WEAPON) / MAX_TURRET;
-        weFire(netid, p, sh->t->turret[tu].t->laser[l].wt, weId, time);
+		int tu;
+		int l;
+		l = (weNum - MAX_WEAPON) % MAX_TURRET;
+		tu = (weNum - MAX_WEAPON) / MAX_TURRET;
+		weFire(netid, p, sh->t->turret[tu].t->laser[l].wt, weId, time);
 	} else
-        weFire(netid, p, sh->t->laser[weNum].wt, weId, time);
+		weFire(netid, p, sh->t->laser[weNum].wt, weId, time);
 }
 
 int shDetectHit(int netid, pos_t *p, float size, int weId, float time) {
@@ -324,8 +324,8 @@ void shCollide(int netid1, int netid2, pos_t *p1, pos_t *p2, float time) {
 	if (sh1->team == sh2->team)
 		k /= 4.0f;
 
-	if (k > - MINB && k < 0)
-		k = - MINB;
+	if (k > -MINB && k < 0)
+		k = -MINB;
 
 	sh1->traj.basetime = time;
 	sh2->traj.basetime = time;

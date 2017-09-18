@@ -58,7 +58,6 @@ bullet_t *weGetId(unsigned int weId) {
 	return NULL;
 }
 
-
 void weFire(int netid, pos_t *p, weapontype_t *wt, unsigned int weId, float time) {
 	int i;
 	i = weGetFree();

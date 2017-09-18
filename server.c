@@ -26,7 +26,6 @@ int seNewId(void) {
 	return curid += 2 * MAX_WEID;
 }
 
-
 // Post event to server
 void sePostEventToServer(float time, void *data, int size, event_e type) {
 	ev_t *new;
@@ -85,7 +84,6 @@ void seConsumeEvent(float time) {
 	}
 }
 
-
 void serverMain(float time) {
 	shSetList(&server_ships);
 
@@ -98,4 +96,3 @@ void serverMain(float time) {
 	weUpdate(time);
 	seConsumeEvent(time);
 }
-

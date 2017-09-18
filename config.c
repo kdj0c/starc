@@ -24,7 +24,6 @@ typedef enum {
 	pc_right,
 } partcon_e;
 
-
 int nbweapon = 0;
 weapontype_t *wtype = NULL;
 int nbship = 0;
@@ -184,17 +183,16 @@ vec_t getOffset(partcon_e dir, texc_t *tex) {
 		return vec(0., -tex->w / 2. + 1.0);
 	default:
 		printf("Part connection error %d\n", dir);
-		return vec(0.,0.);
+		return vec(0., 0.);
 	}
 }
 
 float getAngle(partcon_e dir1, partcon_e dir2) {
 
-return dir1 * M_PI_2 - dir2 * M_PI_2 + M_PI;
+	return dir1 * M_PI_2 - dir2 * M_PI_2 + M_PI;
 }
 
-
-int cfAssembleParts(struct ps_node *cfg, partpos_t * part) {
+int cfAssembleParts(struct ps_node *cfg, partpos_t *part) {
 	struct ps_node *pcfg;
 	int npart = 0;
 	int p = 0;

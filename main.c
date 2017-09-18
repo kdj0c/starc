@@ -53,7 +53,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 int main(int argc, char *argv[]) {
 #endif // _WIN32
 
-
 #ifdef DEDICATED
 	ntServerInit();
 	ntServerMain();

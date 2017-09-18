@@ -53,12 +53,12 @@ typedef struct {
 } turrettype_t;
 
 typedef struct {
-	int i;		// index of station part the turret is attached to
+	int i;	// index of station part the turret is attached to
 	turrettype_t *t;
 } turretpos_t;
 
 typedef struct {
-	int i;		// index of station part the hangar is attached to
+	int i;	// index of station part the hangar is attached to
 } hangar_t;
 
 typedef struct {
@@ -98,7 +98,7 @@ typedef struct {
 	burst_t burst[MAX_ENGINE];
 	int numturret;
 	turretpos_t turret[MAX_TURRET];
-	int hangar; //part index, where the hangar is located
+	int hangar;	//part index, where the hangar is located
 	int numparts;
 	partpos_t part[MAX_PARTS];
 } shiptype_t;
@@ -129,7 +129,7 @@ typedef struct ship_s {
 	shin_t in;
 	traj_t traj;
 	pos_t pos;
-	unsigned int weId;	 // to have unique ID over network for bullet/missile
+	unsigned int weId;	// to have unique ID over network for bullet/missile
 	float lastfire[MAX_WEAPON];
 	part_t *part;
 } ship_t;
@@ -156,7 +156,7 @@ void shSetPlayer(ship_t *sh);
 void shLoadShipType(void);
 void shUpdateLocal(float time);
 void shUpdateShips(float time);
-void shFire(int netid, pos_t *p, int weNum, unsigned int weId, float time) ;
+void shFire(int netid, pos_t *p, int weNum, unsigned int weId, float time);
 void shFireWeapon(ship_t *sh, pos_t *p, int weNum, float time);
 void shHit(int owner, int tgid, int turret, pos_t *p, int weid, int server, float time);
 void shDetectCollision(float time);
