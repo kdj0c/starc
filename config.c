@@ -154,7 +154,7 @@ void cfGetStationParts(struct ps_node *conf) {
 		ptype[i].maxhealth = psGetFloat("maxhealth", pcfg);
 		ptype[i].cmask = psGetInt("cmask", pcfg);
 
-		ptype[i].shieldsize = 1.3f * sqrt(ptype[i].tex.w * ptype[i].tex.w + ptype[i].tex.h * ptype[i].tex.h);
+		ptype[i].shieldsize = 1.3f * norm(vec(ptype[i].tex.w, ptype[i].tex.h));
 		pcfg = pcfg->next;
 	}
 }
