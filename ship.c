@@ -554,14 +554,16 @@ void shDrawPart(ship_t *sh, float time) {
 	for (i = 0; i < sh->t->numparts; i++) {
 		vec_t p;
 		float r;
-
-		if (sh->part[i].health <= 0)
-			continue;
+		unsigned int color = 0xFFFFFFFF;
 
 		pt = &sh->t->part[i];
 		p = vmatrix(sh->pos.p, pt->p, sh->pos.r);
 		r = sh->pos.r + pt->r;
-		grBatchAddRot(p, r, &pt->part->tex, 0xFFFFFFFF);
+
+        if (sh->part[i].health <= 0)
+            color = 0x20FFFFFF;
+
+		grBatchAddRot(p, r, &pt->part->tex, color);
 	}
 }
 
